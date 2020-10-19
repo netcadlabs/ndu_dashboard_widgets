@@ -11,9 +11,7 @@ abstract class BaseDashboardWidget extends StatefulWidget {
   Color convertColor(String colorValue) {
     if (colorValue.startsWith("#"))
       return HexColor.fromHex(colorValue);
-    else if (colorValue.startsWith("rgb")) {
-
-    }
+    else if (colorValue.startsWith("rgb")) {}
     return Colors.white;
   }
 //  void onData(GraphData graphData);
@@ -33,7 +31,8 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget>
   @override
   Widget build(BuildContext context) {
     if (context.watch<DashboardStateNotifier>().LATEST_DATA[_dataKey] != null) {
-      var data = context.watch<DashboardStateNotifier>().LATEST_DATA[_dataKey];
+      GraphData data =
+          context.watch<DashboardStateNotifier>().LATEST_DATA[_dataKey];
       onData(data);
     }
   }

@@ -9,15 +9,16 @@ class WidgetConfig {
   WidgetConfigConfig config;
   String id;
 
-  WidgetConfig({this.isSystemType,
-    this.bundleAlias,
-    this.typeAlias,
-    this.type,
-    this.title,
-    this.sizeX,
-    this.sizeY,
-    this.config,
-    this.id});
+  WidgetConfig(
+      {this.isSystemType,
+      this.bundleAlias,
+      this.typeAlias,
+      this.type,
+      this.title,
+      this.sizeX,
+      this.sizeY,
+      this.config,
+      this.id});
 
   WidgetConfig.fromJson(Map<String, dynamic> json) {
     isSystemType = json['isSystemType'];
@@ -62,9 +63,9 @@ class WidgetConfigConfig {
   bool dropShadow;
   bool enableFullscreen;
   TitleStyle titleStyle;
-  Null mobileHeight;
+  String mobileHeight;
   bool showTitleIcon;
-  Null titleIcon;
+  String titleIcon;
   String iconColor;
   String iconSize;
   String titleTooltip;
@@ -75,29 +76,30 @@ class WidgetConfigConfig {
   bool showOnMobile;
   WidgetStyle actions;
 
-  WidgetConfigConfig({this.datasources,
-    this.timewindow,
-    this.showTitle,
-    this.backgroundColor,
-    this.color,
-    this.padding,
-    this.settings,
-    this.title,
-    this.dropShadow,
-    this.enableFullscreen,
-    this.titleStyle,
-    this.mobileHeight,
-    this.showTitleIcon,
-    this.titleIcon,
-    this.iconColor,
-    this.iconSize,
-    this.titleTooltip,
-    this.widgetStyle,
-    this.useDashboardTimewindow,
-    this.displayTimewindow,
-    this.showLegend,
-    this.showOnMobile,
-    this.actions});
+  WidgetConfigConfig(
+      {this.datasources,
+      this.timewindow,
+      this.showTitle,
+      this.backgroundColor,
+      this.color,
+      this.padding,
+      this.settings,
+      this.title,
+      this.dropShadow,
+      this.enableFullscreen,
+      this.titleStyle,
+      this.mobileHeight,
+      this.showTitleIcon,
+      this.titleIcon,
+      this.iconColor,
+      this.iconSize,
+      this.titleTooltip,
+      this.widgetStyle,
+      this.useDashboardTimewindow,
+      this.displayTimewindow,
+      this.showLegend,
+      this.showOnMobile,
+      this.actions});
 
   WidgetConfigConfig.fromJson(Map<String, dynamic> json) {
     if (json['datasources'] != null) {
@@ -116,7 +118,7 @@ class WidgetConfigConfig {
     settings = json['settings'] != null
         ? new Settings.fromJson(json['settings'])
         : null;
-    title = json['title'];
+    title = json['title'] == null ? "" : json['title'];
     dropShadow = json['dropShadow'];
     enableFullscreen = json['enableFullscreen'];
     titleStyle = json['titleStyle'] != null
@@ -124,8 +126,8 @@ class WidgetConfigConfig {
         : null;
     mobileHeight = json['mobileHeight'];
     showTitleIcon = json['showTitleIcon'];
-    titleIcon = json['titleIcon'];
-    iconColor = json['iconColor'];
+    titleIcon = json['titleIcon'] == null ? "" : json['titleIcon'];
+    iconColor = json['iconColor'] == null ? "" : json['iconColor'];
     iconSize = json['iconSize'];
     titleTooltip = json['titleTooltip'];
     widgetStyle = json['widgetStyle'] != null
@@ -218,12 +220,13 @@ class DataKeys {
   DataKeySettings settings;
   double dHash;
 
-  DataKeys({this.name,
-    this.type,
-    this.label,
-    this.color,
-    this.settings,
-    this.dHash});
+  DataKeys(
+      {this.name,
+      this.type,
+      this.label,
+      this.color,
+      this.settings,
+      this.dHash});
 
   DataKeys.fromJson(Map<String, dynamic> json) {
     name = json['name'];
@@ -270,24 +273,25 @@ class DataKeySettings {
   List<Thresholds> thresholds;
   ComparisonSettings comparisonSettings;
 
-  DataKeySettings({this.excludeFromStacking,
-    this.hideDataByDefault,
-    this.disableDataHiding,
-    this.removeFromLegend,
-    this.showLines,
-    this.fillLines,
-    this.showPoints,
-    this.showPointShape,
-    this.pointShapeFormatter,
-    this.showPointsLineWidth,
-    this.showPointsRadius,
-    this.tooltipValueFormatter,
-    this.showSeparateAxis,
-    this.axisTitle,
-    this.axisPosition,
-    this.axisTicksFormatter,
-    this.thresholds,
-    this.comparisonSettings});
+  DataKeySettings(
+      {this.excludeFromStacking,
+      this.hideDataByDefault,
+      this.disableDataHiding,
+      this.removeFromLegend,
+      this.showLines,
+      this.fillLines,
+      this.showPoints,
+      this.showPointShape,
+      this.pointShapeFormatter,
+      this.showPointsLineWidth,
+      this.showPointsRadius,
+      this.tooltipValueFormatter,
+      this.showSeparateAxis,
+      this.axisTitle,
+      this.axisPosition,
+      this.axisTicksFormatter,
+      this.thresholds,
+      this.comparisonSettings});
 
   DataKeySettings.fromJson(Map<String, dynamic> json) {
     excludeFromStacking = json['excludeFromStacking'];
@@ -432,16 +436,17 @@ class Settings {
   String timeForComparison;
   XaxisSecond xaxisSecond;
 
-  Settings({this.shadowSize,
-    this.fontColor,
-    this.fontSize,
-    this.xaxis,
-    this.yaxis,
-    this.grid,
-    this.stack,
-    this.tooltipIndividual,
-    this.timeForComparison,
-    this.xaxisSecond});
+  Settings(
+      {this.shadowSize,
+      this.fontColor,
+      this.fontSize,
+      this.xaxis,
+      this.yaxis,
+      this.grid,
+      this.stack,
+      this.tooltipIndividual,
+      this.timeForComparison,
+      this.xaxisSecond});
 
   Settings.fromJson(Map<String, dynamic> json) {
     shadowSize = json['shadowSize'];
@@ -508,11 +513,12 @@ class Grid {
   bool horizontalLines;
   int outlineWidth;
 
-  Grid({this.color,
-    this.tickColor,
-    this.verticalLines,
-    this.horizontalLines,
-    this.outlineWidth});
+  Grid(
+      {this.color,
+      this.tickColor,
+      this.verticalLines,
+      this.horizontalLines,
+      this.outlineWidth});
 
   Grid.fromJson(Map<String, dynamic> json) {
     color = json['color'];
@@ -582,133 +588,135 @@ class WidgetStyle {
   }
 }
 
-class Config {
-  List<Datasources> datasources;
-  Timewindow timewindow;
-  bool showTitle;
-  String backgroundColor;
-  String color;
-  String padding;
-  Settings settings;
-  String title;
-  bool dropShadow;
-  bool enableFullscreen;
-  TitleStyle titleStyle;
-  Null mobileHeight;
-  bool showTitleIcon;
-  Null titleIcon;
-  String iconColor;
-  String iconSize;
-  String titleTooltip;
-  WidgetStyle widgetStyle;
-  bool useDashboardTimewindow;
-  bool displayTimewindow;
-  bool showLegend;
-  bool showOnMobile;
-  WidgetStyle actions;
-
-  Config({this.datasources,
-    this.timewindow,
-    this.showTitle,
-    this.backgroundColor,
-    this.color,
-    this.padding,
-    this.settings,
-    this.title,
-    this.dropShadow,
-    this.enableFullscreen,
-    this.titleStyle,
-    this.mobileHeight,
-    this.showTitleIcon,
-    this.titleIcon,
-    this.iconColor,
-    this.iconSize,
-    this.titleTooltip,
-    this.widgetStyle,
-    this.useDashboardTimewindow,
-    this.displayTimewindow,
-    this.showLegend,
-    this.showOnMobile,
-    this.actions});
-
-  Config.fromJson(Map<String, dynamic> json) {
-    if (json['datasources'] != null) {
-      datasources = new List<Datasources>();
-      json['datasources'].forEach((v) {
-        datasources.add(new Datasources.fromJson(v));
-      });
-    }
-    timewindow = json['timewindow'] != null
-        ? new Timewindow.fromJson(json['timewindow'])
-        : null;
-    showTitle = json['showTitle'];
-    backgroundColor = json['backgroundColor'];
-    color = json['color'];
-    padding = json['padding'];
-    settings = json['settings'] != null
-        ? new Settings.fromJson(json['settings'])
-        : null;
-    title = json['title'];
-    dropShadow = json['dropShadow'];
-    enableFullscreen = json['enableFullscreen'];
-    titleStyle = json['titleStyle'] != null
-        ? new TitleStyle.fromJson(json['titleStyle'])
-        : null;
-    mobileHeight = json['mobileHeight'];
-    showTitleIcon = json['showTitleIcon'];
-    titleIcon = json['titleIcon'];
-    iconColor = json['iconColor'];
-    iconSize = json['iconSize'];
-    titleTooltip = json['titleTooltip'];
-    widgetStyle = json['widgetStyle'] != null
-        ? new WidgetStyle.fromJson(json['widgetStyle'])
-        : null;
-    useDashboardTimewindow = json['useDashboardTimewindow'];
-    displayTimewindow = json['displayTimewindow'];
-    showLegend = json['showLegend'];
-    showOnMobile = json['showOnMobile'];
-    actions = json['actions'] != null
-        ? new WidgetStyle.fromJson(json['actions'])
-        : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    if (this.datasources != null) {
-      data['datasources'] = this.datasources.map((v) => v.toJson()).toList();
-    }
-    if (this.timewindow != null) {
-      data['timewindow'] = this.timewindow.toJson();
-    }
-    data['showTitle'] = this.showTitle;
-    data['backgroundColor'] = this.backgroundColor;
-    data['color'] = this.color;
-    data['padding'] = this.padding;
-    if (this.settings != null) {
-      data['settings'] = this.settings.toJson();
-    }
-    data['title'] = this.title;
-    data['dropShadow'] = this.dropShadow;
-    data['enableFullscreen'] = this.enableFullscreen;
-    if (this.titleStyle != null) {
-      data['titleStyle'] = this.titleStyle.toJson();
-    }
-    data['mobileHeight'] = this.mobileHeight;
-    data['showTitleIcon'] = this.showTitleIcon;
-    data['titleIcon'] = this.titleIcon;
-    data['iconColor'] = this.iconColor;
-    data['iconSize'] = this.iconSize;
-    data['titleTooltip'] = this.titleTooltip;
-    if (this.widgetStyle != null) {
-      data['widgetStyle'] = this.widgetStyle.toJson();
-    }
-    data['useDashboardTimewindow'] = this.useDashboardTimewindow;
-    data['displayTimewindow'] = this.displayTimewindow;
-    data['showLegend'] = this.showLegend;
-    data['showOnMobile'] = this.showOnMobile;
-    if (this.actions != null) {
-      data['actions'] = this.actions.toJson();
-    }
-    return data;
-  }
-}
+//
+// class Config {
+//   List<Datasources> datasources;
+//   Timewindow timewindow;
+//   bool showTitle;
+//   String backgroundColor;
+//   String color;
+//   String padding;
+//   Settings settings;
+//   String title;
+//   bool dropShadow;
+//   bool enableFullscreen;
+//   TitleStyle titleStyle;
+//   String mobileHeight;
+//   bool showTitleIcon;
+//   String titleIcon;
+//   String iconColor;
+//   String iconSize;
+//   String titleTooltip;
+//   WidgetStyle widgetStyle;
+//   bool useDashboardTimewindow;
+//   bool displayTimewindow;
+//   bool showLegend;
+//   bool showOnMobile;
+//   WidgetStyle actions;
+//
+//   Config(
+//       {this.datasources,
+//       this.timewindow,
+//       this.showTitle,
+//       this.backgroundColor,
+//       this.color,
+//       this.padding,
+//       this.settings,
+//       this.title,
+//       this.dropShadow,
+//       this.enableFullscreen,
+//       this.titleStyle,
+//       this.mobileHeight,
+//       this.showTitleIcon,
+//       this.titleIcon,
+//       this.iconColor,
+//       this.iconSize,
+//       this.titleTooltip,
+//       this.widgetStyle,
+//       this.useDashboardTimewindow,
+//       this.displayTimewindow,
+//       this.showLegend,
+//       this.showOnMobile,
+//       this.actions});
+//
+//   Config.fromJson(Map<String, dynamic> json) {
+//     if (json['datasources'] != null) {
+//       datasources = new List<Datasources>();
+//       json['datasources'].forEach((v) {
+//         datasources.add(new Datasources.fromJson(v));
+//       });
+//     }
+//     timewindow = json['timewindow'] != null
+//         ? new Timewindow.fromJson(json['timewindow'])
+//         : null;
+//     showTitle = json['showTitle'];
+//     backgroundColor = json['backgroundColor'];
+//     color = json['color'];
+//     padding = json['padding'];
+//     settings = json['settings'] != null
+//         ? new Settings.fromJson(json['settings'])
+//         : null;
+//     title = json['title'];
+//     dropShadow = json['dropShadow'];
+//     enableFullscreen = json['enableFullscreen'];
+//     titleStyle = json['titleStyle'] != null
+//         ? new TitleStyle.fromJson(json['titleStyle'])
+//         : null;
+//     mobileHeight = json['mobileHeight'];
+//     showTitleIcon = json['showTitleIcon'];
+//     titleIcon = json['titleIcon'];
+//     iconColor = json['iconColor'];
+//     iconSize = json['iconSize'];
+//     titleTooltip = json['titleTooltip'];
+//     widgetStyle = json['widgetStyle'] != null
+//         ? new WidgetStyle.fromJson(json['widgetStyle'])
+//         : null;
+//     useDashboardTimewindow = json['useDashboardTimewindow'];
+//     displayTimewindow = json['displayTimewindow'];
+//     showLegend = json['showLegend'];
+//     showOnMobile = json['showOnMobile'];
+//     actions = json['actions'] != null
+//         ? new WidgetStyle.fromJson(json['actions'])
+//         : null;
+//   }
+//
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> data = new Map<String, dynamic>();
+//     if (this.datasources != null) {
+//       data['datasources'] = this.datasources.map((v) => v.toJson()).toList();
+//     }
+//     if (this.timewindow != null) {
+//       data['timewindow'] = this.timewindow.toJson();
+//     }
+//     data['showTitle'] = this.showTitle;
+//     data['backgroundColor'] = this.backgroundColor;
+//     data['color'] = this.color;
+//     data['padding'] = this.padding;
+//     if (this.settings != null) {
+//       data['settings'] = this.settings.toJson();
+//     }
+//     data['title'] = this.title;
+//     data['dropShadow'] = this.dropShadow;
+//     data['enableFullscreen'] = this.enableFullscreen;
+//     if (this.titleStyle != null) {
+//       data['titleStyle'] = this.titleStyle.toJson();
+//     }
+//     data['mobileHeight'] = this.mobileHeight;
+//     data['showTitleIcon'] = this.showTitleIcon;
+//     data['titleIcon'] = this.titleIcon;
+//     data['iconColor'] = this.iconColor;
+//     data['iconSize'] = this.iconSize;
+//     data['titleTooltip'] = this.titleTooltip;
+//     if (this.widgetStyle != null) {
+//       data['widgetStyle'] = this.widgetStyle.toJson();
+//     }
+//     data['useDashboardTimewindow'] = this.useDashboardTimewindow;
+//     data['displayTimewindow'] = this.displayTimewindow;
+//     data['showLegend'] = this.showLegend;
+//     data['showOnMobile'] = this.showOnMobile;
+//     if (this.actions != null) {
+//       data['actions'] = this.actions.toJson();
+//     }
+//     return data;
+//   }
+// }

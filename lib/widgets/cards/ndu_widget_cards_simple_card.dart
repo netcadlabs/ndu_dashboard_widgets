@@ -1,12 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ndu_dashboard_widgets/graph_data.dart';
+import 'package:ndu_dashboard_widgets/models/widget_config.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
-import 'package:ndu_dashboard_widgets/widgets/widget_config.dart';
 
 class SimpleCardWidget extends BaseDashboardWidget {
   final WidgetConfig _widgetConfig;
+  WidgetConfig _widgetConfig3;
 
   SimpleCardWidget(this._widgetConfig, {Key key}) : super(key: key);
 
@@ -19,7 +20,7 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
 
   bool animate = false;
 
-  int data = 0;
+  String data = "0";
   String label = "Sıcaklık";
 
   @override
@@ -45,7 +46,7 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
                   color: HexColor.fromCss(widget._widgetConfig.config.color)),
             ),
             Text(
-              "${data.toString()}",
+              "${data}",
               style: TextStyle(
                   color: HexColor.fromCss(widget._widgetConfig.config.color)),
             )
@@ -57,7 +58,9 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
 
   @override
   void onData(GraphData graphData) {
-    if (graphData == null) return;
-    data = graphData.value;
+    if (graphData == null ||
+        graphData.datas == null ||
+        graphData.datas.length == 0) return;
+    data = graphData.datas[0][0][1].toString();
   }
 }

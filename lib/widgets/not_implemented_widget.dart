@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:ndu_dashboard_widgets/graph_data.dart';
+import 'package:ndu_dashboard_widgets/models/widget_config.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
-import 'package:ndu_dashboard_widgets/widgets/widget_config.dart';
 
 class NotImplementedWidget extends BaseDashboardWidget {
   final WidgetConfig widgetConfig;
