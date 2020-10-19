@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
 import 'package:ndu_dashboard_widgets/graph_data.dart';
+import 'package:ndu_dashboard_widgets/models/widget_config.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 
 class GraphWidget extends BaseDashboardWidget {
-  final String dataKey;
-
-  GraphWidget(this.dataKey, {Key key}) : super(key: key);
+  GraphWidget(WidgetConfig widgetConfig, {Key key}) : super(widgetConfig, key: key);
 
   @override
   _GraphWidgetState createState() => _GraphWidgetState();
@@ -22,7 +21,6 @@ class _GraphWidgetState extends BaseDashboardState<GraphWidget> {
   @override
   void initState() {
     super.initState();
-    super.setKey(widget.dataKey);
   }
 
   @override

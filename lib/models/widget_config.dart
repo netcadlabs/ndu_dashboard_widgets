@@ -9,16 +9,7 @@ class WidgetConfig {
   WidgetConfigConfig config;
   String id;
 
-  WidgetConfig(
-      {this.isSystemType,
-      this.bundleAlias,
-      this.typeAlias,
-      this.type,
-      this.title,
-      this.sizeX,
-      this.sizeY,
-      this.config,
-      this.id});
+  WidgetConfig({this.isSystemType, this.bundleAlias, this.typeAlias, this.type, this.title, this.sizeX, this.sizeY, this.config, this.id});
 
   WidgetConfig.fromJson(Map<String, dynamic> json) {
     isSystemType = json['isSystemType'];
@@ -28,9 +19,7 @@ class WidgetConfig {
     title = json['title'];
     sizeX = json['sizeX'];
     sizeY = json['sizeY'];
-    config = json['config'] != null
-        ? new WidgetConfigConfig.fromJson(json['config'])
-        : null;
+    config = json['config'] != null ? new WidgetConfigConfig.fromJson(json['config']) : null;
     id = json['id'];
   }
 
@@ -74,6 +63,7 @@ class WidgetConfigConfig {
   bool displayTimewindow;
   bool showLegend;
   bool showOnMobile;
+  String units;
   WidgetStyle actions;
 
   WidgetConfigConfig(
@@ -99,6 +89,7 @@ class WidgetConfigConfig {
       this.displayTimewindow,
       this.showLegend,
       this.showOnMobile,
+      this.units,
       this.actions});
 
   WidgetConfigConfig.fromJson(Map<String, dynamic> json) {
@@ -108,38 +99,29 @@ class WidgetConfigConfig {
         datasources.add(new Datasources.fromJson(v));
       });
     }
-    timewindow = json['timewindow'] != null
-        ? new Timewindow.fromJson(json['timewindow'])
-        : null;
+    timewindow = json['timewindow'] != null ? new Timewindow.fromJson(json['timewindow']) : null;
     showTitle = json['showTitle'];
     backgroundColor = json['backgroundColor'];
     color = json['color'];
     padding = json['padding'];
-    settings = json['settings'] != null
-        ? new Settings.fromJson(json['settings'])
-        : null;
+    settings = json['settings'] != null ? new Settings.fromJson(json['settings']) : null;
     title = json['title'] == null ? "" : json['title'];
     dropShadow = json['dropShadow'];
     enableFullscreen = json['enableFullscreen'];
-    titleStyle = json['titleStyle'] != null
-        ? new TitleStyle.fromJson(json['titleStyle'])
-        : null;
+    titleStyle = json['titleStyle'] != null ? new TitleStyle.fromJson(json['titleStyle']) : null;
     mobileHeight = json['mobileHeight'];
     showTitleIcon = json['showTitleIcon'];
     titleIcon = json['titleIcon'] == null ? "" : json['titleIcon'];
     iconColor = json['iconColor'] == null ? "" : json['iconColor'];
+    units = json['units'] == null ? "" : json['units'];
     iconSize = json['iconSize'];
     titleTooltip = json['titleTooltip'];
-    widgetStyle = json['widgetStyle'] != null
-        ? new WidgetStyle.fromJson(json['widgetStyle'])
-        : null;
+    widgetStyle = json['widgetStyle'] != null ? new WidgetStyle.fromJson(json['widgetStyle']) : null;
     useDashboardTimewindow = json['useDashboardTimewindow'];
     displayTimewindow = json['displayTimewindow'];
     showLegend = json['showLegend'];
     showOnMobile = json['showOnMobile'];
-    actions = json['actions'] != null
-        ? new WidgetStyle.fromJson(json['actions'])
-        : null;
+    actions = json['actions'] != null ? new WidgetStyle.fromJson(json['actions']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -168,6 +150,7 @@ class WidgetConfigConfig {
     data['titleIcon'] = this.titleIcon;
     data['iconColor'] = this.iconColor;
     data['iconSize'] = this.iconSize;
+    data['units'] = this.units;
     data['titleTooltip'] = this.titleTooltip;
     if (this.widgetStyle != null) {
       data['widgetStyle'] = this.widgetStyle.toJson();
@@ -220,22 +203,14 @@ class DataKeys {
   DataKeySettings settings;
   double dHash;
 
-  DataKeys(
-      {this.name,
-      this.type,
-      this.label,
-      this.color,
-      this.settings,
-      this.dHash});
+  DataKeys({this.name, this.type, this.label, this.color, this.settings, this.dHash});
 
   DataKeys.fromJson(Map<String, dynamic> json) {
     name = json['name'];
     type = json['type'];
     label = json['label'];
     color = json['color'];
-    settings = json['settings'] != null
-        ? new DataKeySettings.fromJson(json['settings'])
-        : null;
+    settings = json['settings'] != null ? new DataKeySettings.fromJson(json['settings']) : null;
     dHash = json['_hash'];
   }
 
@@ -316,9 +291,7 @@ class DataKeySettings {
         thresholds.add(new Thresholds.fromJson(v));
       });
     }
-    comparisonSettings = json['comparisonSettings'] != null
-        ? new ComparisonSettings.fromJson(json['comparisonSettings'])
-        : null;
+    comparisonSettings = json['comparisonSettings'] != null ? new ComparisonSettings.fromJson(json['comparisonSettings']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -370,8 +343,7 @@ class ComparisonSettings {
   String comparisonValuesLabel;
   String color;
 
-  ComparisonSettings(
-      {this.showValuesForComparison, this.comparisonValuesLabel, this.color});
+  ComparisonSettings({this.showValuesForComparison, this.comparisonValuesLabel, this.color});
 
   ComparisonSettings.fromJson(Map<String, dynamic> json) {
     showValuesForComparison = json['showValuesForComparison'];
@@ -394,9 +366,7 @@ class Timewindow {
   Timewindow({this.realtime});
 
   Timewindow.fromJson(Map<String, dynamic> json) {
-    realtime = json['realtime'] != null
-        ? new Realtime.fromJson(json['realtime'])
-        : null;
+    realtime = json['realtime'] != null ? new Realtime.fromJson(json['realtime']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -458,9 +428,7 @@ class Settings {
     stack = json['stack'];
     tooltipIndividual = json['tooltipIndividual'];
     timeForComparison = json['timeForComparison'];
-    xaxisSecond = json['xaxisSecond'] != null
-        ? new XaxisSecond.fromJson(json['xaxisSecond'])
-        : null;
+    xaxisSecond = json['xaxisSecond'] != null ? new XaxisSecond.fromJson(json['xaxisSecond']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -513,12 +481,7 @@ class Grid {
   bool horizontalLines;
   int outlineWidth;
 
-  Grid(
-      {this.color,
-      this.tickColor,
-      this.verticalLines,
-      this.horizontalLines,
-      this.outlineWidth});
+  Grid({this.color, this.tickColor, this.verticalLines, this.horizontalLines, this.outlineWidth});
 
   Grid.fromJson(Map<String, dynamic> json) {
     color = json['color'];

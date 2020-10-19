@@ -6,10 +6,7 @@ import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 
 class SimpleCardWidget extends BaseDashboardWidget {
-  final WidgetConfig _widgetConfig;
-  WidgetConfig _widgetConfig3;
-
-  SimpleCardWidget(this._widgetConfig, {Key key}) : super(key: key);
+  SimpleCardWidget(WidgetConfig _widgetConfig, {Key key}) : super(_widgetConfig, key: key);
 
   @override
   _SimpleCardWidgetState createState() => _SimpleCardWidgetState();
@@ -21,46 +18,57 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
   bool animate = false;
 
   String data = "0";
-  String label = "Sıcaklık";
+  String dataSourceLabel;
+  String dataSourceKey;
 
   @override
   void initState() {
     super.initState();
-    super.setKey(widget._widgetConfig.id);
+
+    if (widget.widgetConfig.config.datasources != null && widget.widgetConfig.config.datasources.length > 0) {
+      if (widget.widgetConfig.config.datasources[0].dataKeys != null && widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
+        dataSourceLabel = widget.widgetConfig.config.datasources[0].dataKeys[0].label;
+        dataSourceKey = widget.widgetConfig.config.datasources[0].dataKeys[0].name;
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
+    String result = "${data} ${widget.widgetConfig.config.units}";
     return Container(
-      height: 150,
-      decoration: BoxDecoration(
-          color: HexColor.fromCss(widget._widgetConfig.config.backgroundColor)),
-      child: Center(
-        child: Column(
-          children: [
-            Text(
-              "${label}",
-              style: TextStyle(
-                  color: HexColor.fromCss(widget._widgetConfig.config.color)),
+      height: 100,
+      decoration: BoxDecoration(color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor)),
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.all(10),
+            child: Row(
+              children: [
+                Text(
+                  "${dataSourceLabel}",
+                  style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 20),
+                ),
+              ],
             ),
-            Text(
-              "${data}",
-              style: TextStyle(
-                  color: HexColor.fromCss(widget._widgetConfig.config.color)),
-            )
-          ],
-        ),
+          ),
+          Text(
+            "${result}",
+            style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 35),
+          )
+        ],
       ),
     );
   }
 
   @override
   void onData(GraphData graphData) {
-    if (graphData == null ||
-        graphData.datas == null ||
-        graphData.datas.length == 0) return;
-    data = graphData.datas[0][0][1].toString();
+    if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
+    if (graphData.datas.containsKey(dataSourceKey)) {
+      List telem = graphData.datas[dataSourceKey][0];
+      if (telem != null && telem.length > 1) data = telem[1].toString();
+    }
   }
 }

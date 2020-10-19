@@ -16,36 +16,23 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
     notifyListeners();
   }
 
-  void increment() {
-    _value = _value + 1;
-    notifyListeners();
-  }
-
-  void decrement() {
-    _value = _value - 1;
-    notifyListeners();
-  }
-
   void appendDataToGraph(String dataKey, int nextInt) {
     _value = nextInt;
     if (!DATA.containsKey(dataKey)) {
       DATA[dataKey] = new List<GraphData>();
     }
-    DATA[dataKey]
-        .add(GraphData(_value, DateTime.now().millisecondsSinceEpoch, null));
+    DATA[dataKey].add(GraphData(_value, DateTime.now().millisecondsSinceEpoch, null));
     notifyListeners();
   }
 
   void appendLatestDataToGraph(String dataKey, int nextInt) {
-    LATEST_DATA[dataKey] =
-        GraphData(nextInt, DateTime.now().millisecondsSinceEpoch, null);
+    LATEST_DATA[dataKey] = GraphData(nextInt, DateTime.now().millisecondsSinceEpoch, null);
     notifyListeners();
   }
 
-  void appendLatestDataToGraph2(String subscriptionId, List<dynamic> data) {
+  void addDataToProvider(String subscriptionId, Map<String, List<dynamic>> data) {
     if (WIDGET_SUBSCRIPTION_IDS.containsKey(subscriptionId)) {
-      LATEST_DATA[WIDGET_SUBSCRIPTION_IDS[subscriptionId]] =
-          GraphData(0, DateTime.now().millisecondsSinceEpoch, data);
+      LATEST_DATA[WIDGET_SUBSCRIPTION_IDS[subscriptionId]] = GraphData(0, DateTime.now().millisecondsSinceEpoch, data);
       notifyListeners();
     }
   }
