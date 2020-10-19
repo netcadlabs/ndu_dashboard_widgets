@@ -9,15 +9,12 @@ class SocketCommandBuilder {
     int commandId = 1;
     if (dashboardDetail.dashboardConfiguration.widgets != null)
       dashboardDetail.dashboardConfiguration.widgets.forEach((widgetConfig) {
-        if (widgetConfig.config == null ||
-            widgetConfig.config.datasources == null ||
-            widgetConfig.config.datasources.length == 0) return;
+        if (widgetConfig.config == null || widgetConfig.config.datasources == null || widgetConfig.config.datasources.length == 0) return;
 
         widgetConfig.config.datasources.forEach((datasource) {
-          TsSubCmds subCmds = _convertDatasource(
-              datasource,
-              dashboardDetail.dashboardConfiguration
-                  .entityAliases[datasource.entityAliasId]);
+          TsSubCmds subCmds = _calculateTimeseriesSubscriptionCommands(
+              widgetConfig.config, datasource, dashboardDetail.dashboardConfiguration.entityAliases[datasource.entityAliasId]);
+
           if (subCmds != null) {
             widgetCmdIds[commandId.toString()] = widgetConfig.id;
             subCmds.cmdId = commandId;
@@ -30,21 +27,22 @@ class SocketCommandBuilder {
     return SubscriptionCommandResult(subscriptionCommand, widgetCmdIds);
   }
 
-  static TsSubCmds _convertDatasource(
-      Datasources datasources, EntityAliases entityAliases) {
+  static TsSubCmds _calculateTimeseriesSubscriptionCommands(WidgetConfigConfig widgetConfig, Datasources datasources, EntityAliases entityAliases) {
     if (datasources == null) return null;
 
-    if (entityAliases.filter.type == "singleEntity" &&
-        entityAliases.filter.singleEntity != null) {
-      TsSubCmds tsSubCmds = TsSubCmds(
-          entityId: entityAliases.filter.singleEntity.id,
-          entityType: entityAliases.filter.singleEntity.entityType);
+    if (entityAliases.filter.type == "singleEntity" && entityAliases.filter.singleEntity != null) {
+      TsSubCmds tsSubCmds = TsSubCmds(entityId: entityAliases.filter.singleEntity.id, entityType: entityAliases.filter.singleEntity.entityType);
       String label = "";
       datasources.dataKeys.forEach((element) {
         label += '${element.label},';
       });
       label = label.substring(0, label.length - 1);
       tsSubCmds.keys = label;
+
+      if (widgetConfig.timewindow != null){
+
+      }
+
       return tsSubCmds;
     }
 
@@ -115,16 +113,7 @@ class TsSubCmds {
   int limit;
   String agg;
 
-  TsSubCmds(
-      {this.entityType,
-      this.entityId,
-      this.keys,
-      this.cmdId,
-      this.startTs,
-      this.timeWindow,
-      this.interval,
-      this.limit,
-      this.agg});
+  TsSubCmds({this.entityType, this.entityId, this.keys, this.cmdId, this.startTs, this.timeWindow, this.interval, this.limit, this.agg});
 
   TsSubCmds.fromJson(Map<String, dynamic> json) {
     entityType = json['entityType'];

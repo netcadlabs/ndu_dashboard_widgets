@@ -1,5 +1,4 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/src/widgets/framework.dart';
 import 'package:ndu_dashboard_widgets/graph_data.dart';
 import 'package:ndu_dashboard_widgets/models/widget_config.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
@@ -26,12 +25,13 @@ class _NotImplementedWidgetState
     super.build(context);
 
     return Container(
+      padding: EdgeInsets.all(5),
         height: 150,
         child: Column(
           children: [
             Text(
-              "${widget.widgetConfig.title}",
-              style: TextStyle(fontSize: 30),
+              "${widget.widgetConfig.config.title}",
+              style: TextStyle(fontSize: 25),
             ),
             Text(
                 "${widget.widgetConfig.bundleAlias} - ${widget.widgetConfig.typeAlias} not implemented"),
@@ -41,6 +41,6 @@ class _NotImplementedWidgetState
 
   @override
   void onData(GraphData graphData) {
-    // TODO: implement onData
+
   }
 }
