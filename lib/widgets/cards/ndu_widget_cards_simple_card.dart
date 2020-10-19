@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ndu_dashboard_widgets/graph_data.dart';
+import 'package:ndu_dashboard_widgets/models/data_models.dart';
 import 'package:ndu_dashboard_widgets/models/widget_config.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
@@ -13,7 +13,7 @@ class SimpleCardWidget extends BaseDashboardWidget {
 }
 
 class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
-  List<GraphData> allRawData = List();
+  List<SocketData> allRawData = List();
 
   bool animate = false;
 
@@ -69,7 +69,7 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
   }
 
   @override
-  void onData(GraphData graphData) {
+  void onData(SocketData graphData) {
     if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
     if (graphData.datas.containsKey(dataSourceKey)) {
       List telem = graphData.datas[dataSourceKey][0];

@@ -62,6 +62,7 @@ class WidgetConfigConfig {
   bool useDashboardTimewindow;
   bool displayTimewindow;
   bool showLegend;
+  LegendConfig legendConfig;
   bool showOnMobile;
   String units;
   WidgetStyle actions;
@@ -89,6 +90,7 @@ class WidgetConfigConfig {
       this.useDashboardTimewindow,
       this.displayTimewindow,
       this.showLegend,
+      this.legendConfig,
       this.showOnMobile,
       this.units,
       this.decimals,
@@ -122,6 +124,7 @@ class WidgetConfigConfig {
     useDashboardTimewindow = json['useDashboardTimewindow'];
     displayTimewindow = json['displayTimewindow'];
     showLegend = json['showLegend'];
+    legendConfig = json['legendConfig'] != null ? new LegendConfig.fromJson(json['legendConfig']) : null;
     showOnMobile = json['showOnMobile'];
     decimals = json['decimals'] == null ? -1 : json['decimals'];
     actions = json['actions'] != null ? new WidgetStyle.fromJson(json['actions']) : null;
@@ -161,6 +164,9 @@ class WidgetConfigConfig {
     data['useDashboardTimewindow'] = this.useDashboardTimewindow;
     data['displayTimewindow'] = this.displayTimewindow;
     data['showLegend'] = this.showLegend;
+    if (this.legendConfig != null) {
+      data['legendConfig'] = this.legendConfig.toJson();
+    }
     data['showOnMobile'] = this.showOnMobile;
     data['decimals'] = this.decimals;
     if (this.actions != null) {
@@ -394,6 +400,37 @@ class Realtime {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['timewindowMs'] = this.timewindowMs;
+    return data;
+  }
+}
+
+class LegendConfig {
+  String direction;
+  String position;
+  bool showMin;
+  bool showMax;
+  bool showAvg;
+  bool showTotal;
+
+  LegendConfig({this.direction, this.position, this.showMin, this.showMax, this.showAvg, this.showTotal});
+
+  LegendConfig.fromJson(Map<String, dynamic> json) {
+    direction = json['direction'];
+    position = json['position'];
+    showMin = json['showMin'];
+    showMax = json['showMax'];
+    showAvg = json['showAvg'];
+    showTotal = json['showTotal'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['direction'] = this.direction;
+    data['position'] = this.position;
+    data['showMin'] = this.showMin;
+    data['showMax'] = this.showMax;
+    data['showAvg'] = this.showAvg;
+    data['showTotal'] = this.showTotal;
     return data;
   }
 }

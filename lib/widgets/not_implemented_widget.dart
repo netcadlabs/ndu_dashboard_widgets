@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:ndu_dashboard_widgets/graph_data.dart';
+import 'package:ndu_dashboard_widgets/models/data_models.dart';
 import 'package:ndu_dashboard_widgets/models/widget_config.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 
@@ -31,5 +31,5 @@ class _NotImplementedWidgetState extends BaseDashboardState<NotImplementedWidget
   }
 
   @override
-  void onData(GraphData graphData) {}
+  void onData(SocketData graphData) {}
 }

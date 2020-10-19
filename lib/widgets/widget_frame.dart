@@ -20,9 +20,14 @@ class WidgetFrame extends StatelessWidget {
           widgetConfig.config.showTitle
               ? Container(
                   margin: EdgeInsets.symmetric(vertical: 5),
-                  child: Text(
-                    "$title",
-                    style: TextStyle(fontSize: 20),
+                  padding: EdgeInsets.symmetric(horizontal: 5),
+                  child: Row(
+                    children: [
+                      Text(
+                        "$title",
+                        style: TextStyle(fontSize: 18, color: HexColor.fromCss(widgetConfig.config.color)),
+                      ),
+                    ],
                   ),
                 )
               : Container(),

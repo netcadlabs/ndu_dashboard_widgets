@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ndu_dashboard_widgets/graph_data.dart';
+import 'package:ndu_dashboard_widgets/models/data_models.dart';
 
 class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   int _value = 33;
@@ -8,7 +8,7 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   int get value => _value;
 
   var DATA = {};
-  Map<String, GraphData> LATEST_DATA = {};
+  Map<String, dynamic> LATEST_DATA = {};
   Map<String, String> WIDGET_SUBSCRIPTION_IDS = {};
 
   set setValue(int newVal) {
@@ -19,30 +19,34 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   void appendDataToGraph(String dataKey, int nextInt) {
     _value = nextInt;
     if (!DATA.containsKey(dataKey)) {
-      DATA[dataKey] = new List<GraphData>();
+      DATA[dataKey] = new List<SocketData>();
     }
-    DATA[dataKey].add(GraphData(_value, DateTime.now().millisecondsSinceEpoch, null));
+    DATA[dataKey].add(SocketData(_value, DateTime.now().millisecondsSinceEpoch, null));
     notifyListeners();
   }
 
   void appendLatestDataToGraph(String dataKey, int nextInt) {
-    LATEST_DATA[dataKey] = GraphData(nextInt, DateTime.now().millisecondsSinceEpoch, null);
+    LATEST_DATA[dataKey] = SocketData(nextInt, DateTime.now().millisecondsSinceEpoch, null);
     notifyListeners();
   }
 
   void addDataToProvider(String subscriptionId, Map<String, List<dynamic>> data) {
     if (WIDGET_SUBSCRIPTION_IDS.containsKey(subscriptionId)) {
-      LATEST_DATA[WIDGET_SUBSCRIPTION_IDS[subscriptionId]] = GraphData(0, DateTime.now().millisecondsSinceEpoch, data);
-      notifyListeners();
+      try {
+        LATEST_DATA[WIDGET_SUBSCRIPTION_IDS[subscriptionId]] = SocketData(0, DateTime.now().millisecondsSinceEpoch, data);
+        notifyListeners();
+      } catch (e) {
+        print(e);
+      }
     }
   }
 
   /// Makes `Counter` readable inside the devtools by listing all of its properties
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties.add(IntProperty('_value', _value));
-  }
+  // @override
+  // void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  //   super.debugFillProperties(properties);
+  //   properties.add(IntProperty('_value', _value));
+  // }
 
   void setSubscriptionIds(Map<String, String> widgetCmdIds) {
     WIDGET_SUBSCRIPTION_IDS = widgetCmdIds;

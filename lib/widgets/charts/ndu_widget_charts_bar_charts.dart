@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:intl/intl.dart';
-import 'package:ndu_dashboard_widgets/graph_data.dart';
+import 'package:ndu_dashboard_widgets/models/data_models.dart';
 import 'package:ndu_dashboard_widgets/models/widget_config.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 
@@ -14,7 +14,7 @@ class GraphWidget extends BaseDashboardWidget {
 }
 
 class _GraphWidgetState extends BaseDashboardState<GraphWidget> {
-  List<GraphData> allRawData = List();
+  List<SocketData> allRawData = List();
 
   bool animate = false;
 
@@ -36,14 +36,14 @@ class _GraphWidgetState extends BaseDashboardState<GraphWidget> {
     );
   }
 
-  charts.Series<GraphData, String> graphData() {
+  charts.Series<SocketData, String> graphData() {
     final data = allRawData;
 
-    return new charts.Series<GraphData, String>(
+    return new charts.Series<SocketData, String>(
       id: 'Sales',
       colorFn: (_, __) => charts.MaterialPalette.blue.shadeDefault,
-      domainFn: (GraphData data, _) => getTime(data.ts),
-      measureFn: (GraphData data, _) => data.value,
+      domainFn: (SocketData data, _) => getTime(data.ts),
+      measureFn: (SocketData data, _) => data.value,
       data: data,
     );
   }
@@ -56,7 +56,7 @@ class _GraphWidgetState extends BaseDashboardState<GraphWidget> {
   }
 
   @override
-  void onData(GraphData graphData) {
+  void onData(SocketData graphData) {
     if (graphData == null) return;
     allRawData.add(graphData);
 //    setState(() {});
