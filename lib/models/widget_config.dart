@@ -65,6 +65,7 @@ class WidgetConfigConfig {
   bool showOnMobile;
   String units;
   WidgetStyle actions;
+  int decimals;
 
   WidgetConfigConfig(
       {this.datasources,
@@ -90,6 +91,7 @@ class WidgetConfigConfig {
       this.showLegend,
       this.showOnMobile,
       this.units,
+      this.decimals,
       this.actions});
 
   WidgetConfigConfig.fromJson(Map<String, dynamic> json) {
@@ -121,6 +123,7 @@ class WidgetConfigConfig {
     displayTimewindow = json['displayTimewindow'];
     showLegend = json['showLegend'];
     showOnMobile = json['showOnMobile'];
+    decimals = json['decimals'] == null ? -1 : json['decimals'];
     actions = json['actions'] != null ? new WidgetStyle.fromJson(json['actions']) : null;
   }
 
@@ -159,6 +162,7 @@ class WidgetConfigConfig {
     data['displayTimewindow'] = this.displayTimewindow;
     data['showLegend'] = this.showLegend;
     data['showOnMobile'] = this.showOnMobile;
+    data['decimals'] = this.decimals;
     if (this.actions != null) {
       data['actions'] = this.actions.toJson();
     }

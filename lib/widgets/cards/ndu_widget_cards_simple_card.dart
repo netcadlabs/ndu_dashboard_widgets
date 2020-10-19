@@ -37,7 +37,12 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
   Widget build(BuildContext context) {
     super.build(context);
 
-    String result = "${data} ${widget.widgetConfig.config.units}";
+    String formatted = data;
+    if (widget.widgetConfig.config.decimals != null && widget.widgetConfig.config.decimals >= 0) {
+      formatted = widget.convertNumberValue(double.parse(formatted), widget.widgetConfig.config.decimals);
+    }
+
+    String result = "$formatted ${widget.widgetConfig.config.units}";
     return Container(
       height: 100,
       decoration: BoxDecoration(color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor)),
