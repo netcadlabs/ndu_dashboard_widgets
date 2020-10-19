@@ -34,7 +34,7 @@ class SocketCommandBuilder {
       TsSubCmds tsSubCmds = TsSubCmds(entityId: entityAliases.filter.singleEntity.id, entityType: entityAliases.filter.singleEntity.entityType);
       String label = "";
       datasources.dataKeys.forEach((element) {
-        label += '${element.label},';
+        label += '${element.name},';
       });
       label = label.substring(0, label.length - 1);
       tsSubCmds.keys = label;
