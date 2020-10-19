@@ -73,7 +73,7 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
     if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
     if (graphData.datas.containsKey(dataSourceKey)) {
       List telem = graphData.datas[dataSourceKey][0];
-      if (telem != null && telem.length > 1) data = telem[1].toString();
+      if (telem != null && telem.length > 1 && telem[1] != null) data = telem[1].toString();
     }
   }
 }

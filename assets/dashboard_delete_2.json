@@ -1,0 +1,481 @@
+{
+  "id": {
+    "entityType": "DASHBOARD",
+    "id": "b1cc8540-0d44-11eb-aade-ef039ccf82e0"
+  },
+  "createdTime": 1602587425684,
+  "tenantId": {
+    "entityType": "TENANT",
+    "id": "691be550-7ef3-11ea-84d0-63153a7432b8"
+  },
+  "title": "Test Silinecek",
+  "assignedCustomers": null,
+  "entityTypeEnabled": false,
+  "configuration": {
+    "description": "asdasdsad",
+    "widgets": {
+      "25d71ced-7fa3-97dc-b465-a0a9eb9aba2c": {
+        "isSystemType": true,
+        "bundleAlias": "cards",
+        "typeAlias": "simple_card",
+        "type": "latest",
+        "title": "Yeni widget",
+        "sizeX": 6,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "entity",
+              "dataKeys": [
+                {
+                  "name": "temperature",
+                  "type": "timeseries",
+                  "label": "Temperature",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.3383437338839279
+                }
+              ],
+              "entityAliasId": "09d03239-498b-3d05-60eb-c043ed76e06e"
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": false,
+          "backgroundColor": "#ff5722",
+          "color": "rgba(255, 255, 255, 0.87)",
+          "padding": "16px",
+          "settings": {
+            "labelPosition": "top",
+            "displayLabel": true,
+            "valueFontSize": 0,
+            "labelFontSize": 0
+          },
+          "title": "Yeni Simple card",
+          "dropShadow": true,
+          "enableFullscreen": true,
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "units": "X",
+          "decimals": 3,
+          "useDashboardTimewindow": true,
+          "showLegend": false,
+          "widgetStyle": {},
+          "actions": {},
+          "showTitleIcon": false,
+          "titleIcon": null,
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "24px",
+          "titleTooltip": "",
+          "displayTimewindow": true,
+          "showOnMobile": true
+        },
+        "id": "25d71ced-7fa3-97dc-b465-a0a9eb9aba2c"
+      },
+      "f513d0aa-4a75-a7d6-3b2f-5c859ff0d0c5": {
+        "isSystemType": true,
+        "bundleAlias": "cards",
+        "typeAlias": "simple_card",
+        "type": "latest",
+        "title": "Yeni widget",
+        "sizeX": 6,
+        "sizeY": 3,
+        "config": {
+          "datasources": [
+            {
+              "type": "entity",
+              "dataKeys": [
+                {
+                  "name": "temperature",
+                  "type": "timeseries",
+                  "label": "temperature",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.3383437338839279
+                }
+              ],
+              "entityAliasId": "de8acf57-00f8-e653-c1a3-67da546d0661"
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": true,
+          "backgroundColor": "#22cbff",
+          "color": "rgba(15, 2, 2, 0.87)",
+          "padding": "16px",
+          "settings": {
+            "labelPosition": "top",
+            "displayLabel": true,
+            "valueFontSize": 0,
+            "labelFontSize": 0
+          },
+          "title": "Başlık Göstermeli",
+          "dropShadow": true,
+          "enableFullscreen": true,
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "units": "°C",
+          "decimals": 2,
+          "useDashboardTimewindow": true,
+          "showLegend": false,
+          "widgetStyle": {},
+          "actions": {},
+          "showTitleIcon": false,
+          "titleIcon": null,
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "24px",
+          "titleTooltip": "",
+          "displayTimewindow": true,
+          "showOnMobile": true
+        },
+        "id": "f513d0aa-4a75-a7d6-3b2f-5c859ff0d0c5"
+      },
+      "7be1d2a9-0b36-9040-b4d1-83698586d98e": {
+        "isSystemType": true,
+        "bundleAlias": "cards",
+        "typeAlias": "simple_card",
+        "type": "latest",
+        "title": "Yeni widget",
+        "sizeX": 6,
+        "sizeY": 4,
+        "config": {
+          "datasources": [
+            {
+              "type": "entity",
+              "dataKeys": [
+                {
+                  "name": "humidity",
+                  "type": "timeseries",
+                  "label": "Nem",
+                  "color": "#2196f3",
+                  "settings": {},
+                  "_hash": 0.32685034941821
+                }
+              ],
+              "entityAliasId": "0a370ccd-e75e-9dd9-0d65-a5dbf41d540c"
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "timewindowMs": 60000
+            }
+          },
+          "showTitle": true,
+          "backgroundColor": "#e4ef78",
+          "color": "rgba(255, 1, 1, 0.87)",
+          "padding": "16px",
+          "settings": {
+            "labelPosition": "top",
+            "displayLabel": true,
+            "valueFontSize": 0,
+            "labelFontSize": 0
+          },
+          "title": "Nem Oranı",
+          "dropShadow": true,
+          "enableFullscreen": true,
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "units": "%",
+          "decimals": 2,
+          "useDashboardTimewindow": true,
+          "showLegend": false,
+          "widgetStyle": {},
+          "actions": {},
+          "showTitleIcon": false,
+          "titleIcon": null,
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "24px",
+          "titleTooltip": "",
+          "displayTimewindow": true,
+          "showOnMobile": true
+        },
+        "id": "7be1d2a9-0b36-9040-b4d1-83698586d98e"
+      },
+      "895c3e8d-623d-8c1a-7071-575db440ed24": {
+        "isSystemType": true,
+        "bundleAlias": "charts",
+        "typeAlias": "basic_timeseries",
+        "type": "timeseries",
+        "title": "Yeni widget",
+        "sizeX": 13,
+        "sizeY": 8,
+        "config": {
+          "datasources": [
+            {
+              "type": "entity",
+              "dataKeys": [
+                {
+                  "name": "temp",
+                  "type": "timeseries",
+                  "label": "temp",
+                  "color": "#c62828",
+                  "settings": {
+                    "excludeFromStacking": false,
+                    "hideDataByDefault": false,
+                    "disableDataHiding": false,
+                    "removeFromLegend": false,
+                    "showLines": true,
+                    "fillLines": false,
+                    "showPoints": false,
+                    "showPointShape": "circle",
+                    "pointShapeFormatter": "var size = radius * Math.sqrt(Math.PI) / 2;\nctx.moveTo(x - size, y - size);\nctx.lineTo(x + size, y + size);\nctx.moveTo(x - size, y + size);\nctx.lineTo(x + size, y - size);",
+                    "showPointsLineWidth": 5,
+                    "showPointsRadius": 3,
+                    "tooltipValueFormatter": "",
+                    "showSeparateAxis": false,
+                    "axisTitle": "",
+                    "axisPosition": "left",
+                    "axisTicksFormatter": "",
+                    "thresholds": [
+                      {
+                        "thresholdValueSource": "predefinedValue"
+                      }
+                    ],
+                    "comparisonSettings": {
+                      "showValuesForComparison": true,
+                      "comparisonValuesLabel": "",
+                      "color": ""
+                    }
+                  },
+                  "_hash": 0.03293419102150552
+                },
+                {
+                  "name": "humidity",
+                  "type": "timeseries",
+                  "label": "humidity",
+                  "color": "#01579b",
+                  "settings": {
+                    "excludeFromStacking": false,
+                    "hideDataByDefault": false,
+                    "disableDataHiding": false,
+                    "removeFromLegend": false,
+                    "showLines": true,
+                    "fillLines": false,
+                    "showPoints": false,
+                    "showPointShape": "circle",
+                    "pointShapeFormatter": "var size = radius * Math.sqrt(Math.PI) / 2;\nctx.moveTo(x - size, y - size);\nctx.lineTo(x + size, y + size);\nctx.moveTo(x - size, y + size);\nctx.lineTo(x + size, y - size);",
+                    "showPointsLineWidth": 5,
+                    "showPointsRadius": 3,
+                    "tooltipValueFormatter": "",
+                    "showSeparateAxis": false,
+                    "axisTitle": "",
+                    "axisPosition": "left",
+                    "axisTicksFormatter": "",
+                    "thresholds": [
+                      {
+                        "thresholdValueSource": "predefinedValue"
+                      }
+                    ],
+                    "comparisonSettings": {
+                      "showValuesForComparison": true,
+                      "comparisonValuesLabel": "",
+                      "color": ""
+                    }
+                  },
+                  "_hash": 0.34015817109588165
+                }
+              ],
+              "entityAliasId": "0a370ccd-e75e-9dd9-0d65-a5dbf41d540c"
+            }
+          ],
+          "timewindow": {
+            "realtime": {
+              "interval": 5000,
+              "timewindowMs": 900000
+            },
+            "aggregation": {
+              "type": "AVG",
+              "limit": 25000
+            },
+            "hideAggregation": false,
+            "hideAggInterval": false
+          },
+          "showTitle": true,
+          "backgroundColor": "#d3bdbd",
+          "color": "rgba(28, 2, 253, 0.87)",
+          "padding": "8px",
+          "settings": {
+            "shadowSize": 4,
+            "fontColor": "#545454",
+            "fontSize": 10,
+            "xaxis": {
+              "showLabels": true,
+              "color": "#545454"
+            },
+            "yaxis": {
+              "showLabels": true,
+              "color": "#545454"
+            },
+            "grid": {
+              "color": "#545454",
+              "tickColor": "#DDDDDD",
+              "verticalLines": true,
+              "horizontalLines": true,
+              "outlineWidth": 1
+            },
+            "stack": false,
+            "tooltipIndividual": false,
+            "timeForComparison": "months",
+            "xaxisSecond": {
+              "axisPosition": "top",
+              "showLabels": true
+            }
+          },
+          "title": "Sıcaklık - Nem",
+          "dropShadow": true,
+          "enableFullscreen": true,
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "mobileHeight": null,
+          "showTitleIcon": false,
+          "titleIcon": null,
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "24px",
+          "titleTooltip": "",
+          "widgetStyle": {},
+          "useDashboardTimewindow": false,
+          "displayTimewindow": true,
+          "showLegend": true,
+          "showOnMobile": true,
+          "actions": {},
+          "legendConfig": {
+            "direction": "column",
+            "position": "top",
+            "showMin": false,
+            "showMax": false,
+            "showAvg": true,
+            "showTotal": false
+          }
+        },
+        "id": "895c3e8d-623d-8c1a-7071-575db440ed24"
+      }
+    },
+    "states": {
+      "default": {
+        "name": "Test Silinecek",
+        "root": true,
+        "layouts": {
+          "main": {
+            "widgets": {
+              "25d71ced-7fa3-97dc-b465-a0a9eb9aba2c": {
+                "sizeX": 6,
+                "sizeY": 3,
+                "row": 0,
+                "col": 0
+              },
+              "f513d0aa-4a75-a7d6-3b2f-5c859ff0d0c5": {
+                "sizeX": 6,
+                "sizeY": 3,
+                "row": 0,
+                "col": 6
+              },
+              "7be1d2a9-0b36-9040-b4d1-83698586d98e": {
+                "sizeX": 6,
+                "sizeY": 4,
+                "row": 3,
+                "col": 0
+              },
+              "895c3e8d-623d-8c1a-7071-575db440ed24": {
+                "sizeX": 13,
+                "sizeY": 8,
+                "mobileHeight": null,
+                "row": 3,
+                "col": 6
+              }
+            },
+            "gridSettings": {
+              "backgroundColor": "#153469",
+              "color": "rgba(248, 29, 29, 0.87)",
+              "columns": 24,
+              "margins": [
+                10,
+                10
+              ],
+              "backgroundSizeMode": "100%",
+              "autoFillHeight": false,
+              "mobileAutoFillHeight": false,
+              "mobileRowHeight": 70
+            }
+          }
+        }
+      }
+    },
+    "entityAliases": {
+      "de8acf57-00f8-e653-c1a3-67da546d0661": {
+        "id": "de8acf57-00f8-e653-c1a3-67da546d0661",
+        "alias": "Termometre-2",
+        "filter": {
+          "type": "singleEntity",
+          "resolveMultiple": false,
+          "singleEntity": {
+            "entityType": "DEVICE",
+            "id": "c527e760-990e-11ea-9243-838964167eef"
+          }
+        }
+      },
+      "09d03239-498b-3d05-60eb-c043ed76e06e": {
+        "id": "09d03239-498b-3d05-60eb-c043ed76e06e",
+        "alias": "Termometre1",
+        "filter": {
+          "type": "singleEntity",
+          "resolveMultiple": false,
+          "singleEntity": {
+            "entityType": "DEVICE",
+            "id": "ba23c640-990e-11ea-9243-838964167eef"
+          }
+        }
+      },
+      "0a370ccd-e75e-9dd9-0d65-a5dbf41d540c": {
+        "id": "0a370ccd-e75e-9dd9-0d65-a5dbf41d540c",
+        "alias": "Serial Device 1",
+        "filter": {
+          "type": "singleEntity",
+          "resolveMultiple": false,
+          "singleEntity": {
+            "entityType": "DEVICE",
+            "id": "7ea2a100-9106-11ea-9243-838964167eef"
+          }
+        }
+      }
+    },
+    "timewindow": {
+      "realtime": {
+        "interval": 5000,
+        "timewindowMs": 60000
+      },
+      "aggregation": {
+        "type": "AVG",
+        "limit": 25000
+      },
+      "hideInterval": false,
+      "hideAggregation": false,
+      "hideAggInterval": false
+    },
+    "settings": {
+      "stateControllerId": "entity",
+      "showTitle": false,
+      "showDashboardsSelect": true,
+      "showEntitiesSelect": true,
+      "showDashboardTimewindow": true,
+      "showDashboardExport": true,
+      "toolbarAlwaysOpen": true,
+      "showOnMobile": true,
+      "titleColor": "rgba(0,0,0,0.870588)"
+    }
+  },
+  "name": "Test Silinecek"
+}

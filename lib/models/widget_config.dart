@@ -372,11 +372,15 @@ class ComparisonSettings {
 
 class Timewindow {
   Realtime realtime;
+  TimeWindowHistory history;
+  TimeWindowAggregation aggregation;
 
-  Timewindow({this.realtime});
+  Timewindow({this.realtime, this.history, this.aggregation});
 
   Timewindow.fromJson(Map<String, dynamic> json) {
     realtime = json['realtime'] != null ? new Realtime.fromJson(json['realtime']) : null;
+    history = json['history'] != null ? new TimeWindowHistory.fromJson(json['history']) : null;
+    aggregation = json['aggregation'] != null ? new TimeWindowAggregation.fromJson(json['aggregation']) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -384,22 +388,96 @@ class Timewindow {
     if (this.realtime != null) {
       data['realtime'] = this.realtime.toJson();
     }
+    if (this.history != null) {
+      data['history'] = this.history.toJson();
+    }
+    if (this.aggregation != null) {
+      data['aggregation'] = this.aggregation.toJson();
+    }
+    return data;
+  }
+}
+
+class TimeWindowAggregation {
+  String type;
+  int limit;
+
+  TimeWindowAggregation({this.type, this.limit});
+
+  TimeWindowAggregation.fromJson(Map<String, dynamic> json) {
+    type = json['type'];
+    limit = json['limit'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['type'] = this.type;
+    data['limit'] = this.limit;
+    return data;
+  }
+}
+
+class TimeWindowHistory {
+  int historyType;
+  int interval;
+  int timewindowMs;
+  FixedTimewindow fixedTimewindow;
+
+  TimeWindowHistory({this.historyType, this.interval, this.timewindowMs, this.fixedTimewindow});
+
+  TimeWindowHistory.fromJson(Map<String, dynamic> json) {
+    historyType = json['historyType'];
+    interval = json['interval'];
+    timewindowMs = json['timewindowMs'];
+    fixedTimewindow = json['fixedTimewindow'] != null ? new FixedTimewindow.fromJson(json['fixedTimewindow']) : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['historyType'] = this.historyType;
+    data['interval'] = this.interval;
+    data['timewindowMs'] = this.timewindowMs;
+    if (this.fixedTimewindow != null) {
+      data['fixedTimewindow'] = this.fixedTimewindow.toJson();
+    }
+    return data;
+  }
+}
+
+class FixedTimewindow {
+  int startTimeMs;
+  int endTimeMs;
+
+  FixedTimewindow({this.startTimeMs, this.endTimeMs});
+
+  FixedTimewindow.fromJson(Map<String, dynamic> json) {
+    startTimeMs = json['startTimeMs'];
+    endTimeMs = json['endTimeMs'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['startTimeMs'] = this.startTimeMs;
+    data['endTimeMs'] = this.endTimeMs;
     return data;
   }
 }
 
 class Realtime {
   int timewindowMs;
+  int interval;
 
-  Realtime({this.timewindowMs});
+  Realtime({this.timewindowMs, this.interval});
 
   Realtime.fromJson(Map<String, dynamic> json) {
     timewindowMs = json['timewindowMs'];
+    interval = json['interval'] == null ? 0 : json['interval'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['timewindowMs'] = this.timewindowMs;
+    data['interval'] = this.interval;
     return data;
   }
 }

@@ -17,8 +17,9 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
   List<SocketData> allRawData = List();
 
   List<charts.Series> seriesList = List<charts.Series<TimeSeriesGraphData, DateTime>>();
+  Map<String, List<dynamic>> seriesListData = Map<String, List<dynamic>>();
   List<charts.SeriesLegend> legendList = List();
-  bool animate = true;
+  bool animate = false;
 
   String data = "0";
   String dataSourceLabel;
@@ -50,7 +51,7 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
               colorFn: (_, __) => charts.Color.fromHex(code: dataKey.color),
               domainFn: (TimeSeriesGraphData sales, _) => sales.time,
               measureFn: (TimeSeriesGraphData sales, _) => sales.value,
-              data: [],
+              data: seriesListData[dataKey.name] == null ? [] : seriesListData[dataKey.name],
             ));
 
             legendList.add(charts.SeriesLegend(
@@ -74,7 +75,7 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
   Widget build(BuildContext context) {
     super.build(context);
     return Container(
-      height: 250,
+      height: 400,
       decoration: BoxDecoration(color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor)),
       child: Column(
         children: [
@@ -127,6 +128,10 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
       index++;
     });
     seriesList[foundIndex].data.add(tsData);
-    setState(() {});
+
+    if (!seriesListData.containsKey(key)) {
+      seriesListData[key] = List();
+    }
+    seriesListData[key].add(tsData);
   }
 }
