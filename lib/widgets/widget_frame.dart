@@ -9,12 +9,17 @@ class WidgetFrame extends StatelessWidget {
 
   WidgetFrame({Key key, this.child, this.widgetConfig}) : super(key: key);
 
+  Color backgroundColor;
+  Color color;
+
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = HexColor.fromCss(widgetConfig.config.backgroundColor);
+    backgroundColor = HexColor.fromCss(widgetConfig.config.backgroundColor);
+    color = HexColor.fromCss(widgetConfig.config.color);
+
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2),
-      padding: EdgeInsets.symmetric(horizontal: 5),
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.all(Radius.circular(4)),
@@ -40,7 +45,7 @@ class WidgetFrame extends StatelessWidget {
               children: [
                 Text(
                   "$title",
-                  style: TextStyle(fontSize: 18, color: HexColor.fromCss(widgetConfigConfig.color)),
+                  style: TextStyle(fontSize: 18, color: color),
                 ),
               ],
             ),

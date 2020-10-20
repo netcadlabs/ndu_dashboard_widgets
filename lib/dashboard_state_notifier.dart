@@ -10,6 +10,8 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   //   notifyListeners();
   // }
 
+  DashboardStateNotifier();
+
   Map<String, dynamic> _latestData = {};
   Map<String, String> _widgetSubscriptionIds = {};
 

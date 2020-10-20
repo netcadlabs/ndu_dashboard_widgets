@@ -3,17 +3,15 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 extension HexColor on Color {
-  static Color defaultColor = Colors.white;
-
   /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
-  static Color fromHex(String hexString) {
+  static Color fromHex(String hexString, {Color defaultColor}) {
     final buffer = StringBuffer();
     if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
     buffer.write(hexString.replaceFirst('#', ''));
     return Color(int.parse(buffer.toString(), radix: 16));
   }
 
-  static Color fromCss(String cssColorString) {
+  static Color fromCss(String cssColorString, {Color defaultColor = Colors.white}) {
     if (cssColorString.startsWith("#")) {
       return fromHex(cssColorString);
     } else if (cssColorString.startsWith("rgb")) {
@@ -22,7 +20,7 @@ extension HexColor on Color {
     return defaultColor;
   }
 
-  static Color fromRgba(String rgbaString) {
+  static Color fromRgba(String rgbaString, {Color defaultColor = Colors.white}) {
     int startIndex = 0;
     if (rgbaString.startsWith("rgba")) {
       startIndex = 5;
@@ -36,16 +34,13 @@ extension HexColor on Color {
     List<String> parts = rgbaString.split(",");
 
     if (parts.length == 3) {
-      return Color.fromARGB(
-          255, int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
+      return Color.fromARGB(255, int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
     } else if (parts.length == 4) {
       double last = double.parse(parts[3]);
       if (last <= 1 && last >= 0) {
-        return Color.fromRGBO(int.parse(parts[0]), int.parse(parts[1]),
-            int.parse(parts[2]), last);
+        return Color.fromRGBO(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]), last);
       } else {
-        return Color.fromARGB(int.parse(parts[3]), int.parse(parts[0]),
-            int.parse(parts[1]), int.parse(parts[2]));
+        return Color.fromARGB(int.parse(parts[3]), int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
       }
     } else {
       return defaultColor;
