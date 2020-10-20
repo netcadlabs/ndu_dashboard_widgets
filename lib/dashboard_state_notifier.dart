@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:ndu_dashboard_widgets/models/data_models.dart';
+import 'package:ndu_api_client/models/dashboards/data_models.dart';
 
 class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   // int _value = 33;

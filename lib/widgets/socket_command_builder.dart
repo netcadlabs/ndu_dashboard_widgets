@@ -1,5 +1,5 @@
-import 'package:ndu_dashboard_widgets/models/dashboard_details.dart';
-import 'package:ndu_dashboard_widgets/models/widget_config.dart';
+import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
+import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 
 class SocketCommandBuilder {
   static SubscriptionCommandResult build(DashboardDetail dashboardDetail) {

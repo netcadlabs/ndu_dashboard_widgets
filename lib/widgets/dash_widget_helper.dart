@@ -1,4 +1,4 @@
-import 'package:ndu_dashboard_widgets/models/widget_config.dart';
+import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/widgets/cards/ndu_widget_cards_simple_card.dart';
 import 'package:ndu_dashboard_widgets/widgets/charts/ndu_widget_charts_timeseries_bars_flot.dart';
 import 'package:ndu_dashboard_widgets/widgets/not_implemented_widget.dart';
