@@ -35,8 +35,8 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
 
   @override
   Widget build(BuildContext context) {
-    if (context.watch<DashboardStateNotifier>().LATEST_DATA[widget.widgetConfig.id] != null) {
-      SocketData data = context.watch<DashboardStateNotifier>().LATEST_DATA[widget.widgetConfig.id];
+    if (context.watch<DashboardStateNotifier>().latestData[widget.widgetConfig.id] != null) {
+      SocketData data = context.watch<DashboardStateNotifier>().latestData[widget.widgetConfig.id];
       onData(data);
     }
 
