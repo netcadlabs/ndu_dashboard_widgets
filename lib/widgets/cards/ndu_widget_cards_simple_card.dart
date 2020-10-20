@@ -53,14 +53,14 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
               children: [
                 Text(
                   "${dataSourceLabel}",
-                  style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 20),
+                  style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 16),
                 ),
               ],
             ),
           ),
           Text(
             "${result}",
-            style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 35),
+            style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 25),
           )
         ],
       ),
