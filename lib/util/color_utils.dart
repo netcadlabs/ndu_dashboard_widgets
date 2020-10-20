@@ -3,7 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 extension HexColor on Color {
-  static Color DEFAULT_COLOR = Colors.white;
+  static Color defaultColor = Colors.white;
 
   /// String is in the format "aabbcc" or "ffaabbcc" with an optional leading "#".
   static Color fromHex(String hexString) {
@@ -19,7 +19,7 @@ extension HexColor on Color {
     } else if (cssColorString.startsWith("rgb")) {
       return fromRgba(cssColorString);
     }
-    return DEFAULT_COLOR;
+    return defaultColor;
   }
 
   static Color fromRgba(String rgbaString) {
@@ -48,7 +48,7 @@ extension HexColor on Color {
             int.parse(parts[1]), int.parse(parts[2]));
       }
     } else {
-      return DEFAULT_COLOR;
+      return defaultColor;
     }
   }
 

@@ -662,7 +662,7 @@ class TitleStyle {
 class WidgetStyle {
   WidgetStyle();
 
-  WidgetStyle.fromJson(Map<String, dynamic> json) {}
+  WidgetStyle.fromJson(Map<String, dynamic> json);
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
