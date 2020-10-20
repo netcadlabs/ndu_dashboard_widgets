@@ -28,7 +28,10 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
   @override
   void initState() {
     super.initState();
+      fetchChartData();
+  }
 
+  fetchChartData(){
     charts.BehaviorPosition position = charts.BehaviorPosition.bottom;
     if (widget.widgetConfig.config.legendConfig != null) {
       if (widget.widgetConfig.config.legendConfig.position == "top") position = charts.BehaviorPosition.top;
@@ -45,15 +48,7 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
         int dataKeyIndex = 0;
         widget.widgetConfig.config.datasources.forEach((dataSource) {
           dataSource.dataKeys.forEach((dataKey) {
-            seriesList.add(new charts.Series<TimeSeriesGraphData, DateTime>(
-              id: dataKey.name,
-              displayName: dataKey.label,
-              colorFn: (_, __) => charts.Color.fromHex(code: dataKey.color),
-              domainFn: (TimeSeriesGraphData sales, _) => sales.time,
-              measureFn: (TimeSeriesGraphData sales, _) => sales.value,
-              data: seriesListData[dataKey.name] == null ? [] : seriesListData[dataKey.name],
-            ));
-
+            addNewSeriest(dataKey);
             legendList.add(charts.SeriesLegend(
                 position: position,
                 outsideJustification: charts.OutsideJustification.start,
@@ -68,36 +63,37 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
       }
     }
 
-    int a = 5;
   }
-
+  addNewSeriest(DataKeys dataKey){
+    seriesList.add(new charts.Series<TimeSeriesGraphData, DateTime>(
+      id: dataKey.name,
+      displayName: dataKey.label,
+      colorFn: (_, __) => charts.Color.fromHex(code: dataKey.color),
+      domainFn: (TimeSeriesGraphData sales, _) => sales.time,
+      measureFn: (TimeSeriesGraphData sales, _) => sales.value,
+      data: [],
+    ));
+  }
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Container(
+    return seriesList.length<1
+        ?Center(
+        child: CircularProgressIndicator())
+        :Container(
       height: 400,
       decoration: BoxDecoration(color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor)),
-      child: Column(
-        children: [
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.all(10),
-              child: charts.TimeSeriesChart(
-                seriesList,
-                animate: animate,
-                // Optionally pass in a [DateTimeFactory] used by the chart. The factory
-                // should create the same type of [DateTime] as the data provided. If none
-                // specified, the default creates local date time.
-                dateTimeFactory: const charts.LocalDateTimeFactory(),
-                behaviors: legendList,
-              ),
-            ),
-          ),
-          // Text(
-          //   "${result}",
-          //   style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 35),
-          // )
-        ],
+      child: Container(
+        padding: EdgeInsets.all(10),
+        child: charts.TimeSeriesChart(
+          seriesList,
+          animate: animate,
+          // Optionally pass in a [DateTimeFactory] used by the chart. The factory
+          // should create the same type of [DateTime] as the data provided. If none
+          // specified, the default creates local date time.
+          dateTimeFactory: const charts.LocalDateTimeFactory(),
+          behaviors: legendList,
+        ),
       ),
     );
   }
@@ -108,18 +104,57 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
 
     int index = 0;
     graphData.datas.forEach((key, values) {
+      List<TimeSeriesGraphData> tsDataList=List();
       values.forEach((value) {
         int ts = value[0];
         double val = 0;
         if (value[1] is double) val = value[1];
         if (value[1] is String) val = double.parse(value[1]);
-        TimeSeriesGraphData tsData = TimeSeriesGraphData(DateTime.fromMillisecondsSinceEpoch(ts), val);
-        addDataToSeries(key, tsData);
+       TimeSeriesGraphData tsData = TimeSeriesGraphData(DateTime.fromMillisecondsSinceEpoch(ts), val);
+        tsDataList.add(tsData);
       });
+      addDataToSeriesList(key,tsDataList);
       index++;
     });
-  }
 
+  }
+  void addDataToSeriesList(String key, List<TimeSeriesGraphData> tsData) {
+    int index = 0;
+    int foundIndex = 0;
+
+    seriesList.forEach((element) {
+      if (element.id == key) foundIndex = index;
+      index++;
+    });
+    List<TimeSeriesGraphData> tempList;
+    if(seriesList.length>0){
+      tempList=seriesList[foundIndex].data;
+    }
+    else
+      tempList=List();
+    tempList.addAll(tsData);
+    print(tsData.length.toString());
+    tsData = timeSeriesListUpdate(tempList);
+    seriesList[foundIndex].data.clear();
+    seriesList[foundIndex].data.addAll(tsData);
+
+
+  }
+  List<TimeSeriesGraphData> timeSeriesListUpdate( List<TimeSeriesGraphData> tsData){
+    double minute = (widget.widgetConfig.config.timewindow.realtime.timewindowMs*0.001)/60;
+    List<TimeSeriesGraphData> resultList=List();
+    DateTime historyDateTime=DateTime(
+        DateTime.now().year,DateTime.now().month,DateTime.now().day
+        ,DateTime.now().hour,DateTime.now().minute-int.parse(minute.round().toString())
+        ,DateTime.now().second);
+
+    tsData.forEach((element) {
+      if(historyDateTime.isBefore(element.time)){
+        resultList.add(element);
+      }
+    });
+    return resultList;
+  }
   void addDataToSeries(String key, TimeSeriesGraphData tsData) {
     int index = 0;
     int foundIndex = 0;
@@ -129,9 +164,5 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
     });
     seriesList[foundIndex].data.add(tsData);
 
-    if (!seriesListData.containsKey(key)) {
-      seriesListData[key] = List();
-    }
-    seriesListData[key].add(tsData);
   }
 }
