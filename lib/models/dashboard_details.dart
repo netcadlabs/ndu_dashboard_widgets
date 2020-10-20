@@ -1,4 +1,6 @@
-import 'package:ndu_dashboard_widgets/models/widget_config.dart';
+
+
+import 'widget_config.dart';
 
 class DashboardDetail {
   DashboardId id;

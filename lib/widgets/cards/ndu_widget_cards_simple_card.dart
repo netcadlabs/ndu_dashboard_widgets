@@ -44,8 +44,7 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
 
     String result = "$formatted ${widget.widgetConfig.config.units}";
     return Container(
-      height: 100,
-      decoration: BoxDecoration(color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor)),
+      color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor),
       child: Column(
         children: [
           Container(
