@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:ndu_dashboard_widgets/models/widget_config.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 
@@ -10,32 +11,40 @@ class WidgetFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String title = widgetConfig.config.title;
-
     Color backgroundColor = HexColor.fromCss(widgetConfig.config.backgroundColor);
     return Container(
-      decoration: BoxDecoration(color: backgroundColor),
+      margin: EdgeInsets.symmetric(vertical: 2),
+      padding: EdgeInsets.symmetric(horizontal: 5),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.all(Radius.circular(4)),
+      ),
       child: Column(
         children: [
-          widgetConfig.config.showTitle
-              ? Container(
-                  margin: EdgeInsets.symmetric(vertical: 5),
-                  padding: EdgeInsets.symmetric(horizontal: 5),
-                  child: Row(
-                    children: [
-                      Text(
-                        "$title",
-                        style: TextStyle(fontSize: 18, color: HexColor.fromCss(widgetConfig.config.color)),
-                      ),
-                    ],
-                  ),
-                )
-              : Container(),
+          getTitleWidget(widgetConfig.config),
           Container(
             child: child,
           )
         ],
       ),
     );
+  }
+
+  Widget getTitleWidget(WidgetConfigConfig widgetConfigConfig) {
+    String title = widgetConfigConfig.title;
+    return widgetConfigConfig.showTitle
+        ? Container(
+            margin: EdgeInsets.only(top: 5),
+            // padding: EdgeInsets.symmetric(horizontal: 5),
+            child: Row(
+              children: [
+                Text(
+                  "$title",
+                  style: TextStyle(fontSize: 18, color: HexColor.fromCss(widgetConfigConfig.color)),
+                ),
+              ],
+            ),
+          )
+        : Container();
   }
 }

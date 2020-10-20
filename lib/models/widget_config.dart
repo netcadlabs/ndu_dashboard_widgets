@@ -4,8 +4,8 @@ class WidgetConfig {
   String typeAlias;
   String type;
   String title;
-  int sizeX;
-  int sizeY;
+  double sizeX;
+  double sizeY;
   WidgetConfigConfig config;
   String id;
 
@@ -17,8 +17,8 @@ class WidgetConfig {
     typeAlias = json['typeAlias'];
     type = json['type'];
     title = json['title'];
-    sizeX = json['sizeX'];
-    sizeY = json['sizeY'];
+    sizeX = json['sizeX'] == null ? 0 : double.parse(json['sizeX'].toString());
+    sizeY = json['sizeY'] == null ? 0 : double.parse(json['sizeY'].toString());
     config = json['config'] != null ? new WidgetConfigConfig.fromJson(json['config']) : null;
     id = json['id'];
   }
