@@ -116,6 +116,21 @@ class _TimeSeriesBarsFlotWidgetState extends BaseDashboardState<TimeSeriesBarsFl
       index++;
     });
   }
+  List<TimeSeriesGraphData> timeSeriesListUpdate( List<TimeSeriesGraphData> tsData){
+    double minute = (widget.widgetConfig.config.timewindow.realtime.timewindowMs*0.001)/60;
+    List<TimeSeriesGraphData> resultList=List();
+    DateTime historyDateTime=DateTime(
+        DateTime.now().year,DateTime.now().month,DateTime.now().day
+        ,DateTime.now().hour,DateTime.now().minute-int.parse(minute.round().toString())
+        ,DateTime.now().second);
+
+    tsData.forEach((element) {
+      if(historyDateTime.isBefore(element.time)){
+        resultList.add(element);
+      }
+    });
+    return resultList;
+  }
 
   void addDataListToSeries(String key, List<TimeSeriesGraphData> tsDataList) {
     int index = 0;
@@ -129,6 +144,15 @@ class _TimeSeriesBarsFlotWidgetState extends BaseDashboardState<TimeSeriesBarsFl
     if (!seriesListData.containsKey(key)) {
       seriesListData[key] = List();
     }
+    List<TimeSeriesGraphData> tempList;
+    if(seriesList.length>0){
+      tempList=seriesList[foundIndex].data;
+    }
+    else
+      tempList=List();
+    tempList.addAll(tsDataList);
+    print(tsDataList.length.toString());
+    tsDataList = timeSeriesListUpdate(tempList);
     seriesListData[key].addAll(tsDataList);
   }
 

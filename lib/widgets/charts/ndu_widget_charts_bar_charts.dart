@@ -61,4 +61,5 @@ class _GraphWidgetState extends BaseDashboardState<GraphWidget> {
     allRawData.add(graphData);
 //    setState(() {});
   }
+
 }
