@@ -26,12 +26,12 @@ abstract class BaseDashboardWidget extends StatefulWidget {
   String convertNumberValue(dynamic value, int decimal) {
     if (value is double) {
       double val = value.toDouble();
-      print("dobule $value  to ${val.toStringAsFixed(decimal)}");
+      // print("double $value  to ${val.toStringAsFixed(decimal)}");
       return val.toStringAsFixed(decimal);
     }
     if (value is int) {
       int val = value.toInt();
-      print("int $value  to ${val.toStringAsFixed(decimal)}");
+      // print("int $value  to ${val.toStringAsFixed(decimal)}");
       return val.toStringAsFixed(decimal);
     }
     return value.toString();

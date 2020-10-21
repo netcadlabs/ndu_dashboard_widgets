@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
-import 'package:ndu_api_client/telemetry_api.dart';
+import 'package:ndu_api_client/rpc_api.dart';
 import 'package:ndu_api_client/models/entity_types.dart';
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
@@ -12,17 +12,16 @@ import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/util/toast.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 
-class ControlUpdateAttributes extends BaseDashboardWidget {
-  ControlUpdateAttributes(WidgetConfig _widgetConfig, DashboardDetailConfiguration _dashboardDetailConfiguration,
-      {Key key})
+class ControlRPCButton extends BaseDashboardWidget {
+  ControlRPCButton(WidgetConfig _widgetConfig, DashboardDetailConfiguration _dashboardDetailConfiguration, {Key key})
       : super(_widgetConfig, key: key, dashboardDetailConfiguration: _dashboardDetailConfiguration);
 
   @override
-  _ControlUpdateAttributesWidgetState createState() => _ControlUpdateAttributesWidgetState();
+  _ControlRPCButtonState createState() => _ControlRPCButtonState();
 }
 
-class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpdateAttributes> {
-  TelemetryApi _telemetryApi = TelemetryApi();
+class _ControlRPCButtonState extends BaseDashboardState<ControlRPCButton> {
+  RPCApi _RPCApi = RPCApi();
 
   List<SocketData> allRawData = List();
 
@@ -41,9 +40,12 @@ class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpda
   Color buttonColor;
   Color buttonTextColor;
 
-  Map entityParameters = {};
+  String methodName;
+  Map methodParams = {};
+  bool oneWayElseTwoWay = true;
+  int requestTimeout = 5000;
 
-  bool isButtonReady = true;
+  bool isButtonReady = false;
 
   @override
   void initState() {
@@ -52,9 +54,13 @@ class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpda
     title = "${widget.widgetConfig.config.settings.title}";
     buttonLabel = "${widget.widgetConfig.config.settings.buttonText}";
 
-    if (widget.widgetConfig.config.settings.entityParameters != null) {
+    oneWayElseTwoWay = widget.widgetConfig.config.settings.oneWayElseTwoWay;
+    requestTimeout = widget.widgetConfig.config.settings.requestTimeout;
+
+    methodName = widget.widgetConfig.config.settings.methodName;
+    if (widget.widgetConfig.config.settings.methodParams != null) {
       try {
-        entityParameters = jsonDecode(widget.widgetConfig.config.settings.entityParameters);
+        methodParams = jsonDecode(widget.widgetConfig.config.settings.methodParams);
       } catch (e) {
         print(e);
       }
@@ -105,7 +111,7 @@ class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpda
                     ),
                   ),
                 ),
-          RaisedButton(
+          MaterialButton(
             child: setUpButtonChild(),
             color: buttonColor,
             textColor: buttonTextColor,
@@ -113,7 +119,7 @@ class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpda
               borderRadius: new BorderRadius.circular(18.0),
               // side: BorderSide(color: Colors.black),
             ),
-            onPressed: (entityParameters == null || !isButtonReady) ? null : sendAttribute,
+            onPressed: (methodName == null || !isButtonReady) ? null : sendRPC,
           ),
           Text(
             "$infoText",
@@ -138,20 +144,21 @@ class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpda
     }
   }
 
-  void sendAttribute() {
+  void sendRPC() {
     setState(() {
       isButtonReady = false;
       _requestState = 1;
     });
-    _telemetryApi.saveEntityAttributesV1(entityType, entityId, attributeScope, entityParameters).then((res) {
+    Map requestData = {"method": methodName, "params": jsonEncode(methodParams), "timeout": requestTimeout};
+    _RPCApi.handleDeviceRPCRequest(entityId, oneWayElseTwoWay, requestData).then((res) {
       if (res) {
-        showToast(context, "İşlem başarıyla tamamlandı!");
+        showToast(context, "İstek başarıyla gönderildi");
       } else {
-        showToast(context, "İşlem başarısız oldu!", isError: true);
+        showToast(context, "İstek başarısız oldu!", isError: true);
       }
     }).catchError((Object err) {
+      showToast(context, "İstek başarısız oldu!", isError: true);
       String errorMessage = err.toString();
-      showToast(context, errorMessage);
       print(err);
     }).whenComplete(() {
       setState(() {
