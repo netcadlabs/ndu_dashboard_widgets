@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/dashboard_state_notifier.dart';
@@ -8,16 +9,14 @@ import 'package:provider/provider.dart';
 
 abstract class BaseDashboardWidget extends StatefulWidget {
   WidgetConfig _widgetConfig;
+  DashboardDetailConfiguration dashboardDetailConfiguration;
 
   WidgetConfig get widgetConfig => _widgetConfig;
 
   Color backgroundColor;
   Color color;
 
-  BaseDashboardWidget(
-    this._widgetConfig, {
-    Key key,
-  }) : super(key: key) {
+  BaseDashboardWidget(this._widgetConfig, {Key key, this.dashboardDetailConfiguration}) : super(key: key) {
     backgroundColor = HexColor.fromCss(widgetConfig.config.backgroundColor);
     color = HexColor.fromCss(widgetConfig.config.color);
   }

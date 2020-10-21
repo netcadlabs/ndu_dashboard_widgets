@@ -26,7 +26,7 @@ class SocketCommandBuilder {
 
     return SubscriptionCommandResult(subscriptionCommand, widgetCmdIds);
   }
-
+  
   static TsSubCmds _calculateTimeSeriesSubscriptionCommands(WidgetConfigConfig widgetConfig, Datasources datasources, EntityAliases entityAliases) {
     if (datasources == null) return null;
 
