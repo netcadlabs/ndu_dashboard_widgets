@@ -6,16 +6,23 @@ import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 
 class AliasController {
-  Map resolvedAliases = {};
+  Map<String, AliasInfo> resolvedAliases = {};
   Map<String, EntityAliases> entityAliases;
 
   AliasController({this.entityAliases});
 
-
-  Future<List<Datasources>> resolveDatasource(Datasources datasource, bool isSingle) {
+  Future<List<Datasources>> resolveDatasource(Datasources datasource, bool isSingle) async {
     if (datasource.type == "entity") {
       if (datasource.entityAliasId != null) {
-        getAliasInfo(datasource.entityAliasId).then((aliasInfo) {
+        // try{
+        //
+        // }catch(err){
+        //   throw Exception(err.toString());
+        // }
+
+        try {
+          AliasInfo aliasInfo = await getAliasInfo(datasource.entityAliasId);
+
           datasource.aliasName = aliasInfo.alias.toString();
           if (aliasInfo.resolveMultiple && !isSingle) {
             Datasources newDatasource;
@@ -24,9 +31,9 @@ class AliasController {
               List<Datasources> datasources = List();
 
               for (var i = 0; i < datasources.length; i++) {
-                var resolvedEntity = resolvedEntities[i];
+                EntityInfo resolvedEntity = resolvedEntities[i];
                 newDatasource = datasource;
-                if (resolvedEntity.origEntity) {
+                if (resolvedEntity.origEntity != null) {
                   newDatasource.entity = resolvedEntity.origEntity;
                 } else {
                   newDatasource.entity = {};
@@ -41,21 +48,21 @@ class AliasController {
                 datasources.add(newDatasource);
               }
 
-              return Future.value(datasources);
+              return datasources;
             } else {
               if (aliasInfo.stateEntity) {
                 newDatasource = datasource;
                 newDatasource.unresolvedStateEntity = true;
-                return Future.value([newDatasource]);
-              }
-              else {
-                Future.error('resolveDatasource error - 3');
+                return [newDatasource];
+              } else {
+                // Future.error('resolveDatasource error - 3');
+                throw Exception('resolveDatasource error - 3');
               }
             }
           } else {
             var entity = aliasInfo.currentEntity;
             if (entity != null) {
-              if (entity.origEntity) {
+              if (entity.origEntity != null) {
                 datasource.entity = entity.origEntity;
               } else {
                 datasource.entity = {};
@@ -66,41 +73,56 @@ class AliasController {
               datasource.entityLabel = entity.label;
               datasource.name = entity.name;
               datasource.entityDescription = entity.entityDescription;
-              return Future.value([datasource]);
+              return [datasource];
             } else {
-              if (aliasInfo.stateEntity) {
+              if (aliasInfo.stateEntity != null) {
                 datasource.unresolvedStateEntity = true;
-                return Future.value([datasource]);
+                return [datasource];
               } else {
-                Future.error('resolveDatasource error - 1');
+                // Future.error('resolveDatasource error - 1');
+                throw Exception('resolveDatasource error - 1');
               }
             }
           }
-        }).catchError((err) {
+        } catch (err) {
           print(err);
-          Future.error('resolveDatasource error - 2');
-        });
+          throw Exception(err.toString());
+        }
+
+        // ).catchError((err) {
+        //   print(err);
+        //   Future.error('resolveDatasource error - 2');
+        // });
       } else {
         datasource.aliasName = datasource.entityName;
         datasource.name = datasource.entityName;
-        return Future.value([datasource]);
+        return [datasource];
       }
     } else {
-      return Future.value([datasource]);
+      return [datasource];
     }
   }
 
   Future<AliasInfo> getAliasInfo(String aliasId) async {
-    var aliasInfo = this.resolvedAliases[aliasId];
-    if (aliasInfo) {
-      return Future.value(aliasInfo);
+    // AliasInfo aliasInfo = this.resolvedAliases[aliasId];
+    if (resolvedAliases.containsKey(aliasId)) {
+      return resolvedAliases[aliasId];
     }
 
     if (this.entityAliases.containsKey(aliasId)) {
       var entityAlias = this.entityAliases[aliasId];
-      EntityService.resolveAlias(entityAlias, null).then((aliasInfo) {
+
+      try {
+        AliasInfo aliasInfo = await EntityService.resolveAlias(entityAlias, null);
         resolvedAliases[aliasId] = aliasInfo;
 
+        return aliasInfo;
+      } catch (err) {
+        throw Exception(err.toString() + ' resolveAlias hatasi - 1');
+      }
+
+      EntityService.resolveAlias(entityAlias, null).then((aliasInfo) {
+        resolvedAliases[aliasId] = aliasInfo;
         // TODO - JS KODU
         // if (aliasInfo.stateEntity) {
         // var stateEntityInfo = {
@@ -112,90 +134,118 @@ class AliasController {
 
         return Future.value(aliasInfo);
       }).catchError((onError) {
-        return Future.error('resolveAlias hatasi - 1');
+        // return Future.error('resolveAlias hatasi - 1');
+        throw Exception('resolveAlias hatasi - 1');
       });
     } else {
-      return Future.error('$aliasId verilen aliases listesinde bulunamadi');
+      // return Future.error('$aliasId verilen aliases listesinde bulunamadi');
+      throw Exception('$aliasId verilen aliases listesinde bulunamadi');
     }
   }
 }
 
 class EntityService {
-
-  static Future<AliasInfo> resolveAlias(EntityAliases entityAlias, dynamic stateParams) {
+  static Future<AliasInfo> resolveAlias(EntityAliases entityAlias, dynamic stateParams) async {
     var filter = entityAlias.filter;
 
-    resolveAliasFilter(filter, stateParams, -1, false).then((result) {
+    try {
+      ResolvedAliasFilterResult result = await resolveAliasFilter(filter, stateParams, -1, false);
       AliasInfo aliasInfo = AliasInfo(
           alias: entityAlias.alias,
           stateEntity: result.stateEntity,
           entityParamName: result.entityParamName,
           resolveMultiple: filter.resolveMultiple,
           resolvedEntities: result.entities,
-          currentEntity: null
-      );
+          currentEntity: null);
 
       if (aliasInfo.resolvedEntities.length > 0) {
         aliasInfo.currentEntity = aliasInfo.resolvedEntities[0];
       }
 
-      Future.value(aliasInfo);
-    }).catchError((onError) {
-      return Future.error('resolveAlias hata');
-    });
+      return aliasInfo;
+    } catch (err) {
+      throw Exception('${err.toString()} resolveAlias hata');
+    }
+
+    // resolveAliasFilter(filter, stateParams, -1, false).then((result) {
+    //   AliasInfo aliasInfo = AliasInfo(
+    //       alias: entityAlias.alias,
+    //       stateEntity: result.stateEntity,
+    //       entityParamName: result.entityParamName,
+    //       resolveMultiple: filter.resolveMultiple,
+    //       resolvedEntities: result.entities,
+    //       currentEntity: null);
+    //
+    //   if (aliasInfo.resolvedEntities.length > 0) {
+    //     aliasInfo.currentEntity = aliasInfo.resolvedEntities[0];
+    //   }
+    //
+    //   Future.value(aliasInfo);
+    // }).catchError((onError) {
+    //   return Future.error('resolveAlias hata');
+    // });
   }
 
-  static Future<ResolvedAliasFilterResult> resolveAliasFilter(Filter filter, dynamic stateParams, int maxItems,
-      bool failOnEmpty) {
+  static Future<ResolvedAliasFilterResult> resolveAliasFilter(
+      Filter filter, dynamic stateParams, int maxItems, bool failOnEmpty) async {
     ResolvedAliasFilterResult result = ResolvedAliasFilterResult();
     result.entities = List();
     result.stateEntity = false;
     result.entityParamName = "";
 
-    EntityId stateEntityId = getStateEntityInfo(filter, stateParams);
+    // EntityId stateEntityId = getStateEntityInfo(filter, stateParams);
     if (filter.stateEntityParamName != null) {
       result.entityParamName = filter.stateEntityParamName;
     }
 
-    switch (filter.type) {
-      case 'singleEntity':
-        EntityId aliasEntityId = resolveAliasEntityId(filter.singleEntity.entityType, filter.singleEntity.id);
-        getEntity(aliasEntityId.entityType, aliasEntityId.id, null).then((entity) {
+    try {
+      switch (filter.type) {
+        case 'singleEntity':
+          EntityId aliasEntityId = resolveAliasEntityId(filter.singleEntity.entityType, filter.singleEntity.id);
+          var entity = await getEntity(aliasEntityId.entityType, aliasEntityId.id, null);
           result.entities = entitiesToEntitiesInfo([entity]);
-          return Future.value(result);
-        }).catchError((err) {
-          print(err);
-          return Future.error('singleEntity resolve edilemedi : ${aliasEntityId.id} ');
-        });
-        break;
-      case 'entityList':
-        break;
+          return result;
 
-      case 'entityName':
-        break;
+          getEntity(aliasEntityId.entityType, aliasEntityId.id, null).then((entity) {
+            result.entities = entitiesToEntitiesInfo([entity]);
+            return Future.value(result);
+          }).catchError((err) {
+            print(err);
+            return Future.error('singleEntity resolve edilemedi : ${aliasEntityId.id} ');
+          });
+          break;
+        case 'entityList':
+          break;
 
-      case 'stateEntity':
-        break;
+        case 'entityName':
+          break;
 
-      case 'assetType':
-        break;
+        case 'stateEntity':
+          break;
 
-      case 'deviceType':
-        break;
+        case 'assetType':
+          break;
 
-      case 'entityViewType':
-        break;
+        case 'deviceType':
+          break;
 
-      case 'relationsQuery':
-        break;
+        case 'entityViewType':
+          break;
 
-      case 'assetSearchQuery':
-      case 'deviceSearchQuery':
-      case 'entityViewSearchQuery':
-        break;
+        case 'relationsQuery':
+          break;
+
+        case 'assetSearchQuery':
+        case 'deviceSearchQuery':
+        case 'entityViewSearchQuery':
+          break;
+      }
+    } catch (err) {
+      print(err);
+      throw Exception(err.toString());
     }
 
-    return Future.error('${filter.type}  desteklenmiyor!');
+    // return Future.error('${filter.type}  desteklenmiyor!');
   }
 
   static EntityId getStateEntityInfo(Filter filter, dynamic stateParams) {
@@ -213,8 +263,9 @@ class EntityService {
     if (entityId == null) {
       entityId = filter.defaultStateEntity;
     }
-    if (entityId != null) {
-      entityId = resolveAliasEntityId(entityId.entityType, entityId.id);
+
+    if (entityId == null) {
+      entityId = resolveAliasEntityId(filter.entityType, entityId.id);
     }
 
     return entityId;
@@ -232,8 +283,8 @@ class EntityService {
     return EntityId(id: id, entityType: entityType);
   }
 
-  List<EntityInfo> entitiesToEntitiesInfo(List<BaseEntity> entities) {
-    var entitiesInfo = [];
+  static List<EntityInfo> entitiesToEntitiesInfo(List<BaseEntity> entities) {
+    List<EntityInfo> entitiesInfo = List();
     if (entities != null) {
       for (var d = 0; d < entities.length; d++) {
         entitiesInfo.add(entityToEntityInfo(entities[d]));
@@ -255,56 +306,61 @@ class EntityService {
     return entityInfo;
   }
 
-  static Future<BaseEntity> getEntity(String entityType, String entityId, dynamic config) {
-    return getEntityPromise(entityType, entityId, config);
+  static Future<BaseEntity> getEntity(String entityType, String entityId, dynamic config) async {
+    return await getEntityPromise(entityType, entityId, config);
   }
 
-  static Future<BaseEntity> getEntityPromise(String entityType, String entityId, dynamic config) {
+  static Future<BaseEntity> getEntityPromise(String entityType, String entityId, dynamic config) async {
     var promise;
     switch (entityType) {
       case "DEVICE":
         DeviceApi deviceApi = DeviceApi();
-        return deviceApi.getDevice(entityId);
+        try {
+          Device device = await deviceApi.getDevice(entityId);
+          return device;
+        } catch (err) {
+          throw Exception(err.toString());
+          // return Future.error('device bulunamadi');
+        }
         break;
       case "ASSET":
-      //TODO
-      // AssetApi assetApi = AssetApi();
-      // promise = assetApi.getAsset(entityId, true, config);
+        //TODO
+        // AssetApi assetApi = AssetApi();
+        // promise = assetApi.getAsset(entityId, true, config);
         break;
-    //TODO
-    // case types.entityType.entityView:
-    //   promise = entityViewService.getEntityView(entityId, true, config);
-    //   break;
-    // case types.entityType.tenant:
-    //   promise = tenantService.getTenant(entityId, config);
-    //   break;
-    // case types.entityType.customer:
-    //   promise = customerService.getCustomer(entityId, config);
-    //   break;
-    // case types.entityType.dashboard:
-    //   promise = dashboardService.getDashboardInfo(entityId, config);
-    //   break;
-    // case types.entityType.user:
-    //   promise = userService.getUser(entityId, true, config);
-    //   break;
-    // case types.entityType.rulechain:
-    //   promise = ruleChainService.getRuleChain(entityId, config);
-    //   break;
-    // case types.entityType.alarm:
-    //   $log.error('Get Alarm Entity is not implemented!');
-    //   break;
+      //TODO
+      // case types.entityType.entityView:
+      //   promise = entityViewService.getEntityView(entityId, true, config);
+      //   break;
+      // case types.entityType.tenant:
+      //   promise = tenantService.getTenant(entityId, config);
+      //   break;
+      // case types.entityType.customer:
+      //   promise = customerService.getCustomer(entityId, config);
+      //   break;
+      // case types.entityType.dashboard:
+      //   promise = dashboardService.getDashboardInfo(entityId, config);
+      //   break;
+      // case types.entityType.user:
+      //   promise = userService.getUser(entityId, true, config);
+      //   break;
+      // case types.entityType.rulechain:
+      //   promise = ruleChainService.getRuleChain(entityId, config);
+      //   break;
+      // case types.entityType.alarm:
+      //   $log.error('Get Alarm Entity is not implemented!');
+      //   break;
       default:
-        Future.error('entitiy type desteklenmiyor : $entityType');
+        // Future.error('entitiy type desteklenmiyor : $entityType');
+        throw Exception('entitiy type desteklenmiyor : $entityType');
         break;
     }
     return promise;
   }
-
 }
 
-
 class ResolvedAliasFilterResult {
-  List<dynamic> entities;
+  List<EntityInfo> entities;
   bool stateEntity;
   String entityParamName;
 
@@ -328,17 +384,16 @@ class AliasInfo {
   bool stateEntity;
   String entityParamName;
   bool resolveMultiple;
-  List<dynamic> resolvedEntities;
+  List<EntityInfo> resolvedEntities;
   dynamic currentEntity;
 
-  AliasInfo({
-    this.alias,
-    this.stateEntity,
-    this.entityParamName,
-    this.resolvedEntities,
-    this.currentEntity,
-    this.resolveMultiple
-  });
+  AliasInfo(
+      {this.alias,
+      this.stateEntity,
+      this.entityParamName,
+      this.resolvedEntities,
+      this.currentEntity,
+      this.resolveMultiple});
 }
 
 class EntityId {
