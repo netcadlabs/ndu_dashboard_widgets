@@ -7,6 +7,7 @@ import 'package:ndu_api_client/telemetry_api.dart';
 import 'package:ndu_api_client/models/entity_types.dart';
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
+import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/util/toast.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
@@ -51,6 +52,34 @@ class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpda
     title = "${widget.widgetConfig.config.settings.title}";
     buttonLabel = "${widget.widgetConfig.config.settings.buttonText}";
 
+    if (widget.widgetConfig.config.settings.entityParameters != null) {
+      try {
+        entityParameters = jsonDecode(widget.widgetConfig.config.settings.entityParameters);
+      } catch (e) {
+        print(e);
+      }
+    }
+
+    if (widget.widgetConfig.config.targetDeviceAliasIds != null &&
+        widget.widgetConfig.config.targetDeviceAliasIds.length > 0) {
+      String aliasId = widget.widgetConfig.config.targetDeviceAliasIds[0];
+      widget.aliasController.getAliasInfo(aliasId).then((AliasInfo aliasInfo) {
+        if (aliasInfo.resolvedEntities != null && aliasInfo.resolvedEntities.length > 0) {
+          EntityInfo entityInfo = aliasInfo.resolvedEntities[0];
+          setState(() {
+            entityId = entityInfo.id;
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context);
+    buttonColor = Theme.of(context).primaryColor;
+    buttonTextColor = Theme.of(context).accentColor;
+
     if (widget.widgetConfig.config.settings.styleButton != null) {
       if (!widget.widgetConfig.config.settings.styleButton.isPrimary) {
         buttonColor = HexColor.fromHex(widget.widgetConfig.config.settings.styleButton.bgColor);
@@ -61,21 +90,6 @@ class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpda
             HexColor.fromHex(widget.widgetConfig.config.settings.styleButton.textColor, defaultColor: buttonTextColor);
       }
     }
-
-    if (widget.widgetConfig.config.settings.entityParameters != null) {
-      try {
-        entityParameters = jsonDecode(widget.widgetConfig.config.settings.entityParameters);
-      } catch (e) {
-        print(e);
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    buttonColor = Theme.of(context).primaryColor;
-    buttonTextColor = Theme.of(context).accentColor;
 
     return Container(
       child: Column(

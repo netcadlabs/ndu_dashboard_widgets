@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
+import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/dashboard_state_notifier.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,7 @@ import 'package:provider/provider.dart';
 abstract class BaseDashboardWidget extends StatefulWidget {
   WidgetConfig _widgetConfig;
   DashboardDetailConfiguration dashboardDetailConfiguration;
+  AliasController aliasController;
 
   WidgetConfig get widgetConfig => _widgetConfig;
 

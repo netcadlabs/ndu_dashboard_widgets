@@ -3,20 +3,29 @@ import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 
 class SocketCommandBuilder {
-  static AliasController aliasController;
+  //private fields
+  AliasController _aliasController;
+  DashboardDetail _dashboardDetail;
 
-  static Future<SubscriptionCommandResult> build(DashboardDetail dashboardDetail) async {
+  //getters
+  DashboardDetail get dashboardDetail => _dashboardDetail;
+
+  AliasController get aliasController => _aliasController;
+
+  SocketCommandBuilder(this._aliasController, this._dashboardDetail);
+
+  Future<SubscriptionCommandResult> build() async {
     SubscriptionCommand subscriptionCommand = SubscriptionCommand();
     Map<String, String> widgetCmdIds = Map();
 
     int commandId = 1;
 
     try {
-      aliasController = AliasController(entityAliases: dashboardDetail.dashboardConfiguration.entityAliases);
+      // aliasController = AliasController(entityAliases: dashboardDetail.dashboardConfiguration.entityAliases);
 
-      if (dashboardDetail.dashboardConfiguration.widgets != null)
-        for (var i = 0; i < dashboardDetail.dashboardConfiguration.widgets.length; i++) {
-          WidgetConfig widgetConfig = dashboardDetail.dashboardConfiguration.widgets[i];
+      if (_dashboardDetail.dashboardConfiguration.widgets != null)
+        for (var i = 0; i < _dashboardDetail.dashboardConfiguration.widgets.length; i++) {
+          WidgetConfig widgetConfig = _dashboardDetail.dashboardConfiguration.widgets[i];
           if (widgetConfig.config == null ||
               widgetConfig.config.datasources == null ||
               widgetConfig.config.datasources.length == 0) continue;
@@ -41,11 +50,11 @@ class SocketCommandBuilder {
     return SubscriptionCommandResult(subscriptionCommand, widgetCmdIds);
   }
 
-  static Future<List<Datasources>> resolveDatasources(List<Datasources> datasources) async {
+  Future<List<Datasources>> resolveDatasources(List<Datasources> datasources) async {
     List<Datasources> allDataSources = List();
     for (int i = 0; i < datasources.length; i++) {
       try {
-        List<Datasources> datasourceList = await aliasController.resolveDatasource(datasources[i], false);
+        List<Datasources> datasourceList = await _aliasController.resolveDatasource(datasources[i], false);
         //TODO - javascript koduna bak.. resolveDatasources(datasources)
         allDataSources.addAll(datasourceList);
       } catch (err) {
@@ -56,7 +65,7 @@ class SocketCommandBuilder {
     return allDataSources;
   }
 
-  static Future<List<TsSubCmds>> _calculateTimeSeriesSubscriptionCommands2(
+  Future<List<TsSubCmds>> _calculateTimeSeriesSubscriptionCommands2(
       WidgetConfigConfig widgetConfig, List<Datasources> datasources) async {
     if (datasources == null) return null;
 
@@ -80,7 +89,7 @@ class SocketCommandBuilder {
     return Future.value(list);
   }
 
-  static TsSubCmds setTimeProperties(WidgetConfigConfig widgetConfig, TsSubCmds tsSubCmds) {
+  TsSubCmds setTimeProperties(WidgetConfigConfig widgetConfig, TsSubCmds tsSubCmds) {
     if (widgetConfig.timewindow != null && widgetConfig.timewindow.history != null) {
       tsSubCmds.interval = widgetConfig.timewindow.history.interval;
       // tsSubCmds.limit ?
@@ -109,7 +118,7 @@ class SocketCommandBuilder {
     return tsSubCmds;
   }
 
-  static TsSubCmds _calculateTimeSeriesSubscriptionCommands(
+  TsSubCmds _calculateTimeSeriesSubscriptionCommands(
       WidgetConfigConfig widgetConfig, Datasources datasources, EntityAliases entityAliases) {
     if (datasources == null) return null;
 
