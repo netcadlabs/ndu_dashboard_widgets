@@ -150,6 +150,7 @@ class EntityService {
 
     try {
       ResolvedAliasFilterResult result = await resolveAliasFilter(filter, stateParams, -1, false);
+
       AliasInfo aliasInfo = AliasInfo(
           alias: entityAlias.alias,
           stateEntity: result.stateEntity,
@@ -245,7 +246,7 @@ class EntityService {
       throw Exception(err.toString());
     }
 
-    // return Future.error('${filter.type}  desteklenmiyor!');
+    throw Exception('${filter.type}  desteklenmiyor!');
   }
 
   static EntityId getStateEntityInfo(Filter filter, dynamic stateParams) {
