@@ -294,7 +294,7 @@ class EntityService {
     //   $log.error('Get Alarm Entity is not implemented!');
     //   break;
       default:
-        Future.error('entitiy type desteklenmiyor : $entityType')
+        Future.error('entitiy type desteklenmiyor : $entityType');
         break;
     }
     return promise;
