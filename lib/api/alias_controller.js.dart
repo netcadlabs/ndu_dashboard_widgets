@@ -4,6 +4,7 @@ import 'package:ndu_api_client/device_api.dart';
 import 'package:ndu_api_client/models/api_models.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
+import 'package:ndu_api_client/models/page_base_model.dart';
 import 'package:ndu_api_client/util/constants.dart';
 
 class AliasController {
@@ -220,10 +221,10 @@ class EntityService {
           break;
 
         case 'entityName':
-          List<Device> entities =
+          PageBaseModel entities =
               await getEntitiesByNameFilter(filter.entityType, filter.entityNameFilter, maxItems, ignoreLoading: true);
-          if (entities!=null && entities.length>0) {
-            result.entities = entitiesToEntitiesInfo(entities);
+          if (entities!=null && entities.data.length>0) {
+            result.entities = entitiesToEntitiesInfo(entities.data);
             return result;
           } else {
             throw Exception("Device listesi boş geldi.");
@@ -281,12 +282,12 @@ class EntityService {
     return entityId;
   }
 
-  static Future< List<Device>> getEntitiesByNameFilter(String entityType, String entityNameFilter, int limit,
+  static Future< PageBaseModel> getEntitiesByNameFilter(String entityType, String entityNameFilter, int limit,
       {ignoreLoading: true,subType}) async {
     try{
       PageLink pageLink = PageLink(limit: limit, textSearch: entityNameFilter);
       pageLink.limit = 100;
-      List<Device> result = await getEntities(entityType, pageLink, ignoreLoading, null);
+      PageBaseModel result = await getEntities(entityType, pageLink, ignoreLoading, null);
       return result;
     }catch(err){
       throw Exception(err);
@@ -294,15 +295,12 @@ class EntityService {
 
   }
 
-  static Future<List<Device>> getEntities(String entityType,PageLink pageLink,var config,String subType) async {
+  static Future<PageBaseModel> getEntities(String entityType,PageLink pageLink,var config,String subType) async {
     DeviceApi _deviceApi = DeviceApi();
     switch (entityType) {
       case "DEVICE":
-        Map<String, String> map = Map();
-        map.putIfAbsent("limit", () => Constants.limit.toString());
-        map.putIfAbsent("textSearch", () => pageLink.textSearch);
-        List<Device> result=await _deviceApi.getDevices(map);
-        if (result!=null && result.length > 0) {
+        PageBaseModel result=await _deviceApi.getDevices(pageLink);
+        if (result!=null && result.data.length > 0) {
           return result;
         } else {
           throw Exception("getEntitiesByPageLinkPromise liste boş geldi");

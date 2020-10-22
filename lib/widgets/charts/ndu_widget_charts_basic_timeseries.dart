@@ -79,7 +79,9 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
     super.build(context);
     return seriesList.length<1
         ?Center(
-        child: CircularProgressIndicator())
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurpleAccent),
+        ))
         :Container(
       height: 400,
       decoration: BoxDecoration(color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor)),
