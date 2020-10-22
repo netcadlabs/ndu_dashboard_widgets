@@ -139,7 +139,7 @@ class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpda
     } else if (_requestState == 1) {
       return CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation<Color>(buttonColor),
-      );;
+      );
     } else {
       return Icon(Icons.check, color: Colors.white);
     }

@@ -136,7 +136,7 @@ class _ControlRPCButtonState extends BaseDashboardState<ControlRPCButton> {
     if (_requestState == 0) {
       return new Text(buttonLabel);
     } else if (_requestState == 1) {
-      CircularProgressIndicator(
+      return CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation<Color>(buttonColor),
       );
     } else {

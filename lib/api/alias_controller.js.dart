@@ -223,7 +223,7 @@ class EntityService {
         case 'entityName':
           PageBaseModel entities =
               await getEntitiesByNameFilter(filter.entityType, filter.entityNameFilter, maxItems, ignoreLoading: true);
-          if (entities!=null && entities.data.length>0) {
+          if (entities != null && entities.data.length > 0) {
             result.entities = entitiesToEntitiesInfo(entities.data);
             return result;
           } else {
@@ -282,25 +282,24 @@ class EntityService {
     return entityId;
   }
 
-  static Future< PageBaseModel> getEntitiesByNameFilter(String entityType, String entityNameFilter, int limit,
-      {ignoreLoading: true,subType}) async {
-    try{
+  static Future<PageBaseModel> getEntitiesByNameFilter(String entityType, String entityNameFilter, int limit,
+      {ignoreLoading: true, subType}) async {
+    try {
       PageLink pageLink = PageLink(limit: limit, textSearch: entityNameFilter);
       pageLink.limit = 100;
       PageBaseModel result = await getEntities(entityType, pageLink, ignoreLoading, null);
       return result;
-    }catch(err){
+    } catch (err) {
       throw Exception(err);
     }
-
   }
 
-  static Future<PageBaseModel> getEntities(String entityType,PageLink pageLink,var config,String subType) async {
+  static Future<PageBaseModel> getEntities(String entityType, PageLink pageLink, var config, String subType) async {
     DeviceApi _deviceApi = DeviceApi();
     switch (entityType) {
       case "DEVICE":
-        PageBaseModel result=await _deviceApi.getDevices(pageLink);
-        if (result!=null && result.data.length > 0) {
+        PageBaseModel result = await _deviceApi.getDevices(pageLink);
+        if (result != null && result.data.length > 0) {
           return result;
         } else {
           throw Exception("getEntitiesByPageLinkPromise liste boş geldi");
@@ -458,5 +457,3 @@ class EntityId {
 
   EntityId({this.id, this.entityType});
 }
-
-
