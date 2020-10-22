@@ -47,28 +47,31 @@ class _ControlRPCButtonState extends BaseDashboardState<ControlRPCButton> {
 
   bool isButtonReady = false;
 
+  WidgetConfigConfig conf;
+
   @override
   void initState() {
     super.initState();
 
-    title = "${widget.widgetConfig.config.settings.title}";
-    buttonLabel = "${widget.widgetConfig.config.settings.buttonText}";
+    conf = widget.widgetConfig.config;
 
-    oneWayElseTwoWay = widget.widgetConfig.config.settings.oneWayElseTwoWay;
-    requestTimeout = widget.widgetConfig.config.settings.requestTimeout;
+    title = "${conf.settings.title}";
+    buttonLabel = "${conf.settings.buttonText}";
 
-    methodName = widget.widgetConfig.config.settings.methodName;
-    if (widget.widgetConfig.config.settings.methodParams != null) {
+    oneWayElseTwoWay = conf.settings.oneWayElseTwoWay;
+    requestTimeout = conf.settings.requestTimeout;
+
+    methodName = conf.settings.methodName;
+    if (conf.settings.methodParams != null) {
       try {
-        methodParams = jsonDecode(widget.widgetConfig.config.settings.methodParams);
+        methodParams = jsonDecode(conf.settings.methodParams);
       } catch (e) {
         print(e);
       }
     }
 
-    if (widget.widgetConfig.config.targetDeviceAliasIds != null &&
-        widget.widgetConfig.config.targetDeviceAliasIds.length > 0) {
-      String aliasId = widget.widgetConfig.config.targetDeviceAliasIds[0];
+    if (conf.targetDeviceAliasIds != null && conf.targetDeviceAliasIds.length > 0) {
+      String aliasId = conf.targetDeviceAliasIds[0];
       widget.aliasController.getAliasInfo(aliasId).then((AliasInfo aliasInfo) {
         if (aliasInfo.resolvedEntities != null && aliasInfo.resolvedEntities.length > 0) {
           EntityInfo entityInfo = aliasInfo.resolvedEntities[0];
@@ -87,14 +90,12 @@ class _ControlRPCButtonState extends BaseDashboardState<ControlRPCButton> {
     buttonColor = Theme.of(context).primaryColor;
     buttonTextColor = Theme.of(context).accentColor;
 
-    if (widget.widgetConfig.config.settings.styleButton != null) {
-      if (!widget.widgetConfig.config.settings.styleButton.isPrimary) {
-        buttonColor =
-            HexColor.fromHex(widget.widgetConfig.config.settings.styleButton.bgColor, defaultColor: buttonColor);
+    if (conf.settings.styleButton != null) {
+      if (!conf.settings.styleButton.isPrimary) {
+        buttonColor = HexColor.fromHex(conf.settings.styleButton.bgColor, defaultColor: buttonColor);
       }
 
-      buttonTextColor =
-          HexColor.fromHex(widget.widgetConfig.config.settings.styleButton.textColor, defaultColor: buttonTextColor);
+      buttonTextColor = HexColor.fromHex(conf.settings.styleButton.textColor, defaultColor: buttonTextColor);
     }
 
     return Container(
@@ -123,7 +124,7 @@ class _ControlRPCButtonState extends BaseDashboardState<ControlRPCButton> {
           ),
           Text(
             "$infoText",
-            style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 15),
+            style: TextStyle(color: HexColor.fromCss(conf.color), fontSize: 15),
           )
         ],
       ),

@@ -43,9 +43,18 @@ class WidgetFrame extends StatelessWidget {
             // padding: EdgeInsets.symmetric(horizontal: 5),
             child: Row(
               children: [
-                Text(
-                  "$title",
-                  style: TextStyle(fontSize: 18, color: color),
+                Flexible(
+                  child: Container(
+                    child: Text(
+                      "$title",
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

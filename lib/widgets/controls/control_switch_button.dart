@@ -85,7 +85,7 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
     super.initState();
 
     flutterWebViewPlugin.close();
-    flutterWebViewPlugin.launch(Constants.baseUrl, hidden: true);
+    flutterWebViewPlugin.launch(Constants.baseUrl + "/api/dummy", hidden: true);
 
     title = "${widget.widgetConfig.config.settings.title}";
     buttonLabel = "${widget.widgetConfig.config.settings.buttonText}";
@@ -154,6 +154,8 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
           String subscriptionCommandJson = jsonEncode(subscriptionCommand);
           widget.webSocketChannel.sink.add(subscriptionCommandJson);
         }
+      }).catchError((err) {
+        print("Can not resolve aliasId $aliasId");
       });
     }
   }
@@ -185,26 +187,32 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
                   child: Center(
                     child: Text(
                       title,
-                      style: TextStyle(color: widget.color),
+                      style: TextStyle(color: widget.color, fontSize: 18),
                     ),
                   ),
                 ),
-          Switch(
-            value: currentSwitchValue,
-            activeTrackColor: Colors.lightGreenAccent,
-            activeColor: Colors.green,
-            onChanged: (setValueMethod == null || !isButtonReady) ? null : evaluateValue,
+          Container(
+            margin: EdgeInsets.only(bottom: 10),
+            child: Transform.scale(
+              scale: 2.5,
+              child: Switch(
+                value: currentSwitchValue,
+                activeTrackColor: Colors.lightGreenAccent,
+                activeColor: Colors.green,
+                onChanged: (setValueMethod == null || !isButtonReady) ? null : evaluateValue,
+              ),
+            ),
           ),
           showOnOffLabels
               ? Text(
                   currentSwitchValue ? "Açık" : "Kapalı",
-                  style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 15),
+                  style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 16),
                 )
               : Container(),
           (errorText != "")
               ? Text(
                   errorText,
-                  style: TextStyle(color: Colors.red, fontSize: 11),
+                  style: TextStyle(color: Colors.red, fontSize: 13),
                 )
               : Container()
         ],

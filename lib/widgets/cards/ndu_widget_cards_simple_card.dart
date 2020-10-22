@@ -20,6 +20,11 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
   String data = "0";
   String dataSourceLabel;
   String dataSourceKey;
+  bool displayLabel = false;
+  String labelPosition = "top";
+  double labelFontSize = 16;
+  double valueFontSize = 25;
+  Color textColor;
 
   @override
   void initState() {
@@ -38,34 +43,59 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
   Widget build(BuildContext context) {
     super.build(context);
 
+    WidgetConfigConfig conf = widget.widgetConfig.config;
+
     String formatted = data;
-    if (widget.widgetConfig.config.decimals != null && widget.widgetConfig.config.decimals >= 0) {
-      formatted = widget.convertNumberValue(double.parse(formatted), widget.widgetConfig.config.decimals);
+    if (conf.decimals != null && conf.decimals >= 0) {
+      formatted = widget.convertNumberValue(double.parse(formatted), conf.decimals);
     }
 
-    String result = "$formatted ${widget.widgetConfig.config.units}";
+    textColor = HexColor.fromCss(conf.color);
+
+    labelFontSize = conf.settings.labelFontSize == 0 ? labelFontSize : conf.settings.labelFontSize;
+    valueFontSize = conf.settings.valueFontSize == 0 ? valueFontSize : conf.settings.valueFontSize;
+
+    labelPosition = conf.settings.labelPosition;
+    displayLabel = conf.settings.displayLabel;
+    if (labelPosition == "none") displayLabel = false;
+
+    //labelPosition değeri için "left" ve "right" desteklenmeli
+
     return Container(
-      color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor),
-      child: Column(
-        children: [
-          Container(
-            padding: EdgeInsets.all(10),
-            child: Row(
-              children: [
-                Text(
-                  "$dataSourceLabel",
-                  style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 16),
-                ),
-              ],
+      color: HexColor.fromCss(conf.backgroundColor),
+      child: Container(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            labelPosition == "top" ? getLabel() : Container(),
+            SizedBox(
+              height: 10,
             ),
-          ),
-          Text(
-            "$result",
-            style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 25),
-          )
-        ],
+            Text(
+              "$formatted ${conf.units}",
+              style: TextStyle(color: textColor, fontSize: valueFontSize),
+            ),
+            labelPosition == "bottom"
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      getLabel(),
+                    ],
+                  )
+                : Container(),
+          ],
+        ),
       ),
     );
+  }
+
+  Widget getLabel() {
+    return displayLabel
+        ? Text(
+            "$dataSourceLabel",
+            style: TextStyle(color: textColor, fontSize: labelFontSize),
+          )
+        : Container();
   }
 
   @override
