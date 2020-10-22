@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/telemetry_api.dart';
@@ -57,6 +58,12 @@ class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpda
         entityParameters = jsonDecode(widget.widgetConfig.config.settings.entityParameters);
       } catch (e) {
         print(e);
+      }
+    }
+
+    if (widget.widgetConfig.config.settings.entityAttributeType != null) {
+      if (widget.widgetConfig.config.settings.entityAttributeType == describeEnum(AttributeScope.SERVER_SCOPE)) {
+        attributeScope = AttributeScope.SERVER_SCOPE;
       }
     }
 

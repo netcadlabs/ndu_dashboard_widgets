@@ -1,145 +1,19 @@
 {
   "id": {
     "entityType": "DASHBOARD",
-    "id": "b1cc8540-0d44-11eb-aade-ef039ccf82e0"
+    "id": "6bd7eb30-12e7-11eb-aade-ef039ccf82e0"
   },
-  "createdTime": 1602587425684,
+  "createdTime": 1603207072099,
   "tenantId": {
     "entityType": "TENANT",
     "id": "691be550-7ef3-11ea-84d0-63153a7432b8"
   },
-  "title": "Test Silinecek",
+  "title": "Test Silinecek 2",
   "assignedCustomers": null,
   "entityTypeEnabled": false,
   "configuration": {
-    "description": "asdasdsad",
+    "description": "",
     "widgets": {
-      "25d71ced-7fa3-97dc-b465-a0a9eb9aba2c": {
-        "isSystemType": true,
-        "bundleAlias": "cards",
-        "typeAlias": "simple_card",
-        "type": "latest",
-        "title": "Yeni widget",
-        "sizeX": 6,
-        "sizeY": 3,
-        "config": {
-          "datasources": [
-            {
-              "type": "entity",
-              "dataKeys": [
-                {
-                  "name": "temperature",
-                  "type": "timeseries",
-                  "label": "Temperature",
-                  "color": "#2196f3",
-                  "settings": {},
-                  "_hash": 0.3383437338839279
-                }
-              ],
-              "entityAliasId": "09d03239-498b-3d05-60eb-c043ed76e06e"
-            }
-          ],
-          "timewindow": {
-            "realtime": {
-              "timewindowMs": 60000
-            }
-          },
-          "showTitle": false,
-          "backgroundColor": "#ff5722",
-          "color": "rgba(255, 255, 255, 0.87)",
-          "padding": "16px",
-          "settings": {
-            "labelPosition": "top",
-            "displayLabel": true,
-            "valueFontSize": 0,
-            "labelFontSize": 0
-          },
-          "title": "Yeni Simple card",
-          "dropShadow": true,
-          "enableFullscreen": true,
-          "titleStyle": {
-            "fontSize": "16px",
-            "fontWeight": 400
-          },
-          "units": "X",
-          "decimals": 3,
-          "useDashboardTimewindow": true,
-          "showLegend": false,
-          "widgetStyle": {},
-          "actions": {},
-          "showTitleIcon": false,
-          "titleIcon": null,
-          "iconColor": "rgba(0, 0, 0, 0.87)",
-          "iconSize": "24px",
-          "titleTooltip": "",
-          "displayTimewindow": true,
-          "showOnMobile": true
-        },
-        "id": "25d71ced-7fa3-97dc-b465-a0a9eb9aba2c"
-      },
-      "f513d0aa-4a75-a7d6-3b2f-5c859ff0d0c5": {
-        "isSystemType": true,
-        "bundleAlias": "cards",
-        "typeAlias": "simple_card",
-        "type": "latest",
-        "title": "Yeni widget",
-        "sizeX": 6,
-        "sizeY": 3,
-        "config": {
-          "datasources": [
-            {
-              "type": "entity",
-              "dataKeys": [
-                {
-                  "name": "temperature",
-                  "type": "timeseries",
-                  "label": "temperature",
-                  "color": "#2196f3",
-                  "settings": {},
-                  "_hash": 0.3383437338839279
-                }
-              ],
-              "entityAliasId": "de8acf57-00f8-e653-c1a3-67da546d0661"
-            }
-          ],
-          "timewindow": {
-            "realtime": {
-              "timewindowMs": 60000
-            }
-          },
-          "showTitle": true,
-          "backgroundColor": "#22cbff",
-          "color": "rgba(15, 2, 2, 0.87)",
-          "padding": "16px",
-          "settings": {
-            "labelPosition": "top",
-            "displayLabel": true,
-            "valueFontSize": 0,
-            "labelFontSize": 0
-          },
-          "title": "Başlık Göstermeli",
-          "dropShadow": true,
-          "enableFullscreen": true,
-          "titleStyle": {
-            "fontSize": "16px",
-            "fontWeight": 400
-          },
-          "units": "°C",
-          "decimals": 2,
-          "useDashboardTimewindow": true,
-          "showLegend": false,
-          "widgetStyle": {},
-          "actions": {},
-          "showTitleIcon": false,
-          "titleIcon": null,
-          "iconColor": "rgba(0, 0, 0, 0.87)",
-          "iconSize": "24px",
-          "titleTooltip": "",
-          "displayTimewindow": true,
-          "showOnMobile": true
-        },
-        "id": "f513d0aa-4a75-a7d6-3b2f-5c859ff0d0c5"
-      },
       "7be1d2a9-0b36-9040-b4d1-83698586d98e": {
         "isSystemType": true,
         "bundleAlias": "cards",
@@ -203,165 +77,162 @@
         },
         "id": "7be1d2a9-0b36-9040-b4d1-83698586d98e"
       },
-      "895c3e8d-623d-8c1a-7071-575db440ed24": {
+      "3d14e4f3-fba8-4ac6-922b-475547fa213c": {
         "isSystemType": true,
-        "bundleAlias": "charts",
-        "typeAlias": "basic_timeseries",
-        "type": "timeseries",
+        "bundleAlias": "control_widgets",
+        "typeAlias": "update_attributes",
+        "type": "rpc",
         "title": "Yeni widget",
-        "sizeX": 13,
-        "sizeY": 8,
+        "sizeX": 7,
+        "sizeY": 3,
         "config": {
-          "datasources": [
-            {
-              "type": "entity",
-              "dataKeys": [
-                {
-                  "name": "temp",
-                  "type": "timeseries",
-                  "label": "temp",
-                  "color": "#c62828",
-                  "settings": {
-                    "excludeFromStacking": false,
-                    "hideDataByDefault": false,
-                    "disableDataHiding": false,
-                    "removeFromLegend": false,
-                    "showLines": true,
-                    "fillLines": false,
-                    "showPoints": false,
-                    "showPointShape": "circle",
-                    "pointShapeFormatter": "var size = radius * Math.sqrt(Math.PI) / 2;\nctx.moveTo(x - size, y - size);\nctx.lineTo(x + size, y + size);\nctx.moveTo(x - size, y + size);\nctx.lineTo(x + size, y - size);",
-                    "showPointsLineWidth": 5,
-                    "showPointsRadius": 3,
-                    "tooltipValueFormatter": "",
-                    "showSeparateAxis": false,
-                    "axisTitle": "",
-                    "axisPosition": "left",
-                    "axisTicksFormatter": "",
-                    "thresholds": [
-                      {
-                        "thresholdValueSource": "predefinedValue"
-                      }
-                    ],
-                    "comparisonSettings": {
-                      "showValuesForComparison": true,
-                      "comparisonValuesLabel": "",
-                      "color": ""
-                    }
-                  },
-                  "_hash": 0.03293419102150552
-                },
-                {
-                  "name": "humidity",
-                  "type": "timeseries",
-                  "label": "humidity",
-                  "color": "#01579b",
-                  "settings": {
-                    "excludeFromStacking": false,
-                    "hideDataByDefault": false,
-                    "disableDataHiding": false,
-                    "removeFromLegend": false,
-                    "showLines": true,
-                    "fillLines": false,
-                    "showPoints": false,
-                    "showPointShape": "circle",
-                    "pointShapeFormatter": "var size = radius * Math.sqrt(Math.PI) / 2;\nctx.moveTo(x - size, y - size);\nctx.lineTo(x + size, y + size);\nctx.moveTo(x - size, y + size);\nctx.lineTo(x + size, y - size);",
-                    "showPointsLineWidth": 5,
-                    "showPointsRadius": 3,
-                    "tooltipValueFormatter": "",
-                    "showSeparateAxis": false,
-                    "axisTitle": "",
-                    "axisPosition": "left",
-                    "axisTicksFormatter": "",
-                    "thresholds": [
-                      {
-                        "thresholdValueSource": "predefinedValue"
-                      }
-                    ],
-                    "comparisonSettings": {
-                      "showValuesForComparison": true,
-                      "comparisonValuesLabel": "",
-                      "color": ""
-                    }
-                  },
-                  "_hash": 0.34015817109588165
-                }
-              ],
-              "entityAliasId": "0a370ccd-e75e-9dd9-0d65-a5dbf41d540c"
-            }
-          ],
-          "timewindow": {
-            "realtime": {
-              "interval": 5000,
-              "timewindowMs": 900000
-            },
-            "aggregation": {
-              "type": "AVG",
-              "limit": 25000
-            },
-            "hideAggregation": false,
-            "hideAggInterval": false
-          },
           "showTitle": true,
-          "backgroundColor": "#d3bdbd",
-          "color": "rgba(28, 2, 253, 0.87)",
-          "padding": "8px",
+          "backgroundColor": "#4c749b",
+          "color": "rgba(29, 200, 102, 0.87)",
+          "padding": "0px",
           "settings": {
-            "shadowSize": 4,
-            "fontColor": "#545454",
-            "fontSize": 10,
-            "xaxis": {
-              "showLabels": true,
-              "color": "#545454"
+            "styleButton": {
+              "isRaised": true,
+              "isPrimary": true,
+              "bgColor": "#b71c1c",
+              "textColor": "#81c784"
             },
-            "yaxis": {
-              "showLabels": true,
-              "color": "#545454"
-            },
-            "grid": {
-              "color": "#545454",
-              "tickColor": "#DDDDDD",
-              "verticalLines": true,
-              "horizontalLines": true,
-              "outlineWidth": 1
-            },
-            "stack": false,
-            "tooltipIndividual": false,
-            "timeForComparison": "months",
-            "xaxisSecond": {
-              "axisPosition": "top",
-              "showLabels": true
-            }
+            "entityParameters": "{\n    \"LED_STATUS_SERVER\" : 1\n}",
+            "entityAttributeType": "SERVER_SCOPE",
+            "buttonText": "LED_STATUS 1 YAP",
+            "title": "Widget Title"
           },
-          "title": "Sıcaklık - Nem",
+          "title": "Attribute Güncelleme Test",
           "dropShadow": true,
-          "enableFullscreen": true,
+          "enableFullscreen": false,
+          "widgetStyle": {},
           "titleStyle": {
             "fontSize": "16px",
             "fontWeight": 400
           },
-          "mobileHeight": null,
+          "useDashboardTimewindow": true,
+          "showLegend": false,
+          "actions": {},
+          "targetDeviceAliases": [],
+          "datasources": [],
           "showTitleIcon": false,
           "titleIcon": null,
           "iconColor": "rgba(0, 0, 0, 0.87)",
           "iconSize": "24px",
           "titleTooltip": "",
-          "widgetStyle": {},
-          "useDashboardTimewindow": false,
           "displayTimewindow": true,
-          "showLegend": true,
           "showOnMobile": true,
-          "actions": {},
-          "legendConfig": {
-            "direction": "column",
-            "position": "top",
-            "showMin": false,
-            "showMax": false,
-            "showAvg": true,
-            "showTotal": false
-          }
+          "targetDeviceAliasIds": [
+            "0a370ccd-e75e-9dd9-0d65-a5dbf41d540c"
+          ]
         },
-        "id": "895c3e8d-623d-8c1a-7071-575db440ed24"
+        "id": "3d14e4f3-fba8-4ac6-922b-475547fa213c"
+      },
+      "c812fc03-45a7-01e8-dbb5-743e795e557e": {
+        "isSystemType": true,
+        "bundleAlias": "control_widgets",
+        "typeAlias": "rpcbutton",
+        "type": "rpc",
+        "title": "Yeni widget",
+        "sizeX": 7,
+        "sizeY": 3,
+        "config": {
+          "targetDeviceAliases": [],
+          "showTitle": true,
+          "backgroundColor": "#000204",
+          "color": "rgba(254, 254, 254, 0.87)",
+          "padding": "0px",
+          "settings": {
+            "requestTimeout": 6000,
+            "oneWayElseTwoWay": false,
+            "buttonText": "Send RPC - tw",
+            "styleButton": {
+              "isRaised": true,
+              "isPrimary": false,
+              "bgColor": "#00b8d4",
+              "textColor": "#e53935"
+            },
+            "methodName": "rpcCommand2",
+            "methodParams": "{}",
+            "title": "AIŞIKLARI AÇ",
+            "showError": true
+          },
+          "title": "Yeni RPC Button",
+          "dropShadow": true,
+          "enableFullscreen": false,
+          "widgetStyle": {},
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "useDashboardTimewindow": true,
+          "showLegend": false,
+          "actions": {},
+          "datasources": [],
+          "showTitleIcon": false,
+          "titleIcon": null,
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "24px",
+          "titleTooltip": "",
+          "displayTimewindow": true,
+          "showOnMobile": true,
+          "targetDeviceAliasIds": [
+            "09d03239-498b-3d05-60eb-c043ed76e06e"
+          ]
+        },
+        "id": "c812fc03-45a7-01e8-dbb5-743e795e557e"
+      },
+      "c1e45d62-4bb0-8b93-cd0a-86531c7108d2": {
+        "isSystemType": true,
+        "bundleAlias": "control_widgets",
+        "typeAlias": "switch_control",
+        "type": "rpc",
+        "title": "Yeni widget",
+        "sizeX": 7,
+        "sizeY": 4,
+        "config": {
+          "targetDeviceAliases": [],
+          "showTitle": true,
+          "backgroundColor": "#ffab00",
+          "color": "rgba(0, 0, 0, 0.87)",
+          "padding": "0px",
+          "settings": {
+            "initialValue": false,
+            "getValueMethod": "getValue",
+            "setValueMethod": "_SET_ATTR",
+            "showOnOffLabels": true,
+            "title": "Switch control",
+            "retrieveValueMethod": "timeseries",
+            "parseValueFunction": "return data == 1 ? true : false;",
+            "convertValueFunction": "return value;",
+            "requestTimeout": 2000,
+            "valueKey": "LED_STATUS2"
+          },
+          "title": "Yeni Switch Control",
+          "dropShadow": true,
+          "enableFullscreen": false,
+          "widgetStyle": {},
+          "titleStyle": {
+            "fontSize": "16px",
+            "fontWeight": 400
+          },
+          "useDashboardTimewindow": true,
+          "showLegend": false,
+          "actions": {},
+          "decimals": 2,
+          "datasources": [],
+          "showTitleIcon": false,
+          "titleIcon": null,
+          "iconColor": "rgba(0, 0, 0, 0.87)",
+          "iconSize": "24px",
+          "titleTooltip": "",
+          "displayTimewindow": true,
+          "showOnMobile": true,
+          "targetDeviceAliasIds": [
+            "0a370ccd-e75e-9dd9-0d65-a5dbf41d540c"
+          ]
+        },
+        "id": "c1e45d62-4bb0-8b93-cd0a-86531c7108d2"
       }
     },
     "states": {
@@ -371,30 +242,29 @@
         "layouts": {
           "main": {
             "widgets": {
-              "25d71ced-7fa3-97dc-b465-a0a9eb9aba2c": {
-                "sizeX": 6,
-                "sizeY": 3,
-                "row": 0,
-                "col": 0
-              },
-              "f513d0aa-4a75-a7d6-3b2f-5c859ff0d0c5": {
-                "sizeX": 6,
-                "sizeY": 3,
-                "row": 0,
-                "col": 6
-              },
               "7be1d2a9-0b36-9040-b4d1-83698586d98e": {
                 "sizeX": 6,
                 "sizeY": 4,
-                "row": 3,
+                "row": 0,
                 "col": 0
               },
-              "895c3e8d-623d-8c1a-7071-575db440ed24": {
-                "sizeX": 13,
-                "sizeY": 8,
-                "mobileHeight": null,
-                "row": 3,
+              "3d14e4f3-fba8-4ac6-922b-475547fa213c": {
+                "sizeX": 7,
+                "sizeY": 3,
+                "row": 0,
                 "col": 6
+              },
+              "c812fc03-45a7-01e8-dbb5-743e795e557e": {
+                "sizeX": 7,
+                "sizeY": 3,
+                "row": 0,
+                "col": 13
+              },
+              "c1e45d62-4bb0-8b93-cd0a-86531c7108d2": {
+                "sizeX": 7,
+                "sizeY": 4,
+                "row": 4,
+                "col": 0
               }
             },
             "gridSettings": {
@@ -450,6 +320,16 @@
             "id": "7ea2a100-9106-11ea-9243-838964167eef"
           }
         }
+      },
+      "aa8979ca-902c-69be-3f7f-b913b3c336ad": {
+        "id": "aa8979ca-902c-69be-3f7f-b913b3c336ad",
+        "alias": "testEntityName",
+        "filter": {
+          "type": "entityName",
+          "resolveMultiple": false,
+          "entityType": "DEVICE",
+          "entityNameFilter": "Termometre"
+        }
       }
     },
     "timewindow": {
@@ -477,5 +357,5 @@
       "titleColor": "rgba(0,0,0,0.870588)"
     }
   },
-  "name": "Test Silinecek"
+  "name": "Test Silinecek 2"
 }

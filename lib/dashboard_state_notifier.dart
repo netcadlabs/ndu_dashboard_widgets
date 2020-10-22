@@ -45,4 +45,8 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   void setSubscriptionIds(Map<String, String> widgetCmdIds) {
     _widgetSubscriptionIds = widgetCmdIds;
   }
+
+  void addSubscriptionId(String widgetId, String cmdId) {
+    _widgetSubscriptionIds[cmdId] = widgetId;
+  }
 }

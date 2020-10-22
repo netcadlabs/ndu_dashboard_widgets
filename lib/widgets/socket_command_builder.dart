@@ -14,11 +14,11 @@ class SocketCommandBuilder {
 
   SocketCommandBuilder(this._aliasController, this._dashboardDetail);
 
+  int commandId = 1;
+
   Future<SubscriptionCommandResult> build() async {
     SubscriptionCommand subscriptionCommand = SubscriptionCommand();
     Map<String, String> widgetCmdIds = Map();
-
-    int commandId = 1;
 
     try {
       // aliasController = AliasController(entityAliases: dashboardDetail.dashboardConfiguration.entityAliases);
@@ -87,6 +87,61 @@ class SocketCommandBuilder {
     });
 
     return Future.value(list);
+  }
+
+  Future<List<AttrSubCmds>> calculateCommandForAliasId(String aliasId, String key) async {
+    AliasInfo aliasInfo = await aliasController.getAliasInfo(aliasId);
+    List<AttrSubCmds> list = List();
+    if (aliasInfo == null || aliasInfo.resolvedEntities.length == 0) return list;
+
+    if (aliasInfo.resolveMultiple) {
+      aliasInfo.resolvedEntities.forEach((element) {
+        AttrSubCmds attrSubCmds = AttrSubCmds();
+        attrSubCmds.cmdId = commandId++;
+        attrSubCmds.entityId = element.id;
+        attrSubCmds.entityType = element.entityType;
+        attrSubCmds.keys = key;
+        list.add(attrSubCmds);
+      });
+    } else {
+      var element = aliasInfo.resolvedEntities[0];
+      AttrSubCmds attrSubCmds = AttrSubCmds();
+      attrSubCmds.cmdId = commandId++;
+      attrSubCmds.entityId = element.id;
+      attrSubCmds.entityType = element.entityType;
+      attrSubCmds.keys = key;
+      list.add(attrSubCmds);
+    }
+
+    return list;
+  }
+
+  List<AttrSubCmds> calculateCommandForEntityInfo(EntityInfo element, String key) {
+    List<AttrSubCmds> list = List();
+    if (element == null) return list;
+
+    AttrSubCmds attrSubCmds = AttrSubCmds();
+    attrSubCmds.cmdId = commandId++;
+    attrSubCmds.entityId = element.id;
+    attrSubCmds.entityType = element.entityType;
+    attrSubCmds.keys = key;
+    list.add(attrSubCmds);
+
+    return list;
+  }
+
+  List<TsSubCmds> calculateTsSubCmdsCommandForEntityInfo(EntityInfo element, String key) {
+    List<TsSubCmds> list = List();
+    if (element == null) return list;
+
+    TsSubCmds tsSubCmds = TsSubCmds();
+    tsSubCmds.cmdId = commandId++;
+    tsSubCmds.entityId = element.id;
+    tsSubCmds.entityType = element.entityType;
+    tsSubCmds.keys = key;
+    list.add(tsSubCmds);
+
+    return list;
   }
 
   TsSubCmds setTimeProperties(WidgetConfigConfig widgetConfig, TsSubCmds tsSubCmds) {
@@ -173,7 +228,7 @@ class SubscriptionCommandResult {
 class SubscriptionCommand {
   List<TsSubCmds> tsSubCmds = List();
   List<TsSubCmds> historyCmds = List(); //TODO - yeni model tipini öğren
-  List<TsSubCmds> attrSubCmds = List(); //TODO - yeni model tipini öğren
+  List<AttrSubCmds> attrSubCmds = List(); //TODO - yeni model tipini öğren
 
   SubscriptionCommand();
 
@@ -192,10 +247,10 @@ class SubscriptionCommand {
       });
     }
 
-    attrSubCmds = new List<TsSubCmds>();
+    attrSubCmds = new List<AttrSubCmds>();
     if (json['attrSubCmds'] != null) {
       json['attrSubCmds'].forEach((v) {
-        attrSubCmds.add(new TsSubCmds.fromJson(v));
+        attrSubCmds.add(new AttrSubCmds.fromJson(v));
       });
     }
   }
@@ -211,6 +266,36 @@ class SubscriptionCommand {
     if (this.attrSubCmds != null) {
       data['attrSubCmds'] = this.attrSubCmds.map((v) => v.toJson()).toList();
     }
+    return data;
+  }
+}
+
+class AttrSubCmds {
+  String entityType;
+  String entityId;
+  String keys;
+  int cmdId;
+
+  AttrSubCmds({
+    this.entityType,
+    this.entityId,
+    this.keys,
+    this.cmdId,
+  });
+
+  AttrSubCmds.fromJson(Map<String, dynamic> json) {
+    entityType = json['entityType'];
+    entityId = json['entityId'];
+    keys = json['keys'];
+    cmdId = json['cmdId'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['entityType'] = this.entityType;
+    data['entityId'] = this.entityId;
+    data['keys'] = this.keys;
+    data['cmdId'] = this.cmdId;
     return data;
   }
 }
