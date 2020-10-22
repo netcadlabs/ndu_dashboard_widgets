@@ -57,9 +57,10 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
   Color buttonTextColor;
 
   bool currentSwitchValue = false;
-  String retrieveValueMethod;
-  String setValueMethod;
-  String valueKey;
+  String getValueMethod = "";
+  String retrieveValueMethod = "";
+  String setValueMethod = "";
+  String valueKey = "";
 
   // Map methodParams = {};
   bool showOnOffLabels = false;
@@ -69,6 +70,7 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
   String convertValueFunction = "return value;";
 
   bool isButtonReady = false;
+  String errorText = "";
 
   final flutterWebViewPlugin = FlutterWebviewPlugin();
 
@@ -85,25 +87,12 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
     flutterWebViewPlugin.close();
     flutterWebViewPlugin.launch(Constants.baseUrl, hidden: true);
 
-    // flutterWebViewPlugin.onStateChanged
-    //     .listen((viewState) async {
-    //       if (viewState.type == WebViewState.finishLoad) {
-    //         int a = 3;
-    //       }
-    //     })
-    //     .asFuture()
-    //     .then((value) {
-    //       print('Yuklendi');
-    //     })
-    //     .catchError((err) {
-    //       print(err);
-    //     });
-
     title = "${widget.widgetConfig.config.settings.title}";
     buttonLabel = "${widget.widgetConfig.config.settings.buttonText}";
 
     showOnOffLabels = widget.widgetConfig.config.settings.showOnOffLabels;
     currentSwitchValue = widget.widgetConfig.config.settings.initialValue;
+    getValueMethod = widget.widgetConfig.config.settings.getValueMethod;
     retrieveValueMethod = widget.widgetConfig.config.settings.retrieveValueMethod;
     requestTimeout = widget.widgetConfig.config.settings.requestTimeout;
     if (widget.widgetConfig.config.settings.parseValueFunction != null &&
@@ -132,11 +121,16 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
         if (aliasInfo.resolvedEntities != null && aliasInfo.resolvedEntities.length > 0) {
           EntityInfo entityInfo = aliasInfo.resolvedEntities[0];
 
+          setState(() {
+            entityId = entityInfo.id;
+            isButtonReady = true;
+          });
+
           SubscriptionCommand subscriptionCommand = SubscriptionCommand();
           if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_DO_NOT_RETRIEVE) {
             print("retrieveValueMethod is none!");
           } else if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_RPC) {
-            //TODO -
+            getRPCValue();
           } else if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_SUBSCRIBE_ATTRIBUTE) {
             subscriptionCommand.attrSubCmds =
                 widget.socketCommandBuilder.calculateCommandForEntityInfo(entityInfo, valueKey);
@@ -159,10 +153,6 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
 
           String subscriptionCommandJson = jsonEncode(subscriptionCommand);
           widget.webSocketChannel.sink.add(subscriptionCommandJson);
-          setState(() {
-            entityId = entityInfo.id;
-            isButtonReady = true;
-          });
         }
       });
     }
@@ -209,6 +199,12 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
               ? Text(
                   currentSwitchValue ? "Açık" : "Kapalı",
                   style: TextStyle(color: HexColor.fromCss(widget.widgetConfig.config.color), fontSize: 15),
+                )
+              : Container(),
+          (errorText != "")
+              ? Text(
+                  errorText,
+                  style: TextStyle(color: Colors.red, fontSize: 11),
                 )
               : Container()
         ],
@@ -316,5 +312,21 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
       return evalResult == "true";
     }
     return false;
+  }
+
+  void getRPCValue() {
+    Map requestData = {"method": getValueMethod, "params": null, "timeout": requestTimeout};
+    _RPCApi.handleTwoWayDeviceRPCRequest(entityId, requestData).then((reponse) {
+      //TODO - cihazdan gelen veriyi yorumla ve currentSwitchValue değerini set et.
+      setState(() {
+        // currentSwitchValue = reponse //response parse et
+        errorText = "";
+      });
+    }).catchError((err) {
+      // if (err == 408)//timeout
+      setState(() {
+        errorText = "Cihaza erişilemiyor";
+      });
+    });
   }
 }
