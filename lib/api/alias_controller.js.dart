@@ -4,6 +4,7 @@ import 'package:ndu_api_client/device_api.dart';
 import 'package:ndu_api_client/models/api_models.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
+import 'package:ndu_api_client/util/constants.dart';
 
 class AliasController {
   Map<String, AliasInfo> resolvedAliases = {};
@@ -219,6 +220,14 @@ class EntityService {
           break;
 
         case 'entityName':
+          List<Device> entities =
+              await getEntitiesByNameFilter(filter.entityType, filter.entityNameFilter, maxItems, ignoreLoading: true);
+          if (entities!=null && entities.length>0) {
+            result.entities = entitiesToEntitiesInfo(entities);
+            return result;
+          } else {
+            throw Exception("Device listesi boş geldi.");
+          }
           break;
 
         case 'stateEntity':
@@ -270,6 +279,54 @@ class EntityService {
     }
 
     return entityId;
+  }
+
+  static Future< List<Device>> getEntitiesByNameFilter(String entityType, String entityNameFilter, int limit,
+      {ignoreLoading: true,subType}) async {
+    try{
+      PageLink pageLink = PageLink(limit: limit, textSearch: entityNameFilter);
+      pageLink.limit = 100;
+      List<Device> result = await getEntities(entityType, pageLink, ignoreLoading, null);
+      return result;
+    }catch(err){
+      throw Exception(err);
+    }
+
+  }
+
+  static Future<List<Device>> getEntities(String entityType,PageLink pageLink,var config,String subType) async {
+    DeviceApi _deviceApi = DeviceApi();
+    switch (entityType) {
+      case "DEVICE":
+        Map<String, String> map = Map();
+        map.putIfAbsent("limit", () => Constants.limit.toString());
+        map.putIfAbsent("textSearch", () => pageLink.textSearch);
+        List<Device> result=await _deviceApi.getDevices(map);
+        if (result!=null && result.length > 0) {
+          return result;
+        } else {
+          throw Exception("getEntitiesByPageLinkPromise liste boş geldi");
+        }
+        break;
+      case "types.entityType.asset":
+        break;
+      case "types.entityType.entityView":
+        break;
+      case "types.entityType.tenant":
+        break;
+      case "types.entityType.customer":
+        break;
+      case "types.entityType.rulechain":
+        break;
+      case "types.entityType.dashboard":
+        break;
+      case "types.entityType.user":
+        break;
+      default:
+        throw Exception("$entityType caselerde bulunamadı.");
+        break;
+    }
+    throw Exception("$entityType caselerde bulunamadı.");
   }
 
   static EntityId resolveAliasEntityId(String entityType, String id) {
@@ -403,3 +460,5 @@ class EntityId {
 
   EntityId({this.id, this.entityType});
 }
+
+
