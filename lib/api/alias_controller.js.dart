@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:ndu_api_client/assets_api.dart';
 import 'package:ndu_api_client/device_api.dart';
 import 'package:ndu_api_client/models/api_models.dart';
+import 'package:ndu_api_client/models/assets.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_api_client/models/page_base_model.dart';
@@ -189,18 +191,17 @@ class EntityService {
     // });
   }
 
-  static Future<ResolvedAliasFilterResult> resolveAliasFilter(
-      Filter filter, dynamic stateParams, int maxItems, bool failOnEmpty) async {
+  static Future<ResolvedAliasFilterResult> resolveAliasFilter(Filter filter, dynamic stateParams, int maxItems,
+      bool failOnEmpty) async {
     ResolvedAliasFilterResult result = ResolvedAliasFilterResult();
     result.entities = List();
     result.stateEntity = false;
     result.entityParamName = "";
 
-    // EntityId stateEntityId = getStateEntityInfo(filter, stateParams);
+    EntityId stateEntityId = getStateEntityInfo(filter, stateParams);
     if (filter.stateEntityParamName != null) {
       result.entityParamName = filter.stateEntityParamName;
     }
-
     try {
       switch (filter.type) {
         case 'singleEntity':
@@ -218,11 +219,17 @@ class EntityService {
           });
           break;
         case 'entityList':
+          var entities = getEntities(filter.entityType, filter, null);
+          if (entities != null && entities.length || !failOnEmpty) {
+            result.entities = entitiesToEntitiesInfo(entities);
+          } else {
+
+          }
           break;
 
         case 'entityName':
           PageBaseModel entities =
-              await getEntitiesByNameFilter(filter.entityType, filter.entityNameFilter, maxItems, ignoreLoading: true);
+          await getEntitiesByNameFilter(filter.entityType, filter.entityNameFilter, maxItems, ignoreLoading: true);
           if (entities != null && entities.data.length > 0) {
             result.entities = entitiesToEntitiesInfo(entities.data);
             return result;
@@ -232,6 +239,14 @@ class EntityService {
           break;
 
         case 'stateEntity':
+          result.stateEntity = true;
+          if (stateEntityId != null) {
+            var entity = await getEntity(stateEntityId.entityType, stateEntityId.id, null);
+            result.entities = entitiesToEntitiesInfo([entity]);
+          } else {
+            throw Exception("Device listesi boş geldi.");
+          }
+
           break;
 
         case 'assetType':
@@ -257,6 +272,31 @@ class EntityService {
     }
 
     throw Exception('${filter.type}  desteklenmiyor!');
+  }
+
+  static dynamic getEntities(entityType, entityIds, config) {
+    switch (entityType) {
+      case "DEVICE":
+        DeviceApi deviceApi = DeviceApi();
+        var response = deviceApi.getDeviceIds(entityType, entityIds);
+        break;
+      case "Asset":
+        break;
+      case "types.entityType.entityView":
+        break;
+      case "types.entityType.tenant":
+        break;
+      case "types.entityType.customer":
+        break;
+      case "types.entityType.dashboard":
+        break;
+      case "types.entityType.user":
+        break;
+      case "types.entityType.alarm":
+        break;
+    }
+
+    return null;
   }
 
   static EntityId getStateEntityInfo(Filter filter, dynamic stateParams) {
@@ -287,17 +327,18 @@ class EntityService {
     try {
       PageLink pageLink = PageLink(limit: limit, textSearch: entityNameFilter);
       pageLink.limit = 100;
-      PageBaseModel result = await getEntities(entityType, pageLink, ignoreLoading, null);
+      PageBaseModel result = await getEntitiesByPageLinkPromise(entityType, pageLink, ignoreLoading, null);
       return result;
     } catch (err) {
       throw Exception(err);
     }
   }
 
-  static Future<PageBaseModel> getEntities(String entityType, PageLink pageLink, var config, String subType) async {
-    DeviceApi _deviceApi = DeviceApi();
+  static Future<PageBaseModel> getEntitiesByPageLinkPromise(String entityType, PageLink pageLink, var config,
+      String subType) async {
     switch (entityType) {
       case "DEVICE":
+        DeviceApi _deviceApi = DeviceApi();
         PageBaseModel result = await _deviceApi.getDevices(pageLink);
         if (result != null && result.data.length > 0) {
           return result;
@@ -305,7 +346,14 @@ class EntityService {
           throw Exception("getEntitiesByPageLinkPromise liste boş geldi");
         }
         break;
-      case "types.entityType.asset":
+      case "Asset":
+        AssetsApi _assetsApi = AssetsApi();
+        PageBaseModel result = await _assetsApi.getAssetList(pageLink);
+        if (result != null && result.data.length > 0) {
+          return result;
+        } else {
+          throw Exception("getEntitiesByPageLinkPromise liste boş geldi");
+        }
         break;
       case "types.entityType.entityView":
         break;
@@ -379,34 +427,34 @@ class EntityService {
         }
         break;
       case "ASSET":
-        //TODO
-        // AssetApi assetApi = AssetApi();
-        // promise = assetApi.getAsset(entityId, true, config);
-        break;
       //TODO
-      // case types.entityType.entityView:
-      //   promise = entityViewService.getEntityView(entityId, true, config);
-      //   break;
-      // case types.entityType.tenant:
-      //   promise = tenantService.getTenant(entityId, config);
-      //   break;
-      // case types.entityType.customer:
-      //   promise = customerService.getCustomer(entityId, config);
-      //   break;
-      // case types.entityType.dashboard:
-      //   promise = dashboardService.getDashboardInfo(entityId, config);
-      //   break;
-      // case types.entityType.user:
-      //   promise = userService.getUser(entityId, true, config);
-      //   break;
-      // case types.entityType.rulechain:
-      //   promise = ruleChainService.getRuleChain(entityId, config);
-      //   break;
-      // case types.entityType.alarm:
-      //   $log.error('Get Alarm Entity is not implemented!');
-      //   break;
+      // AssetApi assetApi = AssetApi();
+      // promise = assetApi.getAsset(entityId, true, config);
+        break;
+    //TODO
+    // case types.entityType.entityView:
+    //   promise = entityViewService.getEntityView(entityId, true, config);
+    //   break;
+    // case types.entityType.tenant:
+    //   promise = tenantService.getTenant(entityId, config);
+    //   break;
+    // case types.entityType.customer:
+    //   promise = customerService.getCustomer(entityId, config);
+    //   break;
+    // case types.entityType.dashboard:
+    //   promise = dashboardService.getDashboardInfo(entityId, config);
+    //   break;
+    // case types.entityType.user:
+    //   promise = userService.getUser(entityId, true, config);
+    //   break;
+    // case types.entityType.rulechain:
+    //   promise = ruleChainService.getRuleChain(entityId, config);
+    //   break;
+    // case types.entityType.alarm:
+    //   $log.error('Get Alarm Entity is not implemented!');
+    //   break;
       default:
-        // Future.error('entitiy type desteklenmiyor : $entityType');
+      // Future.error('entitiy type desteklenmiyor : $entityType');
         throw Exception('entitiy type desteklenmiyor : $entityType');
         break;
     }
@@ -442,13 +490,12 @@ class AliasInfo {
   List<EntityInfo> resolvedEntities;
   dynamic currentEntity;
 
-  AliasInfo(
-      {this.alias,
-      this.stateEntity,
-      this.entityParamName,
-      this.resolvedEntities,
-      this.currentEntity,
-      this.resolveMultiple});
+  AliasInfo({this.alias,
+    this.stateEntity,
+    this.entityParamName,
+    this.resolvedEntities,
+    this.currentEntity,
+    this.resolveMultiple});
 }
 
 class EntityId {
