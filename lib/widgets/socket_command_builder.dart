@@ -86,7 +86,7 @@ class SocketCommandBuilder {
       list.add(tsSubCmds);
     });
 
-    return Future.value(list);
+    return list;
   }
 
   Future<List<AttrSubCmds>> calculateCommandForAliasId(String aliasId, String key) async {

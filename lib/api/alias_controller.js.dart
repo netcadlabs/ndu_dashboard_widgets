@@ -302,20 +302,20 @@ class EntityService {
   static EntityId getStateEntityInfo(Filter filter, dynamic stateParams) {
     EntityId entityId;
     //TODO - JS KODU
-    // if (stateParams) {
-    //   if (filter.stateEntityParamName && filter.stateEntityParamName.length) {
-    //     if (stateParams[filter.stateEntityParamName]) {
-    //       entityId = stateParams[filter.stateEntityParamName].entityId;
-    //     }
-    //   } else {
-    //     entityId = stateParams.entityId;
-    //   }
-    // }
+     if (stateParams!=null) {
+       if (filter.stateEntityParamName!=null && filter.stateEntityParamName.length>0) {
+         if (stateParams[filter.stateEntityParamName]) {
+           entityId = stateParams[filter.stateEntityParamName].entityId;
+         }
+       } else {
+         entityId = stateParams.entityId;
+       }
+     }
     if (entityId == null) {
       entityId = filter.defaultStateEntity;
     }
 
-    if (entityId == null) {
+    if (entityId != null) {
       entityId = resolveAliasEntityId(filter.entityType, entityId.id);
     }
 
