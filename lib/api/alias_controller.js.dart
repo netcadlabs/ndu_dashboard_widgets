@@ -209,21 +209,13 @@ class EntityService {
           var entity = await getEntity(aliasEntityId.entityType, aliasEntityId.id, null);
           result.entities = entitiesToEntitiesInfo([entity]);
           return result;
-
-          getEntity(aliasEntityId.entityType, aliasEntityId.id, null).then((entity) {
-            result.entities = entitiesToEntitiesInfo([entity]);
-            return Future.value(result);
-          }).catchError((err) {
-            print(err);
-            return Future.error('singleEntity resolve edilemedi : ${aliasEntityId.id} ');
-          });
           break;
         case 'entityList':
           var entities = getEntities(filter.entityType, filter, null);
           if (entities != null && entities.length || !failOnEmpty) {
             result.entities = entitiesToEntitiesInfo(entities);
           } else {
-
+            throw Exception("entityList hatası.");
           }
           break;
 

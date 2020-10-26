@@ -5,6 +5,7 @@ import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class BasicTimeseriesChart extends BaseDashboardWidget {
   BasicTimeseriesChart(WidgetConfig _widgetConfig, {Key key}) : super(_widgetConfig, key: key);
@@ -15,12 +16,12 @@ class BasicTimeseriesChart extends BaseDashboardWidget {
 
 class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeseriesChart> {
   List<SocketData> allRawData = List();
-
-  List<charts.Series> seriesList = List<charts.Series<TimeSeriesGraphData, DateTime>>();
+  List<TimeSeriesGraphData> dataList = List();
+  List<ChartSeries<TimeSeriesGraphData, String>> seriesList = List();
   Map<String, List<dynamic>> seriesListData = Map<String, List<dynamic>>();
   List<charts.SeriesLegend> legendList = List();
   bool animate = false;
-
+  List<Color> colorList=[];
   String data = "0";
   String dataSourceLabel;
   String dataSourceKey;
@@ -48,14 +49,15 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
         int dataKeyIndex = 0;
         widget.widgetConfig.config.datasources.forEach((dataSource) {
           dataSource.dataKeys.forEach((dataKey) {
+            colorList.add(HexColor.fromCss(dataKey.color));
             addNewSeriest(dataKey);
-            legendList.add(charts.SeriesLegend(
+          /*  legendList.add(charts.SeriesLegend(
                 position: position,
                 outsideJustification: charts.OutsideJustification.start,
                 horizontalFirst: false,
                 desiredMaxRows: 2,
                 cellPadding: new EdgeInsets.only(right: 4.0, bottom: 4.0),
-                entryTextStyle: charts.TextStyleSpec(color: charts.Color.fromHex(code: dataKey.color), fontFamily: 'Georgia', fontSize: 12)));
+                entryTextStyle: charts.TextStyleSpec(color: charts.Color.fromHex(code: dataKey.color), fontFamily: 'Georgia', fontSize: 12)));*/
             dataKeyIndex++;
           });
           index++;
@@ -65,14 +67,26 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
 
   }
   addNewSeriest(DataKeys dataKey){
-    seriesList.add(new charts.Series<TimeSeriesGraphData, DateTime>(
+    print('addNewSeriest ${dataKey.name}');
+    seriesList.add(
+        LineSeries<TimeSeriesGraphData, String>(
+            name: dataKey.name,
+            dataSource: dataList,
+            xValueMapper: (TimeSeriesGraphData data, _) => data.timeString,
+            yValueMapper: (TimeSeriesGraphData data, _) => data.value,
+            // Enable data label
+            dataLabelSettings: DataLabelSettings(isVisible: true))
+    );
+  print('list lenght : ${seriesList.length}');
+
+    /*seriesList.add(new charts.Series<TimeSeriesGraphData, DateTime>(
       id: dataKey.name,
       displayName: dataKey.label,
       colorFn: (_, __) => charts.Color.fromHex(code: dataKey.color),
       domainFn: (TimeSeriesGraphData sales, _) => sales.time,
       measureFn: (TimeSeriesGraphData sales, _) => sales.value,
       data: [],
-    ));
+    ));*/
   }
   @override
   Widget build(BuildContext context) {
@@ -87,7 +101,14 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
       decoration: BoxDecoration(color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor)),
       child: Container(
         padding: EdgeInsets.all(10),
-        child: charts.TimeSeriesChart(
+        child:SfCartesianChart(
+          primaryXAxis: CategoryAxis(),
+          legend: Legend(isVisible: true),
+          series: seriesList,
+          tooltipBehavior: TooltipBehavior(enable: true),
+          palette: colorList,
+        )
+        /*charts.TimeSeriesChart(
           seriesList,
           animate: animate,
           // Optionally pass in a [DateTimeFactory] used by the chart. The factory
@@ -95,7 +116,7 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
           // specified, the default creates local date time.
           dateTimeFactory: const charts.LocalDateTimeFactory(),
           behaviors: legendList,
-        ),
+        ),*/
       ),
     );
   }
@@ -112,7 +133,8 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
         double val = 0;
         if (value[1] is double) val = value[1];
         if (value[1] is String) val = double.parse(value[1]);
-       TimeSeriesGraphData tsData = TimeSeriesGraphData(DateTime.fromMillisecondsSinceEpoch(ts), val);
+       TimeSeriesGraphData tsData = TimeSeriesGraphData(DateTime.fromMillisecondsSinceEpoch(ts,
+       isUtc: true), val);
         tsDataList.add(tsData);
       });
       addDataToSeriesList(key,tsDataList);
@@ -123,22 +145,21 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
   void addDataToSeriesList(String key, List<TimeSeriesGraphData> tsData) {
     int index = 0;
     int foundIndex = 0;
-
     seriesList.forEach((element) {
-      if (element.id == key) foundIndex = index;
+      if (element.name == key) foundIndex = index;
       index++;
     });
     List<TimeSeriesGraphData> tempList;
     if(seriesList.length>0){
-      tempList=seriesList[foundIndex].data;
+      tempList=seriesList[foundIndex].dataSource;
     }
     else
       tempList=List();
     tempList.addAll(tsData);
     print(tsData.length.toString());
     tsData = timeSeriesListUpdate(tempList);
-    seriesList[foundIndex].data.clear();
-    seriesList[foundIndex].data.addAll(tsData);
+    seriesList[foundIndex].dataSource.clear();
+    seriesList[foundIndex].dataSource.addAll(tsData);
 
 
   }
@@ -161,10 +182,10 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
     int index = 0;
     int foundIndex = 0;
     seriesList.forEach((element) {
-      if (element.id == key) foundIndex = index;
+      if (element.name == key) foundIndex = index;
       index++;
     });
-    seriesList[foundIndex].data.add(tsData);
+    seriesList[foundIndex].dataSource.add(tsData);
 
   }
 }
