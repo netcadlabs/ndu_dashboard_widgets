@@ -35,8 +35,8 @@ class SocketCommandBuilder {
               await _calculateTimeSeriesSubscriptionCommands2(widgetConfig.config, datasources);
 
           if (subCmdsList != null && subCmdsList.length > 0) {
-            widgetCmdIds[commandId.toString()] = widgetConfig.id;
             subCmdsList.forEach((subCmd) {
+              widgetCmdIds[commandId.toString()] = widgetConfig.id;
               subCmd.cmdId = commandId;
               commandId++;
               subscriptionCommand.tsSubCmds.add(subCmd);
