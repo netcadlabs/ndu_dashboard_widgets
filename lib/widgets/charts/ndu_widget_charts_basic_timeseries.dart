@@ -16,7 +16,9 @@ class BasicTimeseriesChart extends BaseDashboardWidget {
 
 class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeseriesChart> {
   List<SocketData> allRawData = List();
-  Map<String,List<TimeSeriesGraphData>> dataList = Map();
+  DateTime maxTime ;
+  int maxLenght = 0;
+  Map<String, List<TimeSeriesGraphData>> dataList = Map();
   List<LineSeries<TimeSeriesGraphData, String>> seriesList = List();
   Map<String, List<dynamic>> seriesListData = Map<String, List<dynamic>>();
   List<charts.SeriesLegend> legendList = List();
@@ -68,8 +70,7 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
   }
 
   addNewSeriest(DataKeys dataKey) {
-    List<TimeSeriesGraphData> list =List();
-    print('addNewSeriest ${dataKey.name}');
+    List<TimeSeriesGraphData> list = List();
     seriesList.add(LineSeries<TimeSeriesGraphData, String>(
         name: dataKey.name,
         dataSource: new List(),
@@ -77,7 +78,6 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
         yValueMapper: (TimeSeriesGraphData data, _) => data.value,
         // Enable data label
         dataLabelSettings: DataLabelSettings(isVisible: true)));
-    print('list lenght : ${seriesList.length}');
   }
 
   @override
@@ -85,28 +85,75 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
     super.build(context);
     return seriesList.length < 1
         ? Center(
-            child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurpleAccent),
-          ))
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurpleAccent),
+        ))
         : Container(
-            height: 400,
-            decoration: BoxDecoration(color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor)),
-            child: Container(
-                padding: EdgeInsets.all(10),
-                child: SfCartesianChart(
-                  primaryXAxis: CategoryAxis(),
-                  legend: Legend(isVisible: true),
-                  series: seriesList,
-                  tooltipBehavior: TooltipBehavior(enable: true),
-                  palette: colorList,
-                )),
-          );
+      height: 400,
+      decoration: BoxDecoration(color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor)),
+      child: Container(
+          padding: EdgeInsets.all(10),
+          child: SfCartesianChart(
+              primaryXAxis: CategoryAxis(
+                isVisible: true,
+                //Display timeline on top
+                opposedPosition: false,
+                //The time axis is reversed
+                isInversed: false,
+              ),
+              //Title
+              title: ChartTitle(text: 'Line chart test'),
+              //Selected type
+              selectionType: SelectionType.series,
+              //Time axis and value axis transposition
+              isTransposed: false,
+              //Select gesture
+              selectionGesture: ActivationMode.singleTap,
+              //Illustration
+              legend: Legend(
+                  isVisible: true,
+                  iconHeight: 10,
+                  iconWidth: 10,
+                  //Switch series display
+                  toggleSeriesVisibility: true,
+                  //Illustration display position
+                  position: LegendPosition.bottom,
+                  overflowMode: LegendItemOverflowMode.wrap,
+                  //Illustration left and right position
+                  alignment: ChartAlignment.center),
+              //Cross
+              crosshairBehavior: CrosshairBehavior(
+                lineType: CrosshairLineType.horizontal, //Horizontal selection indicator
+                enable: true,
+                shouldAlwaysShow: false, //The cross is always displayed (horizontal selection indicator)
+                activationMode: ActivationMode.singleTap,
+              ),
+              //Track the ball
+              trackballBehavior: TrackballBehavior(
+                lineType: TrackballLineType.vertical,
+                //Vertical selection indicator
+                activationMode: ActivationMode.singleTap,
+                enable: true,
+                tooltipAlignment: ChartAlignment.near,
+                //Tooltip position (top)
+                shouldAlwaysShow: true,
+                //Track ball is always displayed (vertical selection indicator)
+                tooltipDisplayMode: TrackballDisplayMode.groupAllPoints, //Tool tip mode (group all)
+              ),
+              //Open tooltip
+              tooltipBehavior: TooltipBehavior(
+                enable: true,
+                shared: true,
+                activationMode: ActivationMode.singleTap,
+              ),
+              //SplineSeries is a curve LineSeries is a polyline ChartSeries
+              series: seriesList)),
+    );
   }
 
   @override
   void onData(SocketData graphData) {
     if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
-    print('${graphData.value} ### ${graphData.datas.toString()}');
     int index = 0;
     graphData.datas.forEach((key, values) {
       List<TimeSeriesGraphData> tsDataList = List();
@@ -127,9 +174,8 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
     int index = 0;
     int foundIndex = 0;
     seriesList.forEach((element) {
-      if (element.name == key){
+      if (element.name == key) {
         foundIndex = index;
-        print('${element.name} ### $foundIndex');
       }
       index++;
     });
@@ -140,16 +186,29 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
       tempList = List();
     tempList.addAll(tsData);
     tsData = timeSeriesListUpdate(tempList);
-    print("list lenght #################: ${seriesList[foundIndex].dataSource.length}");
     seriesList[foundIndex].dataSource.clear();
     seriesList[foundIndex].dataSource.addAll(tsData);
+    maxSizeUpdate();
+    updateSeriesList();
   }
 
   List<TimeSeriesGraphData> timeSeriesListUpdate(List<TimeSeriesGraphData> tsData) {
     double minute = (widget.widgetConfig.config.timewindow.realtime.timewindowMs * 0.001) / 60;
     List<TimeSeriesGraphData> resultList = List();
-    DateTime historyDateTime = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day,
-        DateTime.now().hour, DateTime.now().minute - int.parse(minute.round().toString()), DateTime.now().second);
+    DateTime historyDateTime = DateTime(DateTime
+        .now()
+        .year, DateTime
+        .now()
+        .month, DateTime
+        .now()
+        .day,
+        DateTime
+            .now()
+            .hour, DateTime
+            .now()
+            .minute - int.parse(minute.round().toString()), DateTime
+            .now()
+            .second);
 
     tsData.forEach((element) {
       if (historyDateTime.isBefore(element.time)) {
@@ -167,5 +226,35 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
       index++;
     });
     seriesList[foundIndex].dataSource.add(tsData);
+  }
+
+  void maxSizeUpdate() {
+    for (int i = 0; i < seriesList.length; i++) {
+      if (seriesList[i].dataSource.length > maxLenght) {
+        maxLenght = seriesList[i].dataSource.length-1;
+        maxTime = seriesList[i].dataSource[maxLenght].time;
+
+        print("------------- maxLenght $maxLenght");
+      }
+    }
+  }
+
+  void updateSeriesList() {
+    bool end = true;
+    seriesList.forEach((element) {
+      if (element.dataSource.length < maxLenght) {
+        double value =  element.dataSource[element.dataSource.length - 1].value;
+        TimeSeriesGraphData data = TimeSeriesGraphData(maxTime,value);
+        print('$maxTime ---------- ${data.timeString} ------ ${data.value}');
+        int count = 0;
+        while (end) {
+          count++;
+          element.dataSource.add(data);
+          if (element.dataSource.length == maxLenght) {
+            end = false;
+          }
+        }
+      }
+    });
   }
 }

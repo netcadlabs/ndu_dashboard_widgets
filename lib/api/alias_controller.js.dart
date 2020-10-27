@@ -191,8 +191,8 @@ class EntityService {
     // });
   }
 
-  static Future<ResolvedAliasFilterResult> resolveAliasFilter(Filter filter, dynamic stateParams, int maxItems,
-      bool failOnEmpty) async {
+  static Future<ResolvedAliasFilterResult> resolveAliasFilter(
+      Filter filter, dynamic stateParams, int maxItems, bool failOnEmpty) async {
     ResolvedAliasFilterResult result = ResolvedAliasFilterResult();
     result.entities = List();
     result.stateEntity = false;
@@ -221,7 +221,7 @@ class EntityService {
 
         case 'entityName':
           PageBaseModel entities =
-          await getEntitiesByNameFilter(filter.entityType, filter.entityNameFilter, maxItems, ignoreLoading: true);
+              await getEntitiesByNameFilter(filter.entityType, filter.entityNameFilter, maxItems, ignoreLoading: true);
           if (entities != null && entities.data.length > 0) {
             result.entities = entitiesToEntitiesInfo(entities.data);
             return result;
@@ -251,6 +251,26 @@ class EntityService {
           break;
 
         case 'relationsQuery':
+          result.stateEntity = filter.rootStateEntity;
+          var rootEntityType;
+          var rootEntityId;
+          if (result.stateEntity != null && stateEntityId != null) {
+            rootEntityType = stateEntityId.entityType;
+            rootEntityId = stateEntityId.id;
+          } else if (result.stateEntity != null) {
+            rootEntityType = filter.rootEntity.entityType;
+            rootEntityId = filter.rootEntity.id;
+          }
+          if (rootEntityType != null && rootEntityId != null) {
+            var relationQueryRootEntityId = resolveAliasEntityId(rootEntityType, rootEntityId);
+            SearchQuery searchQuery = SearchQuery(
+                rootId: relationQueryRootEntityId.id,
+                rootType: relationQueryRootEntityId.entityType,
+                direction: filter.direction,
+                fetchLastLevelOnly: filter.fetchLastLevelOnly,
+                filters: filter.filters);
+            searchQuery.maxLevel = filter.maxLevel != null && filter.maxLevel > 0 ? filter.maxLevel : -1;
+          }
           break;
 
         case 'assetSearchQuery':
@@ -294,15 +314,15 @@ class EntityService {
   static EntityId getStateEntityInfo(Filter filter, dynamic stateParams) {
     EntityId entityId;
     //TODO - JS KODU
-     if (stateParams!=null) {
-       if (filter.stateEntityParamName!=null && filter.stateEntityParamName.length>0) {
-         if (stateParams[filter.stateEntityParamName]) {
-           entityId = stateParams[filter.stateEntityParamName].entityId;
-         }
-       } else {
-         entityId = stateParams.entityId;
-       }
-     }
+    if (stateParams != null) {
+      if (filter.stateEntityParamName != null && filter.stateEntityParamName.length > 0) {
+        if (stateParams[filter.stateEntityParamName]) {
+          entityId = stateParams[filter.stateEntityParamName].entityId;
+        }
+      } else {
+        entityId = stateParams.entityId;
+      }
+    }
     if (entityId == null) {
       entityId = filter.defaultStateEntity;
     }
@@ -326,8 +346,8 @@ class EntityService {
     }
   }
 
-  static Future<PageBaseModel> getEntitiesByPageLinkPromise(String entityType, PageLink pageLink, var config,
-      String subType) async {
+  static Future<PageBaseModel> getEntitiesByPageLinkPromise(
+      String entityType, PageLink pageLink, var config, String subType) async {
     switch (entityType) {
       case "DEVICE":
         DeviceApi _deviceApi = DeviceApi();
@@ -419,34 +439,34 @@ class EntityService {
         }
         break;
       case "ASSET":
-      //TODO
-      // AssetApi assetApi = AssetApi();
-      // promise = assetApi.getAsset(entityId, true, config);
+        //TODO
+        // AssetApi assetApi = AssetApi();
+        // promise = assetApi.getAsset(entityId, true, config);
         break;
-    //TODO
-    // case types.entityType.entityView:
-    //   promise = entityViewService.getEntityView(entityId, true, config);
-    //   break;
-    // case types.entityType.tenant:
-    //   promise = tenantService.getTenant(entityId, config);
-    //   break;
-    // case types.entityType.customer:
-    //   promise = customerService.getCustomer(entityId, config);
-    //   break;
-    // case types.entityType.dashboard:
-    //   promise = dashboardService.getDashboardInfo(entityId, config);
-    //   break;
-    // case types.entityType.user:
-    //   promise = userService.getUser(entityId, true, config);
-    //   break;
-    // case types.entityType.rulechain:
-    //   promise = ruleChainService.getRuleChain(entityId, config);
-    //   break;
-    // case types.entityType.alarm:
-    //   $log.error('Get Alarm Entity is not implemented!');
-    //   break;
+      //TODO
+      // case types.entityType.entityView:
+      //   promise = entityViewService.getEntityView(entityId, true, config);
+      //   break;
+      // case types.entityType.tenant:
+      //   promise = tenantService.getTenant(entityId, config);
+      //   break;
+      // case types.entityType.customer:
+      //   promise = customerService.getCustomer(entityId, config);
+      //   break;
+      // case types.entityType.dashboard:
+      //   promise = dashboardService.getDashboardInfo(entityId, config);
+      //   break;
+      // case types.entityType.user:
+      //   promise = userService.getUser(entityId, true, config);
+      //   break;
+      // case types.entityType.rulechain:
+      //   promise = ruleChainService.getRuleChain(entityId, config);
+      //   break;
+      // case types.entityType.alarm:
+      //   $log.error('Get Alarm Entity is not implemented!');
+      //   break;
       default:
-      // Future.error('entitiy type desteklenmiyor : $entityType');
+        // Future.error('entitiy type desteklenmiyor : $entityType');
         throw Exception('entitiy type desteklenmiyor : $entityType');
         break;
     }
@@ -482,12 +502,13 @@ class AliasInfo {
   List<EntityInfo> resolvedEntities;
   dynamic currentEntity;
 
-  AliasInfo({this.alias,
-    this.stateEntity,
-    this.entityParamName,
-    this.resolvedEntities,
-    this.currentEntity,
-    this.resolveMultiple});
+  AliasInfo(
+      {this.alias,
+      this.stateEntity,
+      this.entityParamName,
+      this.resolvedEntities,
+      this.currentEntity,
+      this.resolveMultiple});
 }
 
 class EntityId {
@@ -495,4 +516,15 @@ class EntityId {
   String entityType;
 
   EntityId({this.id, this.entityType});
+}
+
+class SearchQuery {
+  String rootId;
+  String rootType;
+  var direction;
+  var fetchLastLevelOnly;
+  var filters;
+  double maxLevel;
+
+  SearchQuery({this.rootId, this.rootType, this.direction, this.fetchLastLevelOnly, this.filters, this.maxLevel});
 }
