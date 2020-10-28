@@ -7,6 +7,7 @@ import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+// ignore: must_be_immutable
 class BasicTimeseriesChart extends BaseDashboardWidget {
   BasicTimeseriesChart(WidgetConfig _widgetConfig, {Key key}) : super(_widgetConfig, key: key);
 
@@ -16,7 +17,7 @@ class BasicTimeseriesChart extends BaseDashboardWidget {
 
 class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeseriesChart> {
   List<SocketData> allRawData = List();
-  DateTime maxTime ;
+  DateTime maxTimeTemp=DateTime.now();
   int maxLenght = 0;
   Map<String, List<TimeSeriesGraphData>> dataList = Map();
   List<LineSeries<TimeSeriesGraphData, String>> seriesList = List();
@@ -76,6 +77,7 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
         dataSource: new List(),
         xValueMapper: (TimeSeriesGraphData data, _) => data.timeString,
         yValueMapper: (TimeSeriesGraphData data, _) => data.value,
+        sortFieldValueMapper: (TimeSeriesGraphData data, _) => data.timeString,
         // Enable data label
         dataLabelSettings: DataLabelSettings(isVisible: true)));
   }
@@ -101,9 +103,6 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
                 //The time axis is reversed
                 isInversed: false,
               ),
-              //Title
-              title: ChartTitle(text: 'Line chart test'),
-              //Selected type
               selectionType: SelectionType.series,
               //Time axis and value axis transposition
               isTransposed: false,
@@ -132,7 +131,7 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
               trackballBehavior: TrackballBehavior(
                 lineType: TrackballLineType.vertical,
                 //Vertical selection indicator
-                activationMode: ActivationMode.singleTap,
+                activationMode: ActivationMode.doubleTap,
                 enable: true,
                 tooltipAlignment: ChartAlignment.near,
                 //Tooltip position (top)
@@ -188,8 +187,10 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
     tsData = timeSeriesListUpdate(tempList);
     seriesList[foundIndex].dataSource.clear();
     seriesList[foundIndex].dataSource.addAll(tsData);
-    maxSizeUpdate();
-    updateSeriesList();
+    //print("asd");
+    //maxTime();
+    //maxSizeUpdate();
+    //updateSeriesList(foundIndex);
   }
 
   List<TimeSeriesGraphData> timeSeriesListUpdate(List<TimeSeriesGraphData> tsData) {
@@ -232,29 +233,41 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
     for (int i = 0; i < seriesList.length; i++) {
       if (seriesList[i].dataSource.length > maxLenght) {
         maxLenght = seriesList[i].dataSource.length-1;
-        maxTime = seriesList[i].dataSource[maxLenght].time;
-
-        print("------------- maxLenght $maxLenght");
+        maxTimeTemp = seriesList[i].dataSource[maxLenght].time;
       }
     }
   }
+  void maxTime(){
+    seriesList.forEach((series) {
+      series.dataSource.forEach((element) {
 
-  void updateSeriesList() {
+       if(maxTimeTemp.isAfter(element.time)){
+         maxTimeTemp=element.time;
+       }
+      });
+    });
+    print("asd");
+  }
+  void updateSeriesList(int foundIndex) {
     bool end = true;
     seriesList.forEach((element) {
       if (element.dataSource.length < maxLenght) {
         double value =  element.dataSource[element.dataSource.length - 1].value;
-        TimeSeriesGraphData data = TimeSeriesGraphData(maxTime,value);
-        print('$maxTime ---------- ${data.timeString} ------ ${data.value}');
-        int count = 0;
+        var time =  element.dataSource[element.dataSource.length - 1].time;
+        TimeSeriesGraphData data = TimeSeriesGraphData(maxTimeTemp,value);
         while (end) {
-          count++;
           element.dataSource.add(data);
-          if (element.dataSource.length == maxLenght) {
+          if (element.dataSource.length == maxLenght+1) {
             end = false;
           }
         }
+      element.dataSource.sort((a,b){
+          return a.time.compareTo(b.time);
+      });
       }
     });
+    var tsData = timeSeriesListUpdate(seriesList[foundIndex].dataSource);
+    seriesList[foundIndex].dataSource.clear();
+    seriesList[foundIndex].dataSource.addAll(tsData);
   }
 }

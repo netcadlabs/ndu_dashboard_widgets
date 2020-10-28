@@ -1,6 +1,7 @@
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
+import 'package:ndu_dashboard_widgets/widgets/charts/charts.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_rpc_button.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_switch_button.dart';
 import 'package:ndu_dashboard_widgets/widgets/not_implemented_widget.dart';
@@ -9,7 +10,6 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'base_dash_widget.dart';
 import 'cards/cards.dart';
-import 'charts//charts.dart';
 import 'controls/controls.dart';
 
 class DashboardWidgetHelper {
@@ -25,6 +25,9 @@ class DashboardWidgetHelper {
       if (widgetConfig.bundleAlias == "cards") {
         if (widgetConfig.typeAlias == "simple_card") {
           baseDashboardWidget = SimpleCardWidget(widgetConfig);
+        }
+        else if (widgetConfig.typeAlias == "label_widget") {
+          baseDashboardWidget = LabelCardWidget(widgetConfig);
         }
       } else if (widgetConfig.bundleAlias == "charts") {
         if (widgetConfig.typeAlias == "basic_timeseries") {
