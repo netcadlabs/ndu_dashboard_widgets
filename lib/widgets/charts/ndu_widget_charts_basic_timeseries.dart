@@ -5,9 +5,7 @@ import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
-import 'package:syncfusion_flutter_charts/charts.dart';
 
-// ignore: must_be_immutable
 class BasicTimeseriesChart extends BaseDashboardWidget {
   BasicTimeseriesChart(WidgetConfig _widgetConfig, {Key key}) : super(_widgetConfig, key: key);
 
@@ -17,14 +15,12 @@ class BasicTimeseriesChart extends BaseDashboardWidget {
 
 class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeseriesChart> {
   List<SocketData> allRawData = List();
-  DateTime maxTimeTemp=DateTime.now();
-  int maxLenght = 0;
-  Map<String, List<TimeSeriesGraphData>> dataList = Map();
-  List<LineSeries<TimeSeriesGraphData, String>> seriesList = List();
+
+  List<charts.Series> seriesList = List<charts.Series<TimeSeriesGraphData, DateTime>>();
   Map<String, List<dynamic>> seriesListData = Map<String, List<dynamic>>();
   List<charts.SeriesLegend> legendList = List();
   bool animate = false;
-  List<Color> colorList = [];
+
   String data = "0";
   String dataSourceLabel;
   String dataSourceKey;
@@ -35,7 +31,7 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
     fetchChartData();
   }
 
-  fetchChartData() {
+  fetchChartData(){
     charts.BehaviorPosition position = charts.BehaviorPosition.bottom;
     if (widget.widgetConfig.config.legendConfig != null) {
       if (widget.widgetConfig.config.legendConfig.position == "top") position = charts.BehaviorPosition.top;
@@ -44,8 +40,7 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
       if (widget.widgetConfig.config.legendConfig.position == "right") position = charts.BehaviorPosition.end;
     }
     if (widget.widgetConfig.config.datasources != null && widget.widgetConfig.config.datasources.length > 0) {
-      if (widget.widgetConfig.config.datasources[0].dataKeys != null &&
-          widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
+      if (widget.widgetConfig.config.datasources[0].dataKeys != null && widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
         dataSourceLabel = widget.widgetConfig.config.datasources[0].dataKeys[0].label;
         dataSourceKey = widget.widgetConfig.config.datasources[0].dataKeys[0].name;
 
@@ -53,221 +48,121 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
         int dataKeyIndex = 0;
         widget.widgetConfig.config.datasources.forEach((dataSource) {
           dataSource.dataKeys.forEach((dataKey) {
-            colorList.add(HexColor.fromCss(dataKey.color));
             addNewSeriest(dataKey);
-            /*  legendList.add(charts.SeriesLegend(
+            legendList.add(charts.SeriesLegend(
                 position: position,
                 outsideJustification: charts.OutsideJustification.start,
                 horizontalFirst: false,
                 desiredMaxRows: 2,
                 cellPadding: new EdgeInsets.only(right: 4.0, bottom: 4.0),
-                entryTextStyle: charts.TextStyleSpec(color: charts.Color.fromHex(code: dataKey.color), fontFamily: 'Georgia', fontSize: 12)));*/
+                entryTextStyle: charts.TextStyleSpec(color: charts.Color.fromHex(code: dataKey.color), fontFamily: 'Georgia', fontSize: 12)));
             dataKeyIndex++;
           });
           index++;
         });
       }
     }
-  }
 
-  addNewSeriest(DataKeys dataKey) {
-    List<TimeSeriesGraphData> list = List();
-    seriesList.add(LineSeries<TimeSeriesGraphData, String>(
-        name: dataKey.name,
-        dataSource: new List(),
-        xValueMapper: (TimeSeriesGraphData data, _) => data.timeString,
-        yValueMapper: (TimeSeriesGraphData data, _) => data.value,
-        sortFieldValueMapper: (TimeSeriesGraphData data, _) => data.timeString,
-        // Enable data label
-        dataLabelSettings: DataLabelSettings(isVisible: true)));
   }
-
+  addNewSeriest(DataKeys dataKey){
+    seriesList.add(new charts.Series<TimeSeriesGraphData, DateTime>(
+      id: dataKey.name,
+      displayName: dataKey.label,
+      colorFn: (_, __) => charts.Color.fromHex(code: dataKey.color),
+      domainFn: (TimeSeriesGraphData sales, _) => sales.time,
+      measureFn: (TimeSeriesGraphData sales, _) => sales.value,
+      data: [],
+    ));
+  }
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return seriesList.length < 1
-        ? Center(
-        child: CircularProgressIndicator(
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurpleAccent),
-        ))
-        : Container(
+    return seriesList.length<1
+        ?Center(
+        child: CircularProgressIndicator())
+        :Container(
       height: 400,
       decoration: BoxDecoration(color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor)),
       child: Container(
-          padding: EdgeInsets.all(10),
-          child: SfCartesianChart(
-              primaryXAxis: CategoryAxis(
-                isVisible: true,
-                //Display timeline on top
-                opposedPosition: false,
-                //The time axis is reversed
-                isInversed: false,
-              ),
-              selectionType: SelectionType.series,
-              //Time axis and value axis transposition
-              isTransposed: false,
-              //Select gesture
-              selectionGesture: ActivationMode.singleTap,
-              //Illustration
-              legend: Legend(
-                  isVisible: true,
-                  iconHeight: 10,
-                  iconWidth: 10,
-                  //Switch series display
-                  toggleSeriesVisibility: true,
-                  //Illustration display position
-                  position: LegendPosition.bottom,
-                  overflowMode: LegendItemOverflowMode.wrap,
-                  //Illustration left and right position
-                  alignment: ChartAlignment.center),
-              //Cross
-              crosshairBehavior: CrosshairBehavior(
-                lineType: CrosshairLineType.horizontal, //Horizontal selection indicator
-                enable: true,
-                shouldAlwaysShow: false, //The cross is always displayed (horizontal selection indicator)
-                activationMode: ActivationMode.singleTap,
-              ),
-              //Track the ball
-              trackballBehavior: TrackballBehavior(
-                lineType: TrackballLineType.vertical,
-                //Vertical selection indicator
-                activationMode: ActivationMode.doubleTap,
-                enable: true,
-                tooltipAlignment: ChartAlignment.near,
-                //Tooltip position (top)
-                shouldAlwaysShow: true,
-                //Track ball is always displayed (vertical selection indicator)
-                tooltipDisplayMode: TrackballDisplayMode.groupAllPoints, //Tool tip mode (group all)
-              ),
-              //Open tooltip
-              tooltipBehavior: TooltipBehavior(
-                enable: true,
-                shared: true,
-                activationMode: ActivationMode.singleTap,
-              ),
-              //SplineSeries is a curve LineSeries is a polyline ChartSeries
-              series: seriesList)),
+        padding: EdgeInsets.all(10),
+        child: charts.TimeSeriesChart(
+          seriesList,
+          animate: animate,
+          // Optionally pass in a [DateTimeFactory] used by the chart. The factory
+          // should create the same type of [DateTime] as the data provided. If none
+          // specified, the default creates local date time.
+          dateTimeFactory: const charts.LocalDateTimeFactory(),
+          behaviors: legendList,
+        ),
+      ),
     );
   }
 
   @override
   void onData(SocketData graphData) {
     if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
+
     int index = 0;
     graphData.datas.forEach((key, values) {
-      List<TimeSeriesGraphData> tsDataList = List();
+      List<TimeSeriesGraphData> tsDataList=List();
       values.forEach((value) {
         int ts = value[0];
         double val = 0;
         if (value[1] is double) val = value[1];
         if (value[1] is String) val = double.parse(value[1]);
-        TimeSeriesGraphData tsData = TimeSeriesGraphData(DateTime.fromMillisecondsSinceEpoch(ts, isUtc: true), val);
+        TimeSeriesGraphData tsData = TimeSeriesGraphData(DateTime.fromMillisecondsSinceEpoch(ts), val);
         tsDataList.add(tsData);
       });
-      addDataToSeriesList(key, tsDataList);
+      addDataToSeriesList(key,tsDataList);
       index++;
     });
-  }
 
+  }
   void addDataToSeriesList(String key, List<TimeSeriesGraphData> tsData) {
     int index = 0;
     int foundIndex = 0;
+
     seriesList.forEach((element) {
-      if (element.name == key) {
-        foundIndex = index;
-      }
+      if (element.id == key) foundIndex = index;
       index++;
     });
     List<TimeSeriesGraphData> tempList;
-    if (seriesList.length > 0) {
-      tempList = seriesList[foundIndex].dataSource;
-    } else
-      tempList = List();
+    if(seriesList.length>0){
+      tempList=seriesList[foundIndex].data;
+    }
+    else
+      tempList=List();
     tempList.addAll(tsData);
+    print(tsData.length.toString());
     tsData = timeSeriesListUpdate(tempList);
-    seriesList[foundIndex].dataSource.clear();
-    seriesList[foundIndex].dataSource.addAll(tsData);
-    //print("asd");
-    //maxTime();
-    //maxSizeUpdate();
-    //updateSeriesList(foundIndex);
-  }
+    seriesList[foundIndex].data.clear();
+    seriesList[foundIndex].data.addAll(tsData);
 
-  List<TimeSeriesGraphData> timeSeriesListUpdate(List<TimeSeriesGraphData> tsData) {
-    double minute = (widget.widgetConfig.config.timewindow.realtime.timewindowMs * 0.001) / 60;
-    List<TimeSeriesGraphData> resultList = List();
-    DateTime historyDateTime = DateTime(DateTime
-        .now()
-        .year, DateTime
-        .now()
-        .month, DateTime
-        .now()
-        .day,
-        DateTime
-            .now()
-            .hour, DateTime
-            .now()
-            .minute - int.parse(minute.round().toString()), DateTime
-            .now()
-            .second);
+
+  }
+  List<TimeSeriesGraphData> timeSeriesListUpdate( List<TimeSeriesGraphData> tsData){
+    double minute = (widget.widgetConfig.config.timewindow.realtime.timewindowMs*0.001)/60;
+    List<TimeSeriesGraphData> resultList=List();
+    DateTime historyDateTime=DateTime(
+        DateTime.now().year,DateTime.now().month,DateTime.now().day
+        ,DateTime.now().hour,DateTime.now().minute-int.parse(minute.round().toString())
+        ,DateTime.now().second);
 
     tsData.forEach((element) {
-      if (historyDateTime.isBefore(element.time)) {
+      if(historyDateTime.isBefore(element.time)){
         resultList.add(element);
       }
     });
     return resultList;
   }
-
   void addDataToSeries(String key, TimeSeriesGraphData tsData) {
     int index = 0;
     int foundIndex = 0;
     seriesList.forEach((element) {
-      if (element.name == key) foundIndex = index;
+      if (element.id == key) foundIndex = index;
       index++;
     });
-    seriesList[foundIndex].dataSource.add(tsData);
-  }
+    seriesList[foundIndex].data.add(tsData);
 
-  void maxSizeUpdate() {
-    for (int i = 0; i < seriesList.length; i++) {
-      if (seriesList[i].dataSource.length > maxLenght) {
-        maxLenght = seriesList[i].dataSource.length-1;
-        maxTimeTemp = seriesList[i].dataSource[maxLenght].time;
-      }
-    }
-  }
-  void maxTime(){
-    seriesList.forEach((series) {
-      series.dataSource.forEach((element) {
-
-       if(maxTimeTemp.isAfter(element.time)){
-         maxTimeTemp=element.time;
-       }
-      });
-    });
-    print("asd");
-  }
-  void updateSeriesList(int foundIndex) {
-    bool end = true;
-    seriesList.forEach((element) {
-      if (element.dataSource.length < maxLenght) {
-        double value =  element.dataSource[element.dataSource.length - 1].value;
-        var time =  element.dataSource[element.dataSource.length - 1].time;
-        TimeSeriesGraphData data = TimeSeriesGraphData(maxTimeTemp,value);
-        while (end) {
-          element.dataSource.add(data);
-          if (element.dataSource.length == maxLenght+1) {
-            end = false;
-          }
-        }
-      element.dataSource.sort((a,b){
-          return a.time.compareTo(b.time);
-      });
-      }
-    });
-    var tsData = timeSeriesListUpdate(seriesList[foundIndex].dataSource);
-    seriesList[foundIndex].dataSource.clear();
-    seriesList[foundIndex].dataSource.addAll(tsData);
   }
 }

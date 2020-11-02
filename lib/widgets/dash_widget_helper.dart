@@ -29,13 +29,13 @@ class DashboardWidgetHelper {
         else if (widgetConfig.typeAlias == "label_widget") {
           baseDashboardWidget = LabelCardWidget(widgetConfig);
         }
-      } else if (widgetConfig.bundleAlias == "charts") {
+      } else if (widgetConfig.bundleAlias == "chartsdd") {
         if (widgetConfig.typeAlias == "basic_timeseries") {
           baseDashboardWidget = BasicTimeseriesChart(widgetConfig);
         } else if (widgetConfig.typeAlias == "timeseries_bars_flot") {
           baseDashboardWidget = TimeSeriesBarsFlot(widgetConfig);
         }
-      } else if (widgetConfig.bundleAlias == "control_widgets") {
+      } else if (widgetConfig.bundleAlias == "control_widgetsss") {
         if (widgetConfig.typeAlias == "update_attributes") {
           baseDashboardWidget = ControlUpdateAttributes(widgetConfig, dashboardConfiguration);
         } else if (widgetConfig.typeAlias == "rpcbutton") {

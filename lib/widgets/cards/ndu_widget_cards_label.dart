@@ -72,10 +72,11 @@ class _LabelCardWidgetState extends BaseDashboardState<LabelCardWidget> {
     return Container(
       color: HexColor.fromCss(conf.backgroundColor),
       child: Container(
+        height: 100,
         decoration: BoxDecoration(
           image: DecorationImage(
             image: Image.memory(bytes).image,
-            fit: BoxFit.cover,
+            fit: BoxFit.fitHeight,
           ),
         ),
         padding: EdgeInsets.all(10),
