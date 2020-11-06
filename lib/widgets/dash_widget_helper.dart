@@ -10,6 +10,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'base_dash_widget.dart';
 import 'cards/cards.dart';
+import 'charts/ndu_widget_charts_basic_timeseries.dart';
 import 'cards/ndu_widget_entity_widget.dart';
 import 'controls/controls.dart';
 
@@ -33,7 +34,7 @@ class DashboardWidgetHelper {
         else if (widgetConfig.typeAlias == "entity_icon") {
           baseDashboardWidget = EntityCardWidget(widgetConfig);
         }
-      } else if (widgetConfig.bundleAlias == "chartsdd") {
+      } else if (widgetConfig.bundleAlias == "charts") {
         if (widgetConfig.typeAlias == "basic_timeseries") {
           baseDashboardWidget = BasicTimeseriesChart(widgetConfig);
         } else if (widgetConfig.typeAlias == "timeseries_bars_flot") {
