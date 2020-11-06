@@ -152,6 +152,7 @@ class _BasicTimeseriesChartWidgetState
       }
       index++;
     });
+
     List<TimeSeriesGraphData> tempList;
     if (seriesList.length > 0) {
       tempList = seriesList[foundIndex].data;
