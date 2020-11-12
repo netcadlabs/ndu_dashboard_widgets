@@ -87,24 +87,24 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
     flutterWebViewPlugin.close();
     flutterWebViewPlugin.launch(Constants.baseUrl + "/api/dummy", hidden: true);
 
-    title = "${widget.widgetConfig.config.settings.title}";
-    buttonLabel = "${widget.widgetConfig.config.settings.buttonText}";
+    var settings = widget.widgetConfig.config.settings;
 
-    showOnOffLabels = widget.widgetConfig.config.settings.showOnOffLabels;
-    currentSwitchValue = widget.widgetConfig.config.settings.initialValue;
-    getValueMethod = widget.widgetConfig.config.settings.getValueMethod;
-    retrieveValueMethod = widget.widgetConfig.config.settings.retrieveValueMethod;
-    requestTimeout = widget.widgetConfig.config.settings.requestTimeout;
-    if (widget.widgetConfig.config.settings.parseValueFunction != null &&
-        widget.widgetConfig.config.settings.parseValueFunction != "")
-      parseValueFunction = widget.widgetConfig.config.settings.parseValueFunction;
-    if (widget.widgetConfig.config.settings.convertValueFunction != null &&
-        widget.widgetConfig.config.settings.convertValueFunction != "")
-      convertValueFunction = widget.widgetConfig.config.settings.convertValueFunction;
+    title = "${settings.title}";
+    buttonLabel = "${settings.buttonText}";
 
-    valueKey = widget.widgetConfig.config.settings.valueKey;
+    showOnOffLabels = settings.showOnOffLabels;
+    currentSwitchValue = settings.initialValue;
+    getValueMethod = settings.getValueMethod;
+    retrieveValueMethod = settings.retrieveValueMethod;
+    requestTimeout = settings.requestTimeout;
+    if (settings.parseValueFunction != null && settings.parseValueFunction != "")
+      parseValueFunction = settings.parseValueFunction;
+    if (settings.convertValueFunction != null && settings.convertValueFunction != "")
+      convertValueFunction = settings.convertValueFunction;
+
+    valueKey = settings.valueKey;
     // _SET_ATTR ise attribute update yapacak, başka bir şey ise method adıdır bu
-    setValueMethod = widget.widgetConfig.config.settings.setValueMethod;
+    setValueMethod = settings.setValueMethod;
 
     // if (widget.widgetConfig.config.settings.methodParams != null) {
     //   try {

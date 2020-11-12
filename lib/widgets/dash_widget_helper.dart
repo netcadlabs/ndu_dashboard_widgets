@@ -2,6 +2,7 @@ import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/widgets/charts/charts.dart';
+import 'package:ndu_dashboard_widgets/widgets/controls/control_led_indicator.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_rpc_button.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_switch_button.dart';
 import 'package:ndu_dashboard_widgets/widgets/not_implemented_widget.dart';
@@ -27,11 +28,9 @@ class DashboardWidgetHelper {
       if (widgetConfig.bundleAlias == "cards") {
         if (widgetConfig.typeAlias == "simple_card") {
           baseDashboardWidget = SimpleCardWidget(widgetConfig);
-        }
-        else if (widgetConfig.typeAlias == "label_widget") {
+        } else if (widgetConfig.typeAlias == "label_widget") {
           baseDashboardWidget = LabelCardWidget(widgetConfig);
-        }
-        else if (widgetConfig.typeAlias == "entity_icon") {
+        } else if (widgetConfig.typeAlias == "entity_icon") {
           baseDashboardWidget = EntityCardWidget(widgetConfig);
         }
       } else if (widgetConfig.bundleAlias == "charts") {
@@ -47,6 +46,8 @@ class DashboardWidgetHelper {
           baseDashboardWidget = ControlRPCButton(widgetConfig, dashboardConfiguration);
         } else if (widgetConfig.typeAlias == "switch_control") {
           baseDashboardWidget = ControlSwitchButton(widgetConfig, dashboardConfiguration);
+        } else if (widgetConfig.typeAlias == "led_indicator") {
+          baseDashboardWidget = ControlLedIndicator(widgetConfig, dashboardConfiguration);
         }
       }
     }

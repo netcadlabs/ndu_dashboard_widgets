@@ -19,15 +19,14 @@ class _NotImplementedWidgetState extends BaseDashboardState<NotImplementedWidget
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Container();
-    /*return Container(
+    return Container(
         padding: EdgeInsets.all(5),
         height: 150,
         child: Column(
           children: [
             Text("${widget.widgetConfig.bundleAlias} - ${widget.widgetConfig.typeAlias} not implemented"),
           ],
-        ));*/
+        ));
   }
 
   @override
