@@ -12,7 +12,7 @@ import 'base_dash_widget.dart';
 import 'cards/cards.dart';
 import 'charts/ndu_widget_charts_basic_timeseries.dart';
 import 'cards/ndu_widget_entity_widget.dart';
-import 'controls/controls.dart';
+import 'controls/control_update_attributes.dart';
 
 class DashboardWidgetHelper {
   static BaseDashboardWidget getImplementedWidget(
@@ -40,7 +40,7 @@ class DashboardWidgetHelper {
         } else if (widgetConfig.typeAlias == "timeseries_bars_flot") {
           baseDashboardWidget = TimeSeriesBarsFlot(widgetConfig);
         }
-      } else if (widgetConfig.bundleAlias == "control_widgetsss") {
+      } else if (widgetConfig.bundleAlias == "control_widgets") {
         if (widgetConfig.typeAlias == "update_attributes") {
           baseDashboardWidget = ControlUpdateAttributes(widgetConfig, dashboardConfiguration);
         } else if (widgetConfig.typeAlias == "rpcbutton") {
