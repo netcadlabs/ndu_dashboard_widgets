@@ -20,12 +20,15 @@ abstract class BaseDashboardWidget extends StatefulWidget {
 
   WidgetConfig get widgetConfig => _widgetConfig;
 
-  Color backgroundColor;
-  Color color;
+  Color backgroundColor = Colors.white;
+  Color color = Colors.black;
 
   BaseDashboardWidget(this._widgetConfig, {Key key, this.dashboardDetailConfiguration}) : super(key: key) {
-    backgroundColor = HexColor.fromCss(widgetConfig.config.backgroundColor);
-    color = HexColor.fromCss(widgetConfig.config.color);
+    if (widgetConfig.config != null) {
+      if (widgetConfig.config.backgroundColor != null)
+        backgroundColor = HexColor.fromCss(widgetConfig.config.backgroundColor, defaultColor: backgroundColor);
+      if (widgetConfig.config.color != null) color = HexColor.fromCss(widgetConfig.config.color, defaultColor: color);
+    }
   }
 
   String convertNumberValue(dynamic value, int decimal) {

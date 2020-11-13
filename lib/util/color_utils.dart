@@ -23,15 +23,15 @@ extension HexColor on Color {
 
   static Color fromRgba(String rgbaString, {Color defaultColor = Colors.white}) {
     int startIndex = 0;
+    int length = rgbaString.length;
+
     if (rgbaString.startsWith("rgba")) {
       startIndex = 5;
     } else if (rgbaString.startsWith("rgb")) {
       startIndex = 4;
     }
 
-    int length = rgbaString.length;
-
-    rgbaString = rgbaString.substring(startIndex, length - 2);
+    rgbaString = rgbaString.substring(startIndex, length - 1);
     List<String> parts = rgbaString.split(",");
 
     if (parts.length == 3) {
