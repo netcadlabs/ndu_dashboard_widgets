@@ -57,34 +57,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.15.0-nullsafety.3"
-  connectivity:
-    dependency: "direct main"
-    description:
-      name: connectivity
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.4.9+5"
-  connectivity_for_web:
-    dependency: transitive
-    description:
-      name: connectivity_for_web
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.1+2"
-  connectivity_macos:
-    dependency: transitive
-    description:
-      name: connectivity_macos
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.0+5"
-  connectivity_platform_interface:
-    dependency: transitive
-    description:
-      name: connectivity_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.6"
   convert:
     dependency: transitive
     description:
@@ -139,6 +111,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.4"
+  flutter_knob:
+    dependency: "direct main"
+    description:
+      name: flutter_knob
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -350,20 +329,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.0-nullsafety.1"
-  syncfusion_flutter_charts:
-    dependency: "direct main"
-    description:
-      name: syncfusion_flutter_charts
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "18.3.42"
-  syncfusion_flutter_core:
-    dependency: transitive
-    description:
-      name: syncfusion_flutter_core
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "18.3.42"
   term_glyph:
     dependency: transitive
     description:
