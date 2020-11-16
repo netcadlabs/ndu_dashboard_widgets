@@ -6,6 +6,7 @@ import 'package:ndu_dashboard_widgets/widgets/controls/control_knob.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_led_indicator.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_rpc_button.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_switch_button.dart';
+import 'package:ndu_dashboard_widgets/widgets/controls/ndu_control_slider.dart';
 import 'package:ndu_dashboard_widgets/widgets/not_implemented_widget.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket_command_builder.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -51,6 +52,11 @@ class DashboardWidgetHelper {
           baseDashboardWidget = ControlLedIndicator(widgetConfig, dashboardConfiguration);
         }else if(widgetConfig.typeAlias=="knob_control"){
           baseDashboardWidget = NduControlKnob(widgetConfig, dashboardConfiguration);
+        }
+      }
+      else if(widgetConfig.bundleAlias == "ndu_control_widgets"){
+        if(widgetConfig.typeAlias=="slider_control"){
+          baseDashboardWidget = NduControlSlider(widgetConfig, dashboardConfiguration);
         }
       }
     }
