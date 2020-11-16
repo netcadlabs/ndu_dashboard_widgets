@@ -264,8 +264,6 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
     Future request;
     Map requestData = {};
 
-    String convertedValue = "false";
-
     if (setValueMethod == SET_VALUE_METHOD_SET_ATTRIBUTE) {
       requestData[valueKey] = evalResult; // currentSwitchValue;
       request = _telemetryApi.saveEntityAttributesV1(entityType, entityId, attributeScope, requestData);
@@ -284,7 +282,6 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
       }
     }).catchError((Object err) {
       showToast(context, "İstek başarısız oldu!", isError: true);
-      String errorMessage = err.toString();
       print(err);
     }).whenComplete(() {
       setState(() {

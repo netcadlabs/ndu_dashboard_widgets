@@ -159,7 +159,6 @@ class _ControlRPCButtonState extends BaseDashboardState<ControlRPCButton> {
       }
     }).catchError((Object err) {
       showToast(context, "İstek başarısız oldu!", isError: true);
-      String errorMessage = err.toString();
       print(err);
     }).whenComplete(() {
       setState(() {
@@ -170,12 +169,5 @@ class _ControlRPCButtonState extends BaseDashboardState<ControlRPCButton> {
   }
 
   @override
-  void onData(SocketData graphData) {
-    int a = 4;
-    // if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
-    // if (graphData.datas.containsKey(dataSourceKey)) {
-    //   List telem = graphData.datas[dataSourceKey][0];
-    //   if (telem != null && telem.length > 1 && telem[1] != null) data = telem[1].toString();
-    // }
-  }
+  void onData(SocketData graphData) {}
 }

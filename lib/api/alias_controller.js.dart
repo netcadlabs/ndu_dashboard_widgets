@@ -3,11 +3,9 @@ import 'dart:async';
 import 'package:ndu_api_client/assets_api.dart';
 import 'package:ndu_api_client/device_api.dart';
 import 'package:ndu_api_client/models/api_models.dart';
-import 'package:ndu_api_client/models/assets.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_api_client/models/page_base_model.dart';
-import 'package:ndu_api_client/util/constants.dart';
 
 class AliasController {
   Map<String, AliasInfo> resolvedAliases = {};
