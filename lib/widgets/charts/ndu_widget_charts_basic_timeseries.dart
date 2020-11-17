@@ -70,7 +70,7 @@ class _BasicTimeseriesChartWidgetState
                 entryTextStyle: charts.TextStyleSpec(
                     color: charts.Color.fromHex(code: dataKey.color),
                     fontFamily: 'Georgia',
-                    fontSize: 12)));
+                    fontSize: 9)));
             dataKeyIndex++;
           });
           index++;

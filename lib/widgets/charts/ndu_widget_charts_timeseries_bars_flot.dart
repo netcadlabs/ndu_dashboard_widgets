@@ -79,11 +79,11 @@ class _TimeSeriesBarsFlotWidgetState extends BaseDashboardState<TimeSeriesBarsFl
               child: charts.BarChart(
                 seriesList,
                 animate: animate,
-                barGroupingType: barGroupingType,
-                behaviors: legendList,
+                //barGroupingType: barGroupingType,
+                //behaviors: legendList,
                 animationDuration: Duration(seconds: 1),
                 domainAxis: new charts.OrdinalAxisSpec(
-                    renderSpec: charts.SmallTickRendererSpec(labelRotation: 270, labelOffsetFromAxisPx: 50, labelOffsetFromTickPx: 50)),
+                    renderSpec: charts.SmallTickRendererSpec(labelStyle: charts.TextStyleSpec(fontSize: 12),labelRotation: 270, labelOffsetFromAxisPx: 50, labelOffsetFromTickPx: 50)),
               ),
             ),
           ),
