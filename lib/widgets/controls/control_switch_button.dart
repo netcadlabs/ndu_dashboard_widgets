@@ -2,26 +2,19 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 
 import 'package:ndu_api_client/models/entity_types.dart';
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
-import 'package:ndu_api_client/telemetry_api.dart';
 import 'package:ndu_api_client/util/constants.dart';
-import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
-import 'package:ndu_dashboard_widgets/dashboard_state_notifier.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/util/string_utils.dart';
-import 'package:ndu_dashboard_widgets/util/toast.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
-import 'package:provider/provider.dart';
-
-import '../socket_command_builder.dart';
 
 class ControlSwitchButton extends BaseDashboardWidget {
-  ControlSwitchButton(WidgetConfig _widgetConfig, DashboardDetailConfiguration _dashboardDetailConfiguration, {Key key})
+  ControlSwitchButton(WidgetConfig _widgetConfig, DashboardDetailConfiguration _dashboardDetailConfiguration,
+      {Key key, bool isRoundButton: false})
       : super(_widgetConfig, key: key, dashboardDetailConfiguration: _dashboardDetailConfiguration);
 
   @override
@@ -76,8 +69,12 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
     title = "${settings.title}";
     buttonLabel = "${settings.buttonText}";
 
-    showOnOffLabels = settings.showOnOffLabels;
-    currentSwitchValue = settings.initialValue;
+    if (settings.showOnOffLabels != null) {
+      showOnOffLabels = settings.showOnOffLabels;
+    }
+    if (settings.initialValue != null) {
+      currentSwitchValue = settings.initialValue;
+    }
     getValueMethod = settings.getValueMethod;
     retrieveValueMethod = settings.retrieveValueMethod;
     requestTimeout = settings.requestTimeout;

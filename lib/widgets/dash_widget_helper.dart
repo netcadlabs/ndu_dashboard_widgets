@@ -48,14 +48,15 @@ class DashboardWidgetHelper {
           baseDashboardWidget = ControlRPCButton(widgetConfig, dashboardConfiguration);
         } else if (widgetConfig.typeAlias == "switch_control") {
           baseDashboardWidget = ControlSwitchButton(widgetConfig, dashboardConfiguration);
+        } else if (widgetConfig.typeAlias == "round_switch") {
+          baseDashboardWidget = ControlSwitchButton(widgetConfig, dashboardConfiguration, isRoundButton: true);
         } else if (widgetConfig.typeAlias == "led_indicator") {
           baseDashboardWidget = ControlLedIndicator(widgetConfig, dashboardConfiguration);
-        }else if(widgetConfig.typeAlias=="knob_control"){
+        } else if (widgetConfig.typeAlias == "knob_control") {
           baseDashboardWidget = NduControlKnob(widgetConfig, dashboardConfiguration);
         }
-      }
-      else if(widgetConfig.bundleAlias == "ndu_control_widgets"){
-        if(widgetConfig.typeAlias=="slider_control"){
+      } else if (widgetConfig.bundleAlias == "ndu_control_widgets") {
+        if (widgetConfig.typeAlias == "slider_control") {
           baseDashboardWidget = NduControlSlider(widgetConfig, dashboardConfiguration);
         }
       }
