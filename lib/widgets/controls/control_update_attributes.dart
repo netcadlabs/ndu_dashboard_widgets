@@ -44,8 +44,6 @@ class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpda
 
   Map entityParameters = {};
 
-  bool isButtonReady = true;
-
   @override
   void initState() {
     super.initState();
@@ -131,12 +129,10 @@ class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpda
     );
   }
 
-  int _requestState = 0;
-
   Widget setUpButtonChild() {
-    if (_requestState == 0) {
+    if (requestState == 0) {
       return new Text(buttonLabel);
-    } else if (_requestState == 1) {
+    } else if (requestState == 1) {
       return CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation<Color>(buttonColor),
       );
@@ -148,24 +144,10 @@ class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpda
   void sendAttribute() {
     setState(() {
       isButtonReady = false;
-      _requestState = 1;
+      requestState = 1;
     });
-    _telemetryApi.saveEntityAttributesV1(entityType, entityId, attributeScope, entityParameters).then((res) {
-      if (res) {
-        showToast(context, "İşlem başarıyla tamamlandı!");
-      } else {
-        showToast(context, "İşlem başarısız oldu!", isError: true);
-      }
-    }).catchError((Object err) {
-      String errorMessage = err.toString();
-      showToast(context, errorMessage);
-      print(err);
-    }).whenComplete(() {
-      setState(() {
-        isButtonReady = true;
-        _requestState = 0;
-      });
-    });
+
+    sendAttributeData(entityType, entityId, attributeScope, entityParameters);
   }
 
   @override

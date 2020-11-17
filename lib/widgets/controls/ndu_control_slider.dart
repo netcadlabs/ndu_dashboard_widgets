@@ -1,58 +1,37 @@
-import 'dart:convert';
-import 'dart:wasm';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
-import 'package:ndu_api_client/rpc_api.dart';
 import 'package:ndu_api_client/models/entity_types.dart';
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
-import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
-import 'package:ndu_dashboard_widgets/util/toast.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 
-// ignore: must_be_immutable
 class NduControlSlider extends BaseDashboardWidget {
-  NduControlSlider(WidgetConfig _widgetConfig,
-      DashboardDetailConfiguration _dashboardDetailConfiguration, {Key key})
-      : super(_widgetConfig,
-            key: key,
-            dashboardDetailConfiguration: _dashboardDetailConfiguration);
+  NduControlSlider(WidgetConfig _widgetConfig, DashboardDetailConfiguration _dashboardDetailConfiguration, {Key key})
+      : super(_widgetConfig, key: key, dashboardDetailConfiguration: _dashboardDetailConfiguration);
 
   @override
   _NduControlSliderState createState() => _NduControlSliderState();
 }
 
 class _NduControlSliderState extends BaseDashboardState<NduControlSlider> {
-  RPCApi _RPCApi = RPCApi();
-
   List<SocketData> allRawData = List();
-
-  String dataSourceLabel;
-  String dataSourceKey;
 
   EntityType entityType = EntityType.DEVICE;
   AttributeScope attributeScope = AttributeScope.SHARED_SCOPE;
-  String entityId = "";
 
   String title = "";
-  String buttonLabel = "";
   String infoText = "";
-  bool isRaisedButton = true;
 
-  Color buttonColor;
-  Color buttonTextColor;
+  String getValueMethod = "";
+  String retrieveValueMethod = "";
+  String setValueMethod = "";
+  String valueKey = "";
 
-  String methodName;
-  Map methodParams = {};
-  bool oneWayElseTwoWay = true;
   int requestTimeout = 5000;
-
-  bool isButtonReady = false;
-
-  double _value = 0;
+  double _currentValue = 0;
+  bool useMapping = false;
 
   @override
   void dispose() {
@@ -67,52 +46,27 @@ class _NduControlSliderState extends BaseDashboardState<NduControlSlider> {
 
     conf = widget.widgetConfig.config;
 
-    title = "${conf.settings.title}";
-    buttonLabel = "${conf.settings.buttonText}";
-    _value = double.parse(conf.settings.initialValue.toString());
-    oneWayElseTwoWay = conf.settings.oneWayElseTwoWay;
+    title = conf.settings.title;
+    if (conf.settings.initialValue != null) {
+      _currentValue = double.parse(conf.settings.initialValue.toString());
+    }
     requestTimeout = conf.settings.requestTimeout;
 
-    methodName = conf.settings.getValueMethod;
-    if (conf.settings.methodParams != null) {
-      try {
-        methodParams = jsonDecode(conf.settings.methodParams);
-      } catch (e) {
-        print(e);
-      }
-    }
+    getValueMethod = conf.settings.getValueMethod;
+    setValueMethod = conf.settings.setValueMethod;
+    retrieveValueMethod = conf.settings.retrieveValueMethod;
+    valueKey = conf.settings.valueKey;
+    useMapping = conf.settings.useMapping;
 
-    if (conf.targetDeviceAliasIds != null &&
-        conf.targetDeviceAliasIds.length > 0) {
-      String aliasId = conf.targetDeviceAliasIds[0];
-      widget.aliasController.getAliasInfo(aliasId).then((AliasInfo aliasInfo) {
-        if (aliasInfo.resolvedEntities != null &&
-            aliasInfo.resolvedEntities.length > 0) {
-          EntityInfo entityInfo = aliasInfo.resolvedEntities[0];
-          setState(() {
-            entityId = entityInfo.id;
-            isButtonReady = true;
-          });
-        }
-      });
+    if (widget.widgetConfig.config.targetDeviceAliasIds != null &&
+        widget.widgetConfig.config.targetDeviceAliasIds.length > 0) {
+      startTargetDeviceAliasIdsSubscription(retrieveValueMethod, valueKey, requestTimeout: requestTimeout);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    buttonColor = Theme.of(context).primaryColor;
-    buttonTextColor = Theme.of(context).accentColor;
-
-    if (conf.settings.styleButton != null) {
-      if (!conf.settings.styleButton.isPrimary) {
-        buttonColor = HexColor.fromHex(conf.settings.styleButton.bgColor,
-            defaultColor: buttonColor);
-      }
-
-      buttonTextColor = HexColor.fromHex(conf.settings.styleButton.textColor,
-          defaultColor: buttonTextColor);
-    }
 
     return Container(
       child: Column(
@@ -148,24 +102,19 @@ class _NduControlSliderState extends BaseDashboardState<NduControlSlider> {
               ),
             ),
             child: Slider(
-              value: _value,
-              min: conf.settings.minValue != null
-                  ? double.parse(conf.settings.minValue.toString())
-                  : 0,
-              max: conf.settings.maxValue != null
-                  ? double.parse(conf.settings.maxValue.toString())
-                  : 100,
+              value: _currentValue,
+              min: conf.settings.minValue != null ? double.parse(conf.settings.minValue.toString()) : 0,
+              max: conf.settings.maxValue != null ? double.parse(conf.settings.maxValue.toString()) : 100,
               divisions: 10,
-              label: '$_value',
+              label: '$_currentValue',
               onChanged: (value) {
-                setState(
-                  () {
-                    _value = value;
-                  },
-                );
+                // setState(() {
+                //   _value = value;
+                // });
               },
               onChangeEnd: (value) {
-                sendRPC();
+                if (_currentValue == value) return;
+                sendRequest(value);
               },
             ),
           ),
@@ -178,56 +127,57 @@ class _NduControlSliderState extends BaseDashboardState<NduControlSlider> {
     );
   }
 
-  int _requestState = 0;
-
-  Widget setUpButtonChild() {
-    if (_requestState == 0) {
-      return new Text(buttonLabel);
-    } else if (_requestState == 1) {
-      return CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation<Color>(buttonColor),
-      );
-    } else {
-      return Icon(Icons.check, color: Colors.white);
-    }
-  }
-
-  void sendRPC() {
+  void sendRequest(double value) {
     setState(() {
       isButtonReady = false;
-      _requestState = 1;
+      requestState = 1;
     });
-    Map requestData = {
-      "method": methodName,
-      "params": _value,
-      "timeout": requestTimeout
-    };
-    _RPCApi.handleDeviceRPCRequest(entityId, oneWayElseTwoWay, requestData)
-        .then((res) {
-      if (res) {
-        showToast(context, "İstek başarıyla gönderildi");
-      } else {
-        showToast(context, "İstek başarısız oldu!", isError: true);
-      }
-    }).catchError((Object err) {
-      showToast(context, "İstek başarısız oldu!", isError: true);
-      String errorMessage = err.toString();
-      print(err);
-    }).whenComplete(() {
-      setState(() {
-        isButtonReady = true;
-        _requestState = 0;
-      });
-    });
+
+    if (useMapping) {
+      value = convertToRealValue(value, conf.settings.minValue, conf.settings.maxValue);
+    }
+
+    if (setValueMethod == SET_VALUE_METHOD_SET_ATTRIBUTE) {
+      sendAttributeKeyValue(entityType, entityId, attributeScope, valueKey, value);
+    } else if (setValueMethod == SET_VALUE_METHOD_SET_TIMESERIES) {
+      // sendAttributeKeyValue(entityType, entityId, attributeScope, valueKey, value);
+      //TODO - send telemetry support
+    } else {
+      sendRPC2(entityId, setValueMethod, value, requestTimeout, isOneWay: true);
+    }
   }
 
   @override
   void onData(SocketData graphData) {
-    int a = 4;
-    // if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
-    // if (graphData.datas.containsKey(dataSourceKey)) {
-    //   List telem = graphData.datas[dataSourceKey][0];
-    //   if (telem != null && telem.length > 1 && telem[1] != null) data = telem[1].toString();
-    // }
+    if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
+    if (graphData.datas.containsKey(valueKey)) {
+      List telemetry = graphData.datas[valueKey][0];
+      if (telemetry != null && telemetry.length > 1 && telemetry[1] != null) {
+        double resultData = 0;
+        if (telemetry[1] is String) {
+          resultData = double.parse(telemetry[1]);
+        } else {
+          resultData = telemetry[1];
+        }
+
+        if (useMapping) {
+          _currentValue = convertToMappedValue(resultData, conf.settings.minValue, conf.settings.maxValue);
+        }
+        setState(() {
+          _currentValue = resultData;
+        });
+      }
+    }
+  }
+
+  convertToRealValue(double mappedValue, int min, int max) {
+    var realMappedRate = min + (min - max) * mappedValue / 100;
+    return realMappedRate;
+  }
+
+  convertToMappedValue(double realValue, int min, int max) {
+    var realMappedRate = (realValue - min) / (max - min);
+    var mappedRate = realMappedRate * 100;
+    return mappedRate;
   }
 }

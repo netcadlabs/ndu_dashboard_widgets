@@ -4,7 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
-import 'package:ndu_api_client/rpc_api.dart';
+
 import 'package:ndu_api_client/models/entity_types.dart';
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
@@ -29,20 +29,7 @@ class ControlSwitchButton extends BaseDashboardWidget {
 }
 
 class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> {
-  static const String RETRIEVE_VALUE_METHOD_DO_NOT_RETRIEVE = 'none';
-  static const String RETRIEVE_VALUE_METHOD_RPC = 'rpc';
-  static const String RETRIEVE_VALUE_METHOD_SUBSCRIBE_ATTRIBUTE = 'attribute';
-  static const String RETRIEVE_VALUE_METHOD_SUBSCRIBE_TIMESERIES = 'timeseries';
-
-  static const String SET_VALUE_METHOD_SET_ATTRIBUTE = "_SET_ATTR";
-
-  RPCApi _RPCApi = RPCApi();
-  TelemetryApi _telemetryApi = TelemetryApi();
-
   List<SocketData> allRawData = List();
-
-  String dataSourceLabel;
-  String dataSourceKey;
 
   EntityType entityType = EntityType.DEVICE;
   AttributeScope attributeScope = AttributeScope.SHARED_SCOPE;
@@ -69,10 +56,7 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
   String parseValueFunction = "return data == 1 ? true : false;";
   String convertValueFunction = "return value;";
 
-  bool isButtonReady = false;
   String errorText = "";
-
-  final flutterWebViewPlugin = FlutterWebviewPlugin();
 
   @override
   void dispose() {
@@ -116,47 +100,7 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
 
     if (widget.widgetConfig.config.targetDeviceAliasIds != null &&
         widget.widgetConfig.config.targetDeviceAliasIds.length > 0) {
-      String aliasId = widget.widgetConfig.config.targetDeviceAliasIds[0];
-      widget.aliasController.getAliasInfo(aliasId).then((AliasInfo aliasInfo) {
-        if (aliasInfo.resolvedEntities != null && aliasInfo.resolvedEntities.length > 0) {
-          EntityInfo entityInfo = aliasInfo.resolvedEntities[0];
-
-          setState(() {
-            entityId = entityInfo.id;
-            isButtonReady = true;
-          });
-
-          SubscriptionCommand subscriptionCommand = SubscriptionCommand();
-          if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_DO_NOT_RETRIEVE) {
-            print("retrieveValueMethod is none!");
-          } else if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_RPC) {
-            getRPCValue();
-          } else if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_SUBSCRIBE_ATTRIBUTE) {
-            subscriptionCommand.attrSubCmds =
-                widget.socketCommandBuilder.calculateCommandForEntityInfo(entityInfo, valueKey);
-            subscriptionCommand.attrSubCmds.forEach((attrSubCmds) {
-              context
-                  .read<DashboardStateNotifier>()
-                  .addSubscriptionId(widget.widgetConfig.id, attrSubCmds.cmdId.toString());
-            });
-          } else if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_SUBSCRIBE_TIMESERIES) {
-            subscriptionCommand.tsSubCmds =
-                widget.socketCommandBuilder.calculateTsSubCmdsCommandForEntityInfo(entityInfo, valueKey);
-            subscriptionCommand.tsSubCmds.forEach((tsSubCmds) {
-              context
-                  .read<DashboardStateNotifier>()
-                  .addSubscriptionId(widget.widgetConfig.id, tsSubCmds.cmdId.toString());
-            });
-          } else {
-            print("not supported retrieveValueMethod $retrieveValueMethod");
-          }
-
-          String subscriptionCommandJson = jsonEncode(subscriptionCommand);
-          widget.webSocketChannel.sink.add(subscriptionCommandJson);
-        }
-      }).catchError((err) {
-        print("Can not resolve aliasId $aliasId");
-      });
+      startTargetDeviceAliasIdsSubscription(retrieveValueMethod, valueKey, requestTimeout: requestTimeout);
     }
   }
 
@@ -220,12 +164,10 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
     );
   }
 
-  int _requestState = 0;
-
   Widget setUpButtonChild() {
-    if (_requestState == 0) {
+    if (requestState == 0) {
       return new Text(buttonLabel);
-    } else if (_requestState == 1) {
+    } else if (requestState == 1) {
       return CircularProgressIndicator(
         valueColor: AlwaysStoppedAnimation<Color>(buttonColor),
       );
@@ -258,37 +200,14 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
     setState(() {
       currentSwitchValue = switchValue;
       isButtonReady = false;
-      _requestState = 1;
+      requestState = 1;
     });
-
-    Future request;
-    Map requestData = {};
 
     if (setValueMethod == SET_VALUE_METHOD_SET_ATTRIBUTE) {
-      requestData[valueKey] = evalResult; // currentSwitchValue;
-      request = _telemetryApi.saveEntityAttributesV1(entityType, entityId, attributeScope, requestData);
+      sendAttributeKeyValue(entityType, entityId, attributeScope, valueKey, evalResult);
     } else {
-      requestData["method"] = setValueMethod;
-      requestData["params"] = jsonEncode(evalResult);
-      requestData["timeout"] = requestTimeout;
-      request = _RPCApi.handleDeviceRPCRequest(entityId, true, requestData);
+      sendRPC2(entityId, setValueMethod, evalResult, requestTimeout, isOneWay: true);
     }
-
-    request.then((res) {
-      if (res) {
-        showToast(context, "İstek başarıyla gönderildi");
-      } else {
-        showToast(context, "İstek başarısız oldu!", isError: true);
-      }
-    }).catchError((Object err) {
-      showToast(context, "İstek başarısız oldu!", isError: true);
-      print(err);
-    }).whenComplete(() {
-      setState(() {
-        isButtonReady = true;
-        _requestState = 0;
-      });
-    });
   }
 
   @override
@@ -297,7 +216,7 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
     if (graphData.datas.containsKey(valueKey)) {
       List telem = graphData.datas[valueKey][0];
       if (telem != null && telem.length > 1 && telem[1] != null) {
-        evaluateServerData(telem[1].toString()).then((value) {
+        evaluateServerData(telem[1].toString(), parseValueFunction).then((value) {
           // currentSwitchValue = value;
           setState(() {
             currentSwitchValue = value;
@@ -305,33 +224,5 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
         });
       }
     }
-  }
-
-  Future<bool> evaluateServerData(dynamic data) async {
-    String functionContent = "function f(data){$parseValueFunction} f($data)";
-    String evalResult = await flutterWebViewPlugin.evalJavascript(functionContent);
-    if (evalResult == null || evalResult == "" || evalResult == "null") {
-      return false;
-    }
-    if (evalResult.toLowerCase() == "true" || evalResult.toLowerCase() == "false") {
-      return evalResult == "true";
-    }
-    return false;
-  }
-
-  void getRPCValue() {
-    Map requestData = {"method": getValueMethod, "params": null, "timeout": requestTimeout};
-    _RPCApi.handleTwoWayDeviceRPCRequest(entityId, requestData).then((reponse) {
-      //TODO - cihazdan gelen veriyi yorumla ve currentSwitchValue değerini set et.
-      setState(() {
-        // currentSwitchValue = reponse //response parse et
-        errorText = "";
-      });
-    }).catchError((err) {
-      // if (err == 408)//timeout
-      setState(() {
-        errorText = "Cihaza erişilemiyor";
-      });
-    });
   }
 }

@@ -29,12 +29,6 @@ class ControlLedIndicator extends BaseDashboardWidget {
 }
 
 class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> {
-  static const String RETRIEVE_VALUE_METHOD_RPC = 'rpc';
-  static const String RETRIEVE_VALUE_METHOD_SUBSCRIBE_ATTRIBUTE = 'attribute';
-  static const String RETRIEVE_VALUE_METHOD_SUBSCRIBE_TIMESERIES = 'timeseries';
-
-  RPCApi _RPCApi = RPCApi();
-
   List<SocketData> allRawData = List();
 
   EntityType entityType = EntityType.DEVICE;
@@ -59,8 +53,6 @@ class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> 
 
   Color activeColor = Colors.green;
   Color passiveColor = HexColor.darken(Colors.green, 50);
-
-  final flutterWebViewPlugin = FlutterWebviewPlugin();
 
   @override
   void dispose() {
@@ -110,7 +102,7 @@ class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> 
           });
 
           if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_RPC) {
-            getRPCValue();
+            getRPCValue(checkStatusMethod, entityId, requestTimeout);
           } else {
             SubscriptionCommand subscriptionCommand;
             if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_SUBSCRIBE_ATTRIBUTE) {
@@ -190,7 +182,7 @@ class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> 
     if (graphData.datas.containsKey(valueKey)) {
       List telem = graphData.datas[valueKey][0];
       if (telem != null && telem.length > 1 && telem[1] != null) {
-        evaluateServerData(telem[1].toString()).then((value) {
+        evaluateServerData(telem[1].toString(), parseValueFunction).then((value) {
           // currentSwitchValue = value;
           setState(() {
             currentSwitchValue = value ? activeColor : passiveColor;
@@ -198,33 +190,5 @@ class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> 
         });
       }
     }
-  }
-
-  Future<bool> evaluateServerData(dynamic data) async {
-    String functionContent = "function f(data){$parseValueFunction} f($data)";
-    String evalResult = await flutterWebViewPlugin.evalJavascript(functionContent);
-    if (evalResult == null || evalResult == "" || evalResult == "null") {
-      return false;
-    }
-    if (evalResult.toLowerCase() == "true" || evalResult.toLowerCase() == "false") {
-      return evalResult == "true";
-    }
-    return false;
-  }
-
-  void getRPCValue() {
-    Map requestData = {"method": checkStatusMethod, "params": null, "timeout": requestTimeout};
-    _RPCApi.handleTwoWayDeviceRPCRequest(entityId, requestData).then((reponse) {
-      //TODO - cihazdan gelen veriyi yorumla ve currentSwitchValue değerini set et.
-      setState(() {
-        // currentSwitchValue = reponse //response parse et
-        errorText = "";
-      });
-    }).catchError((err) {
-      // if (err == 408)//timeout
-      setState(() {
-        errorText = "Cihaza erişilemiyor";
-      });
-    });
   }
 }
