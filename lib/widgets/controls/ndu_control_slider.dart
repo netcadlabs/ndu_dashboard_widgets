@@ -31,7 +31,14 @@ class _NduControlSliderState extends BaseDashboardState<NduControlSlider> {
 
   int requestTimeout = 5000;
   double _currentValue = 0;
+  double _currentValueSlider = 0;
+
+  // double _currentValueSlider = 0;
   bool useMapping = false;
+  double minValue = 0;
+  double maxValue = 100;
+  double realMinValue = 0;
+  double realMaxValue = 100;
 
   @override
   void dispose() {
@@ -58,6 +65,16 @@ class _NduControlSliderState extends BaseDashboardState<NduControlSlider> {
     valueKey = conf.settings.valueKey;
     useMapping = conf.settings.useMapping;
 
+    realMinValue = double.parse(conf.settings.minValue.toString());
+    realMaxValue = double.parse(conf.settings.maxValue.toString());
+    if (useMapping) {
+      minValue = 0;
+      maxValue = 100;
+    } else {
+      minValue = realMinValue;
+      maxValue = realMaxValue;
+    }
+
     if (widget.widgetConfig.config.targetDeviceAliasIds != null &&
         widget.widgetConfig.config.targetDeviceAliasIds.length > 0) {
       startTargetDeviceAliasIdsSubscription(retrieveValueMethod, valueKey, requestTimeout: requestTimeout);
@@ -82,41 +99,49 @@ class _NduControlSliderState extends BaseDashboardState<NduControlSlider> {
                     ),
                   ),
                 ),
-          SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              activeTrackColor: Colors.blue[700],
-              inactiveTrackColor: Colors.blue[100],
-              trackShape: RoundedRectSliderTrackShape(),
-              trackHeight: 4.0,
-              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12.0),
-              thumbColor: Colors.blueAccent,
-              overlayColor: Colors.blue.withAlpha(32),
-              overlayShape: RoundSliderOverlayShape(overlayRadius: 28.0),
-              tickMarkShape: RoundSliderTickMarkShape(),
-              activeTickMarkColor: Colors.blue[700],
-              inactiveTickMarkColor: Colors.blue[100],
-              valueIndicatorShape: PaddleSliderValueIndicatorShape(),
-              valueIndicatorColor: Colors.blueAccent,
-              valueIndicatorTextStyle: TextStyle(
-                color: Colors.white,
+          Row(
+            children: [
+              Text(minValue.toString()),
+              Expanded(
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    activeTrackColor: Colors.blue[700],
+                    inactiveTrackColor: Colors.blue[100],
+                    trackShape: RoundedRectSliderTrackShape(),
+                    trackHeight: 4.0,
+                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12.0),
+                    thumbColor: Colors.blueAccent,
+                    overlayColor: Colors.blue.withAlpha(32),
+                    overlayShape: RoundSliderOverlayShape(overlayRadius: 28.0),
+                    tickMarkShape: RoundSliderTickMarkShape(),
+                    activeTickMarkColor: Colors.blue[700],
+                    inactiveTickMarkColor: Colors.blue[100],
+                    valueIndicatorShape: PaddleSliderValueIndicatorShape(),
+                    valueIndicatorColor: Colors.blueAccent,
+                    valueIndicatorTextStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  child: Slider(
+                    value: _currentValueSlider,
+                    min: minValue,
+                    max: maxValue,
+                    divisions: 10,
+                    label: '$_currentValueSlider',
+                    onChanged: (value) {
+                      setState(() {
+                        _currentValueSlider = value;
+                      });
+                    },
+                    onChangeEnd: (value) {
+                      if (_currentValue == value) return;
+                      sendRequest(value);
+                    },
+                  ),
+                ),
               ),
-            ),
-            child: Slider(
-              value: _currentValue,
-              min: conf.settings.minValue != null ? double.parse(conf.settings.minValue.toString()) : 0,
-              max: conf.settings.maxValue != null ? double.parse(conf.settings.maxValue.toString()) : 100,
-              divisions: 10,
-              label: '$_currentValue',
-              onChanged: (value) {
-                // setState(() {
-                //   _value = value;
-                // });
-              },
-              onChangeEnd: (value) {
-                if (_currentValue == value) return;
-                sendRequest(value);
-              },
-            ),
+              Text(maxValue.toString()),
+            ],
           ),
           Text(
             "$infoText",
@@ -134,7 +159,7 @@ class _NduControlSliderState extends BaseDashboardState<NduControlSlider> {
     });
 
     if (useMapping) {
-      value = convertToRealValue(value, conf.settings.minValue, conf.settings.maxValue);
+      value = convertToRealValue(value, realMinValue, realMaxValue);
     }
 
     if (setValueMethod == SET_VALUE_METHOD_SET_ATTRIBUTE) {
@@ -160,22 +185,25 @@ class _NduControlSliderState extends BaseDashboardState<NduControlSlider> {
           resultData = telemetry[1];
         }
 
-        if (useMapping) {
-          _currentValue = convertToMappedValue(resultData, conf.settings.minValue, conf.settings.maxValue);
-        }
         setState(() {
-          _currentValue = resultData;
+          if (useMapping) {
+            resultData = convertToMappedValue(resultData, realMinValue, realMaxValue);
+          }
+          if (resultData >= minValue && resultData <= maxValue) {
+            _currentValue = resultData;
+            _currentValueSlider = _currentValue;
+          }
         });
       }
     }
   }
 
-  convertToRealValue(double mappedValue, int min, int max) {
-    var realMappedRate = min + (min - max) * mappedValue / 100;
+  convertToRealValue(double mappedValue, double min, double max) {
+    var realMappedRate = min + (max - min) * mappedValue / 100;
     return realMappedRate;
   }
 
-  convertToMappedValue(double realValue, int min, int max) {
+  convertToMappedValue(double realValue, double min, double max) {
     var realMappedRate = (realValue - min) / (max - min);
     var mappedRate = realMappedRate * 100;
     return mappedRate;
