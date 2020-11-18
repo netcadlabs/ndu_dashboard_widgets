@@ -199,60 +199,6 @@ class SocketCommandBuilder {
     return tsSubCmds;
   }
 
-  TsSubCmds _calculateTimeSeriesSubscriptionCommands(WidgetConfigConfig widgetConfig,
-      Datasources datasources,
-      EntityAliases entityAliases) {
-    if (datasources == null) return null;
-
-    if (entityAliases.filter.type == "singleEntity" &&
-        entityAliases.filter.singleEntity != null) {
-      TsSubCmds tsSubCmds = TsSubCmds(
-          entityId: entityAliases.filter.singleEntity.id,
-          entityType: entityAliases.filter.singleEntity.entityType);
-      String label = "";
-      datasources.dataKeys.forEach((element) {
-        label += '${element.name},';
-      });
-      label = label.substring(0, label.length - 1);
-      tsSubCmds.keys = label;
-
-      if (widgetConfig.timewindow != null &&
-          widgetConfig.timewindow.history != null) {
-        tsSubCmds.interval = widgetConfig.timewindow.history.interval;
-        // tsSubCmds.limit ?
-        // tsSubCmds.timewindow ?
-        if (widgetConfig.timewindow.history.fixedTimewindow != null)
-          tsSubCmds.startTs =
-              widgetConfig.timewindow.history.fixedTimewindow.startTimeMs *
-                  1000;
-      }
-      if (widgetConfig.timewindow != null &&
-          widgetConfig.timewindow.realtime != null) {
-        tsSubCmds.startTs = (DateTime
-            .now()
-            .millisecondsSinceEpoch -
-            widgetConfig.timewindow.realtime.timewindowMs);
-        if (widgetConfig.timewindow.realtime.interval > 0) {
-          tsSubCmds.interval = widgetConfig.timewindow.realtime.interval;
-
-          tsSubCmds.timeWindow = widgetConfig.timewindow.realtime.timewindowMs +
-              tsSubCmds.interval;
-          tsSubCmds.limit = (tsSubCmds.timeWindow / tsSubCmds.interval).ceil();
-        }
-
-        // tsSubCmds.timeWindow = widgetConfig.timewindow.realtime.timewindowMs + tsSubCmds.interval;
-        // tsSubCmds.limit = (tsSubCmds.timeWindow / tsSubCmds.interval) as int;
-      }
-      if (widgetConfig.timewindow.aggregation != null) {
-        tsSubCmds.agg = widgetConfig.timewindow.aggregation.type;
-        // widgetConfig.timewindow.aggregation.limit; // limit ?
-      }
-
-      return tsSubCmds;
-    }
-
-    return null;
-  }
 }
 
 class SubscriptionCommandResult {
