@@ -15,12 +15,10 @@ class BasicTimeseriesChart extends BaseDashboardWidget {
       _BasicTimeseriesChartWidgetState();
 }
 
-class _BasicTimeseriesChartWidgetState
-    extends BaseDashboardState<BasicTimeseriesChart> {
+class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeseriesChart> {
   List<SocketData> allRawData = List();
 
-  List<charts.Series<TimeSeriesGraphData, DateTime>> seriesList =
-      List();
+  List<charts.Series<TimeSeriesGraphData, DateTime>> seriesList = List();
   Map<String, List<dynamic>> seriesListData = Map<String, List<dynamic>>();
   List<charts.SeriesLegend> legendList = List();
   bool animate = false;
@@ -97,23 +95,23 @@ class _BasicTimeseriesChartWidgetState
     return seriesList.length < 1
         ? Center(child: CircularProgressIndicator())
         : Container(
-            height: 400,
-            decoration: BoxDecoration(
-                color: HexColor.fromCss(
-                    widget.widgetConfig.config.backgroundColor)),
-            child: Container(
-              padding: EdgeInsets.all(10),
-              child: charts.TimeSeriesChart(
-                seriesList,
-                animate: animate,
-                // Optionally pass in a [DateTimeFactory] used by the chart. The factory
-                // should create the same type of [DateTime] as the data provided. If none
-                // specified, the default creates local date time.
-                dateTimeFactory: const charts.LocalDateTimeFactory(),
-                behaviors: legendList,
-              ),
-            ),
-          );
+      height: 400,
+      decoration: BoxDecoration(
+          color: HexColor.fromCss(
+              widget.widgetConfig.config.backgroundColor)),
+      child: Container(
+        padding: EdgeInsets.all(10),
+        child: charts.TimeSeriesChart(
+          seriesList,
+          animate: animate,
+          // Optionally pass in a [DateTimeFactory] used by the chart. The factory
+          // should create the same type of [DateTime] as the data provided. If none
+          // specified, the default creates local date time.
+          dateTimeFactory: const charts.LocalDateTimeFactory(),
+          behaviors: legendList,
+        ),
+      ),
+    );
   }
 
   @override
@@ -131,7 +129,7 @@ class _BasicTimeseriesChartWidgetState
         if (value[1] is double) val = value[1];
         if (value[1] is String) val = double.parse(value[1]);
         TimeSeriesGraphData tsData =
-            TimeSeriesGraphData(DateTime.fromMillisecondsSinceEpoch(ts), val);
+        TimeSeriesGraphData(DateTime.fromMillisecondsSinceEpoch(ts), val);
         tsDataList.add(tsData);
       });
       addDataToSeriesList(key, tsDataList);
@@ -160,33 +158,48 @@ class _BasicTimeseriesChartWidgetState
       tempList = List();
     tempList.addAll(tsData);
     print(tsData.length.toString());
-    tsData = timeSeriesListUpdate(tempList);
-    List<charts.Series<TimeSeriesGraphData, DateTime>> tempSeriesList =  List();
+    //tsData = timeSeriesListUpdate(tempList);
+    List<charts.Series<TimeSeriesGraphData, DateTime>> tempSeriesList = List();
     index = 0;
     seriesList.forEach((element) {
-      if (index != foundIndex){
+      if (index != foundIndex) {
         tempSeriesList.add(element);
       }
       index++;
     });
-    DataKeys dataKeys = DataKeys(name: key, label: displayName,color: colors);
-    seriesList=tempSeriesList;
+    DataKeys dataKeys = DataKeys(name: key, label: displayName, color: colors);
+    seriesList = tempSeriesList;
     addNewSeriest(dataKeys, tsData);
   }
 
-  List<TimeSeriesGraphData> timeSeriesListUpdate(
-      List<TimeSeriesGraphData> tsData) {
-    double minute =
-        (widget.widgetConfig.config.timewindow.realtime.timewindowMs * 0.001) /
-            60;
+  List<TimeSeriesGraphData> timeSeriesListUpdate(List<TimeSeriesGraphData> tsData) {
+    double minute = 0;
+    if (widget.widgetConfig.config.timewindow.realtime != null &&
+        widget.widgetConfig.config.timewindow.realtime.timewindowMs != null) {
+      minute = (widget.widgetConfig.config.timewindow.realtime.timewindowMs *
+          0.001) /
+      60;
+    }
     List<TimeSeriesGraphData> resultList = List();
     DateTime historyDateTime = DateTime(
-        DateTime.now().year,
-        DateTime.now().month,
-        DateTime.now().day,
-        DateTime.now().hour,
-        DateTime.now().minute - int.parse(minute.round().toString()),
-        DateTime.now().second);
+        DateTime
+            .now()
+            .year,
+        DateTime
+            .now()
+            .month,
+        DateTime
+            .now()
+            .day,
+        DateTime
+            .now()
+            .hour,
+        DateTime
+            .now()
+            .minute - int.parse(minute.round().toString()),
+        DateTime
+            .now()
+            .second);
 
     tsData.forEach((element) {
       if (historyDateTime.isBefore(element.time)) {
