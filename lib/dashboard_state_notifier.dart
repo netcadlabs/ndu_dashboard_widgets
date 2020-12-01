@@ -27,7 +27,8 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
   void addDataToProvider(String subscriptionId, Map<String, List<dynamic>> data) {
     if (widgetSubscriptionIds.containsKey(subscriptionId)) {
       try {
-        _latestData[widgetSubscriptionIds[subscriptionId]] = SocketData(0, DateTime.now().millisecondsSinceEpoch, data);
+        _latestData[widgetSubscriptionIds[subscriptionId]] =
+            SocketData(0, DateTime.now().millisecondsSinceEpoch, data);
         notifyListeners();
       } catch (e) {
         print(e);

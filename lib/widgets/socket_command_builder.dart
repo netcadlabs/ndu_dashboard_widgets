@@ -38,7 +38,6 @@ class SocketCommandBuilder {
           List<TsSubCmds> subCmdsList =
           await _calculateTimeSeriesSubscriptionCommands2(
               widgetConfig.config, datasources);
-
           if (subCmdsList != null && subCmdsList.length > 0) {
             subCmdsList.forEach((subCmd) {
               widgetCmdIds[commandId.toString()] = widgetConfig.id;
@@ -210,7 +209,7 @@ class SubscriptionCommandResult {
 
 class SubscriptionCommand {
   List<TsSubCmds> tsSubCmds = List();
-  List<HistoryCmds> historyCmds = List(); //TODO - yeni model tipini öğren
+  List<HistoryCmds> historyCmds = List();
   List<AttrSubCmds> attrSubCmds = List(); //TODO - yeni model tipini öğren
 
   SubscriptionCommand();
@@ -282,6 +281,7 @@ class AttrSubCmds {
     return data;
   }
 }
+
 class TsSubCmds {
   String entityType;
   String entityId;
@@ -310,8 +310,6 @@ class TsSubCmds {
     entityId = json['entityId'];
     keys = json['keys'];
     cmdId = json['cmdId'];
-    startTs = json['startTs'];
-    startTs = json['endTs'];
     timeWindow = json['timeWindow'];
     interval = json['interval'];
     limit = json['limit'];
@@ -324,8 +322,6 @@ class TsSubCmds {
     data['entityId'] = this.entityId;
     data['keys'] = this.keys;
     data['cmdId'] = this.cmdId;
-    data['startTs'] = this.startTs;
-    data['endTs'] = this.endTs.toString();
     data['timeWindow'] = this.timeWindow;
     data['interval'] = this.interval;
     data['limit'] = this.limit;

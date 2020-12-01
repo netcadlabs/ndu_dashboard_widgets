@@ -111,13 +111,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.4"
-  flutter_knob:
-    dependency: "direct main"
-    description:
-      name: flutter_knob
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.0.2"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -301,6 +294,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.99"
+  sleek_circular_slider:
+    dependency: "direct main"
+    description:
+      name: sleek_circular_slider
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.0+web"
   source_span:
     dependency: transitive
     description:
