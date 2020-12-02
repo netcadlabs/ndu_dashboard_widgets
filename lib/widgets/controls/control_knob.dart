@@ -14,8 +14,9 @@ import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 
 // ignore: must_be_immutable
 class NduControlKnob extends BaseDashboardWidget {
-  NduControlKnob(WidgetConfig _widgetConfig,
-      DashboardDetailConfiguration _dashboardDetailConfiguration, {Key key})
+  NduControlKnob(
+      WidgetConfig _widgetConfig, DashboardDetailConfiguration _dashboardDetailConfiguration,
+      {Key key})
       : super(_widgetConfig, key: key, dashboardDetailConfiguration: _dashboardDetailConfiguration);
 
   @override
@@ -86,8 +87,8 @@ class _NduControlKnobSliderState extends BaseDashboardState<NduControlKnob> {
 
     if (widget.widgetConfig.config.targetDeviceAliasIds != null &&
         widget.widgetConfig.config.targetDeviceAliasIds.length > 0) {
-      startTargetDeviceAliasIdsSubscription(
-          retrieveValueMethod, valueKey, requestTimeout: requestTimeout);
+      startTargetDeviceAliasIdsSubscription(retrieveValueMethod, valueKey,
+          requestTimeout: requestTimeout);
     }
   }
 
@@ -95,6 +96,10 @@ class _NduControlKnobSliderState extends BaseDashboardState<NduControlKnob> {
   Widget build(BuildContext context) {
     super.build(context);
     double paddingFactor = .2;
+    int color = _currentValueSlider.round();
+    color = (color / 10).round();
+    color = (100 * color);
+    color = color <= 900 ? color : 900;
     return Row(
       children: <Widget>[
         Text(
@@ -103,8 +108,7 @@ class _NduControlKnobSliderState extends BaseDashboardState<NduControlKnob> {
           style: TextStyle(
             fontSize: this.sliderHeight * .3,
             fontWeight: FontWeight.w700,
-            color: Theme.of(context).primaryColor,
-
+            color: Colors.red,
           ),
         ),
         SizedBox(
@@ -130,9 +134,9 @@ class _NduControlKnobSliderState extends BaseDashboardState<NduControlKnob> {
               child: Slider(
                 min: minValue,
                 max: maxValue,
-                divisions:25,
-                activeColor: Theme.of(context).primaryColor,
-                inactiveColor: Colors.white70,
+                divisions: 25,
+                activeColor: Colors.deepOrange[color],
+                inactiveColor: Colors.red[50],
                 value: _currentValueSlider,
                 onChanged: (value) {
                   setState(() {
@@ -153,7 +157,7 @@ class _NduControlKnobSliderState extends BaseDashboardState<NduControlKnob> {
           style: TextStyle(
             fontSize: this.sliderHeight * .3,
             fontWeight: FontWeight.w700,
-            color: Theme.of(context).primaryColor,
+            color: Colors.red,
           ),
         ),
       ],
@@ -301,19 +305,20 @@ class CustomSliderThumbCircle extends SliderComponentShape {
   }
 
   @override
-  void paint(PaintingContext context,
-      Offset center, {
-        Animation<double> activationAnimation,
-        Animation<double> enableAnimation,
-        bool isDiscrete,
-        TextPainter labelPainter,
-        RenderBox parentBox,
-        SliderThemeData sliderTheme,
-        TextDirection textDirection,
-        double value,
-        double textScaleFactor,
-        Size sizeWithOverflow,
-      }) {
+  void paint(
+    PaintingContext context,
+    Offset center, {
+    Animation<double> activationAnimation,
+    Animation<double> enableAnimation,
+    bool isDiscrete,
+    TextPainter labelPainter,
+    RenderBox parentBox,
+    SliderThemeData sliderTheme,
+    TextDirection textDirection,
+    double value,
+    double textScaleFactor,
+    Size sizeWithOverflow,
+  }) {
     final Canvas canvas = context.canvas;
 
     final paint = Paint()
@@ -329,13 +334,10 @@ class CustomSliderThumbCircle extends SliderComponentShape {
       text: getValue(value),
     );
 
-    TextPainter tp = new TextPainter(
-        text: span,
-        textAlign: TextAlign.center,
-        textDirection: TextDirection.ltr);
+    TextPainter tp =
+        new TextPainter(text: span, textAlign: TextAlign.center, textDirection: TextDirection.ltr);
     tp.layout();
-    Offset textCenter =
-    Offset(center.dx - (tp.width / 2), center.dy - (tp.height / 2));
+    Offset textCenter = Offset(center.dx - (tp.width / 2), center.dy - (tp.height / 2));
 
     canvas.drawCircle(center, thumbRadius * .9, paint);
     tp.paint(canvas, textCenter);
