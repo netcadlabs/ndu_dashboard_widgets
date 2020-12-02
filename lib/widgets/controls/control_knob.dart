@@ -14,7 +14,8 @@ import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 
 // ignore: must_be_immutable
 class NduControlKnob extends BaseDashboardWidget {
-  NduControlKnob(WidgetConfig _widgetConfig, DashboardDetailConfiguration _dashboardDetailConfiguration, {Key key})
+  NduControlKnob(WidgetConfig _widgetConfig,
+      DashboardDetailConfiguration _dashboardDetailConfiguration, {Key key})
       : super(_widgetConfig, key: key, dashboardDetailConfiguration: _dashboardDetailConfiguration);
 
   @override
@@ -45,6 +46,8 @@ class _NduControlKnobSliderState extends BaseDashboardState<NduControlKnob> {
   double maxValue = 100;
   double realMinValue = 0;
   double realMaxValue = 100;
+  final double sliderHeight = 48;
+  final fullWidth = false;
 
   @override
   void dispose() {
@@ -83,15 +86,80 @@ class _NduControlKnobSliderState extends BaseDashboardState<NduControlKnob> {
 
     if (widget.widgetConfig.config.targetDeviceAliasIds != null &&
         widget.widgetConfig.config.targetDeviceAliasIds.length > 0) {
-      startTargetDeviceAliasIdsSubscription(retrieveValueMethod, valueKey, requestTimeout: requestTimeout);
+      startTargetDeviceAliasIdsSubscription(
+          retrieveValueMethod, valueKey, requestTimeout: requestTimeout);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
+    double paddingFactor = .2;
+    return Row(
+      children: <Widget>[
+        Text(
+          '${this.minValue.toString().split(".")[0]}',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: this.sliderHeight * .3,
+            fontWeight: FontWeight.w700,
+            color: Theme.of(context).primaryColor,
 
-    return Container(
+          ),
+        ),
+        SizedBox(
+          width: this.sliderHeight * .1,
+        ),
+        Expanded(
+          child: Center(
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                activeTrackColor: Colors.white.withOpacity(1),
+                inactiveTrackColor: Colors.white.withOpacity(.5),
+                trackHeight: 4.0,
+                thumbShape: CustomSliderThumbCircle(
+                  thumbRadius: this.sliderHeight * .4,
+                  min: this.minValue,
+                  max: this.maxValue,
+                ),
+                overlayColor: Colors.white.withOpacity(.4),
+                //valueIndicatorColor: Colors.white,
+                activeTickMarkColor: Colors.white,
+                inactiveTickMarkColor: Colors.red.withOpacity(.7),
+              ),
+              child: Slider(
+                min: minValue,
+                max: maxValue,
+                divisions:25,
+                activeColor: Theme.of(context).primaryColor,
+                inactiveColor: Colors.white70,
+                value: _currentValueSlider,
+                onChanged: (value) {
+                  setState(() {
+                    _currentValueSlider = value;
+                  });
+                },
+                onChangeEnd: (value) {
+                  if (_currentValue == value) return;
+                  sendRequest(value);
+                },
+              ),
+            ),
+          ),
+        ),
+        Text(
+          '${this.maxValue.toString().split(".")[0]}',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: this.sliderHeight * .3,
+            fontWeight: FontWeight.w700,
+            color: Theme.of(context).primaryColor,
+          ),
+        ),
+      ],
+    );
+
+    /* Container(
       child: Column(
         children: [
           title == ""
@@ -155,7 +223,7 @@ class _NduControlKnobSliderState extends BaseDashboardState<NduControlKnob> {
           )
         ],
       ),
-    );
+    );*/
   }
 
   void sendRequest(double value) {
@@ -213,5 +281,67 @@ class _NduControlKnobSliderState extends BaseDashboardState<NduControlKnob> {
     var realMappedRate = (realValue - min) / (max - min);
     var mappedRate = realMappedRate * 100;
     return mappedRate;
+  }
+}
+
+class CustomSliderThumbCircle extends SliderComponentShape {
+  final double thumbRadius;
+  final double min;
+  final double max;
+
+  const CustomSliderThumbCircle({
+    @required this.thumbRadius,
+    this.min = 0,
+    this.max = 10,
+  });
+
+  @override
+  Size getPreferredSize(bool isEnabled, bool isDiscrete) {
+    return Size.fromRadius(thumbRadius);
+  }
+
+  @override
+  void paint(PaintingContext context,
+      Offset center, {
+        Animation<double> activationAnimation,
+        Animation<double> enableAnimation,
+        bool isDiscrete,
+        TextPainter labelPainter,
+        RenderBox parentBox,
+        SliderThemeData sliderTheme,
+        TextDirection textDirection,
+        double value,
+        double textScaleFactor,
+        Size sizeWithOverflow,
+      }) {
+    final Canvas canvas = context.canvas;
+
+    final paint = Paint()
+      ..color = Colors.white //Thumb Background Color
+      ..style = PaintingStyle.fill;
+
+    TextSpan span = new TextSpan(
+      style: new TextStyle(
+        fontSize: thumbRadius * .8,
+        fontWeight: FontWeight.w700,
+        color: sliderTheme.thumbColor, //Text Color of Value on Thumb
+      ),
+      text: getValue(value),
+    );
+
+    TextPainter tp = new TextPainter(
+        text: span,
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr);
+    tp.layout();
+    Offset textCenter =
+    Offset(center.dx - (tp.width / 2), center.dy - (tp.height / 2));
+
+    canvas.drawCircle(center, thumbRadius * .9, paint);
+    tp.paint(canvas, textCenter);
+  }
+
+  String getValue(double value) {
+    return (min + (max - min) * value).round().toString();
   }
 }
