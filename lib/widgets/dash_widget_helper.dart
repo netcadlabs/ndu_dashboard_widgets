@@ -13,17 +13,14 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'base_dash_widget.dart';
 import 'cards/cards.dart';
+import 'cards/ndu_widget_cards_base64_viewer.dart';
 import 'charts/ndu_widget_charts_basic_timeseries.dart';
 import 'cards/ndu_widget_entity_widget.dart';
 import 'controls/control_update_attributes.dart';
 
 class DashboardWidgetHelper {
-  static BaseDashboardWidget getImplementedWidget(
-      WidgetConfig widgetConfig,
-      DashboardDetailConfiguration dashboardConfiguration,
-      AliasController aliasController,
-      WebSocketChannel webSocketChannel,
-      SocketCommandBuilder socketCommandBuilder) {
+  static BaseDashboardWidget getImplementedWidget(WidgetConfig widgetConfig, DashboardDetailConfiguration dashboardConfiguration,
+      AliasController aliasController, WebSocketChannel webSocketChannel, SocketCommandBuilder socketCommandBuilder) {
     BaseDashboardWidget baseDashboardWidget;
 
     if (widgetConfig != null) {
@@ -34,6 +31,8 @@ class DashboardWidgetHelper {
           baseDashboardWidget = LabelCardWidget(widgetConfig);
         } else if (widgetConfig.typeAlias == "entity_icon") {
           baseDashboardWidget = EntityCardWidget(widgetConfig);
+        } else if (widgetConfig.typeAlias == "base64_viewer") {
+          baseDashboardWidget = Base64ViewerWidget(widgetConfig);
         }
       } else if (widgetConfig.bundleAlias == "charts") {
         if (widgetConfig.typeAlias == "basic_timeseries") {

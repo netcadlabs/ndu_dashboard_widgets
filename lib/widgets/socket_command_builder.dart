@@ -80,7 +80,7 @@ class SocketCommandBuilder {
 
   Future<List<TsSubCmds>> _calculateTimeSeriesSubscriptionCommands2(WidgetConfigConfig widgetConfig,
       List<Datasources> datasources) async {
-    if (datasources == null) return null;
+    if (datasources == null ) return null;
 
     // List<Datasources> datasourceList = await aliasController.resolveDatasource(datasources, false);
 

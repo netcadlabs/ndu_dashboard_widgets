@@ -173,7 +173,7 @@ packages:
   ndu_api_client:
     dependency: "direct main"
     description:
-      path: "../ndu_api_client"
+      path: "../ndu_api_flutter_client"
       relative: true
     source: path
     version: "0.0.1"
