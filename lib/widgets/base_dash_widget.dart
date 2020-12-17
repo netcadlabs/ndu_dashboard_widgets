@@ -203,6 +203,11 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
     });
   }
 
+  Future<List<dynamic>> getAttributeData(
+      EntityType entityType, String entityId, AttributeScope attributeScope, String keys) {
+    return telemetryApi.getEntityAttributes(entityType, entityId, attributeScope, keys);
+  }
+
   Future<bool> evaluateServerData(dynamic data, String parseValueFunction) async {
     String functionContent = "function f(data){$parseValueFunction} f($data)";
     String evalResult = await flutterWebViewPlugin.evalJavascript(functionContent);
