@@ -184,7 +184,6 @@ class SocketCommandBuilder {
             widgetConfig.timewindow.realtime.timewindowMs + tsSubCmds.interval;
         tsSubCmds.limit = (tsSubCmds.timeWindow / tsSubCmds.interval).ceil();
       }
-
       // tsSubCmds.timeWindow = widgetConfig.timewindow.realtime.timewindowMs + tsSubCmds.interval;
       // tsSubCmds.limit = (tsSubCmds.timeWindow / tsSubCmds.interval) as int;
     }
