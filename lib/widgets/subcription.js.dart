@@ -15,8 +15,8 @@ class Subscription {
 
 class SubscriptionOptions {
   List<Datasources> datasources;
-  Timewindow timeWindowConfig;
-  Timewindow dashboardTimewindow;
+  TimeWindow timeWindowConfig;
+  TimeWindow dashboardTimewindow;
   bool useDashboardTimewindow;
   String type;
 

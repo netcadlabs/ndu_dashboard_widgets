@@ -22,54 +22,51 @@ class SocketCommandBuilder {
 
     try {
       // aliasController = AliasController(entityAliases: dashboardDetail.dashboardConfiguration.entityAliases);
+      DashboardDetailConfiguration dashConfig = _dashboardDetail.dashboardConfiguration;
+      if (dashConfig.widgets != null)
+        for (var i = 0; i < dashConfig.widgets.length; i++) {
+          WidgetConfig widgetConfig = dashConfig.widgets[i];
+          if (widgetConfig.config == null || widgetConfig.config.datasources == null || widgetConfig.config.datasources.length == 0) continue;
 
-      if (_dashboardDetail.dashboardConfiguration.widgets != null)
-        for (var i = 0;
-        i < _dashboardDetail.dashboardConfiguration.widgets.length;
-        i++) {
-          WidgetConfig widgetConfig =
-          _dashboardDetail.dashboardConfiguration.widgets[i];
-          if (widgetConfig.config == null ||
-              widgetConfig.config.datasources == null ||
-              widgetConfig.config.datasources.length == 0) continue;
-
-          List<Datasources> datasources =
-          await resolveDatasources(widgetConfig.config.datasources);
-          List<TsSubCmds> subCmdsList =
-          await _calculateTimeSeriesSubscriptionCommands2(
-              widgetConfig.config, datasources);
+          List<Datasources> dataSources = await resolveDataSourceList(widgetConfig.config.datasources);
+          List<TsSubCmds> subCmdsList = await _calculateTimeSeriesSubscriptionCommands2(widgetConfig.config, dataSources, dashConfig.timewindow);
           if (subCmdsList != null && subCmdsList.length > 0) {
             subCmdsList.forEach((subCmd) {
               widgetCmdIds[commandId.toString()] = widgetConfig.id;
               subCmd.cmdId = commandId;
               commandId++;
-              if(subCmd.endTs!=null){
-                HistoryCmds historyCmds = HistoryCmds(agg: subCmd.agg,cmdId: subCmd.cmdId,endTs: subCmd.endTs,
-                entityId: subCmd.entityId,entityType: subCmd.entityType,interval: subCmd.interval,keys: subCmd.keys,
-                limit: subCmd.limit,startTs: subCmd.startTs);
+              if (subCmd.endTs != null) {
+                HistoryCmds historyCmds = HistoryCmds(
+                    agg: subCmd.agg,
+                    cmdId: subCmd.cmdId,
+                    endTs: subCmd.endTs,
+                    entityId: subCmd.entityId,
+                    entityType: subCmd.entityType,
+                    interval: subCmd.interval,
+                    keys: subCmd.keys,
+                    limit: subCmd.limit,
+                    startTs: subCmd.startTs);
                 subscriptionCommand.historyCmds.add(historyCmds);
-              }
-              else{
+              } else {
                 subscriptionCommand.tsSubCmds.add(subCmd);
               }
             });
           }
         }
     } catch (err) {
-      throw Exception('build hatasi ${err.toString()}');
+      throw Exception('Build error : ${err.toString()}');
     }
 
     return SubscriptionCommandResult(subscriptionCommand, widgetCmdIds);
   }
 
-  Future<List<Datasources>> resolveDatasources(List<Datasources> datasources) async {
+  Future<List<Datasources>> resolveDataSourceList(List<Datasources> dataSourceList) async {
     List<Datasources> allDataSources = List();
-    for (int i = 0; i < datasources.length; i++) {
+    for (int i = 0; i < dataSourceList.length; i++) {
       try {
-        List<Datasources> datasourceList =
-        await _aliasController.resolveDatasource(datasources[i], false);
+        List<Datasources> resolvedDataSourceList = await _aliasController.resolveDatasource(dataSourceList[i], false);
         //TODO - javascript koduna bak.. resolveDatasources(datasources)
-        allDataSources.addAll(datasourceList);
+        allDataSources.addAll(resolvedDataSourceList);
       } catch (err) {
         print(err);
       }
@@ -78,26 +75,28 @@ class SocketCommandBuilder {
     return allDataSources;
   }
 
-  Future<List<TsSubCmds>> _calculateTimeSeriesSubscriptionCommands2(WidgetConfigConfig widgetConfig,
-      List<Datasources> datasources) async {
-    if (datasources == null ) return null;
+  Future<List<TsSubCmds>> _calculateTimeSeriesSubscriptionCommands2(
+      WidgetConfigConfig widgetConfig, List<Datasources> dataSourceList, TimeWindow dashboardTimeWindow) async {
+    if (dataSourceList == null) return null;
 
     // List<Datasources> datasourceList = await aliasController.resolveDatasource(datasources, false);
 
     List<TsSubCmds> list = List();
-    datasources.forEach((datasource) {
+    dataSourceList.forEach((dataSource) {
       //TODO - TsSubCmds
-      TsSubCmds tsSubCmds = TsSubCmds(
-          entityId: datasource.entityId, entityType: datasource.entityType);
+      TsSubCmds tsSubCommands = TsSubCmds(entityId: dataSource.entityId, entityType: dataSource.entityType);
       String label = "";
-      datasource.dataKeys.forEach((element) {
+      dataSource.dataKeys.forEach((element) {
         label += '${element.name},';
       });
       label = label.substring(0, label.length - 1);
-      tsSubCmds.keys = label;
+      tsSubCommands.keys = label;
 
-      tsSubCmds = setTimeProperties(widgetConfig, tsSubCmds);
-      list.add(tsSubCmds);
+      if (!widgetConfig.useDashboardTimewindow)
+        tsSubCommands = setTimeWindowProperties(widgetConfig.timewindow, tsSubCommands);
+      else
+        tsSubCommands = setTimeWindowProperties(dashboardTimeWindow, tsSubCommands);
+      list.add(tsSubCommands);
     });
 
     return list;
@@ -106,8 +105,7 @@ class SocketCommandBuilder {
   Future<List<AttrSubCmds>> calculateCommandForAliasId(String aliasId, String key) async {
     AliasInfo aliasInfo = await aliasController.getAliasInfo(aliasId);
     List<AttrSubCmds> list = List();
-    if (aliasInfo == null || aliasInfo.resolvedEntities.length == 0)
-      return list;
+    if (aliasInfo == null || aliasInfo.resolvedEntities.length == 0) return list;
 
     if (aliasInfo.resolveMultiple) {
       aliasInfo.resolvedEntities.forEach((element) {
@@ -160,28 +158,20 @@ class SocketCommandBuilder {
   }
 
   TsSubCmds setTimeProperties(WidgetConfigConfig widgetConfig, TsSubCmds tsSubCmds) {
-    if (widgetConfig.timewindow != null &&
-        widgetConfig.timewindow.history != null) {
+    if (widgetConfig.timewindow != null && widgetConfig.timewindow.history != null) {
       tsSubCmds.interval = widgetConfig.timewindow.history.interval;
       // tsSubCmds.limit ?
       // tsSubCmds.timewindow ?
       if (widgetConfig.timewindow.history.fixedTimewindow != null)
-        tsSubCmds.startTs =
-            widgetConfig.timewindow.history.fixedTimewindow.startTimeMs * 1000;
-      tsSubCmds.endTs =
-          widgetConfig.timewindow.history.fixedTimewindow.endTimeMs * 1000;
+        tsSubCmds.startTs = widgetConfig.timewindow.history.fixedTimewindow.startTimeMs * 1000;
+      tsSubCmds.endTs = widgetConfig.timewindow.history.fixedTimewindow.endTimeMs * 1000;
     }
-    if (widgetConfig.timewindow != null &&
-        widgetConfig.timewindow.realtime != null) {
-      tsSubCmds.startTs = (DateTime
-          .now()
-          .millisecondsSinceEpoch -
-          widgetConfig.timewindow.realtime.timewindowMs);
+    if (widgetConfig.timewindow != null && widgetConfig.timewindow.realtime != null) {
+      tsSubCmds.startTs = (DateTime.now().millisecondsSinceEpoch - widgetConfig.timewindow.realtime.timewindowMs);
       if (widgetConfig.timewindow.realtime.interval > 0) {
         tsSubCmds.interval = widgetConfig.timewindow.realtime.interval;
 
-        tsSubCmds.timeWindow =
-            widgetConfig.timewindow.realtime.timewindowMs + tsSubCmds.interval;
+        tsSubCmds.timeWindow = widgetConfig.timewindow.realtime.timewindowMs + tsSubCmds.interval;
         tsSubCmds.limit = (tsSubCmds.timeWindow / tsSubCmds.interval).ceil();
       }
       // tsSubCmds.timeWindow = widgetConfig.timewindow.realtime.timewindowMs + tsSubCmds.interval;
@@ -197,6 +187,35 @@ class SocketCommandBuilder {
     return tsSubCmds;
   }
 
+  TsSubCmds setTimeWindowProperties(TimeWindow timeWindow, TsSubCmds tsSubCommands) {
+    if (timeWindow != null && timeWindow.history != null) {
+      tsSubCommands.interval = timeWindow.history.interval;
+      // tsSubCmds.limit ?
+      // tsSubCmds.timewindow ?
+      if (timeWindow.history.fixedTimewindow != null)
+        tsSubCommands.startTs = timeWindow.history.fixedTimewindow.startTimeMs * 1000;
+      tsSubCommands.endTs = timeWindow.history.fixedTimewindow.endTimeMs * 1000;
+    }
+    if (timeWindow != null && timeWindow.realtime != null) {
+      tsSubCommands.startTs = (DateTime.now().millisecondsSinceEpoch - timeWindow.realtime.timewindowMs);
+      if (timeWindow.realtime.interval > 0) {
+        tsSubCommands.interval = timeWindow.realtime.interval;
+
+        tsSubCommands.timeWindow = timeWindow.realtime.timewindowMs + tsSubCommands.interval;
+        tsSubCommands.limit = (tsSubCommands.timeWindow / tsSubCommands.interval).ceil();
+      }
+      // tsSubCmds.timeWindow = widgetConfig.timewindow.realtime.timewindowMs + tsSubCmds.interval;
+      // tsSubCmds.limit = (tsSubCmds.timeWindow / tsSubCmds.interval) as int;
+    }
+
+    if (timeWindow.aggregation != null) {
+      tsSubCommands.agg = timeWindow.aggregation.type;
+      // tsSubCommands.limit = 289;
+      // widgetConfig.timewindow.aggregation.limit; // limit ?
+    }
+
+    return tsSubCommands;
+  }
 }
 
 class SubscriptionCommandResult {
@@ -293,16 +312,7 @@ class TsSubCmds {
   int limit;
   String agg;
 
-  TsSubCmds({this.entityType,
-    this.entityId,
-    this.keys,
-    this.cmdId,
-    this.startTs,
-    this.endTs,
-    this.timeWindow,
-    this.interval,
-    this.limit,
-    this.agg});
+  TsSubCmds({this.entityType, this.entityId, this.keys, this.cmdId, this.startTs, this.endTs, this.timeWindow, this.interval, this.limit, this.agg});
 
   TsSubCmds.fromJson(Map<String, dynamic> json) {
     entityType = json['entityType'];
@@ -313,6 +323,7 @@ class TsSubCmds {
     interval = json['interval'];
     limit = json['limit'];
     agg = json['agg'];
+    startTs = json['startTs'];
   }
 
   Map<String, dynamic> toJson() {
@@ -325,9 +336,11 @@ class TsSubCmds {
     data['interval'] = this.interval;
     data['limit'] = this.limit;
     data['agg'] = this.agg;
+    data['startTs'] = this.startTs;
     return data;
   }
 }
+
 class HistoryCmds extends TsSubCmds {
   String entityType;
   String entityId;
@@ -339,15 +352,7 @@ class HistoryCmds extends TsSubCmds {
   int limit;
   String agg;
 
-  HistoryCmds({this.entityType,
-    this.entityId,
-    this.keys,
-    this.cmdId,
-    this.startTs,
-    this.endTs,
-    this.interval,
-    this.limit,
-    this.agg});
+  HistoryCmds({this.entityType, this.entityId, this.keys, this.cmdId, this.startTs, this.endTs, this.interval, this.limit, this.agg});
 
   HistoryCmds.fromJson(Map<String, dynamic> json) {
     entityType = json['entityType'];
@@ -375,4 +380,3 @@ class HistoryCmds extends TsSubCmds {
     return data;
   }
 }
-
