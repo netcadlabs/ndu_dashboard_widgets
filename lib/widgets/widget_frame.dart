@@ -8,7 +8,7 @@ class WidgetFrame extends StatelessWidget {
   final Widget child;
 
   WidgetFrame({Key key, this.child, this.widgetConfig}) : super(key: key);
-
+  bool isRefresh=false;
   Color backgroundColor;
   Color color;
 
@@ -37,6 +37,11 @@ class WidgetFrame extends StatelessWidget {
 
   Widget getTitleWidget(WidgetConfigConfig widgetConfigConfig) {
     String title = widgetConfigConfig.title;
+    if (widgetConfig.bundleAlias == "charts") {
+      if (widgetConfig.typeAlias == "basic_timeseries" || widgetConfig.typeAlias == "timeseries_bars_flot") {
+        isRefresh=true;
+      }
+    }
     return widgetConfigConfig.showTitle
         ? Container(
             margin: EdgeInsets.only(top: 5),
@@ -44,16 +49,35 @@ class WidgetFrame extends StatelessWidget {
             child: Row(
               children: [
                 Flexible(
-                  child: Container(
-                    child: Text(
-                      "$title",
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: color,
-                        fontWeight: FontWeight.bold,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: Text(
+                          "$title",
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: color,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                    ),
+                      Visibility(
+                        visible: isRefresh,
+                        child: Expanded(
+                            flex: 1,
+                            child: IconButton(
+                              onPressed: () {
+                                print('${widgetConfig.typeAlias}');
+                              },
+                              icon: Icon(
+                                Icons.refresh,
+                                color: Colors.black,
+                              ),
+                            )),
+                      )
+                    ],
                   ),
                 ),
               ],
