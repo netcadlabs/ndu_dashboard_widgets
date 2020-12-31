@@ -1,13 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
+import 'package:ndu_api_client/telemetry_api.dart';
+import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 
 class WidgetFrame extends StatelessWidget {
   final WidgetConfig widgetConfig;
   final Widget child;
-
-  WidgetFrame({Key key, this.child, this.widgetConfig}) : super(key: key);
+  final AliasController aliasController;
+  WidgetFrame({Key key, this.child, this.widgetConfig, this.aliasController}) : super(key: key);
   bool isRefresh=false;
   Color backgroundColor;
   Color color;
@@ -70,6 +72,7 @@ class WidgetFrame extends StatelessWidget {
                             child: IconButton(
                               onPressed: () {
                                 print('${widgetConfig.typeAlias}');
+                                getTimeSeriesData();
                               },
                               icon: Icon(
                                 Icons.refresh,
@@ -84,5 +87,9 @@ class WidgetFrame extends StatelessWidget {
             ),
           )
         : Container();
+  }
+  getTimeSeriesData(){
+    TelemetryApi api =TelemetryApi();
+    //api.getTimeseries();
   }
 }
