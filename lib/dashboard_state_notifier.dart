@@ -47,6 +47,14 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
     _widgetSubscriptionIds.addAll(widgetCmdIds);
   }
 
+  void addSubscriptionIds(Map<String, List<String>> widgetCmdIds) {
+    widgetCmdIds.forEach((key, value) {
+      value.forEach((element) {
+        _widgetSubscriptionIds.putIfAbsent(element, () => key);
+      });
+    });
+  }
+
   void addSubscriptionId(String widgetId, String cmdId) {
     _widgetSubscriptionIds[cmdId] = widgetId;
   }

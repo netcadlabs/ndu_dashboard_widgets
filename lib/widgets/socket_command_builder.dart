@@ -27,7 +27,6 @@ class SocketCommandBuilder {
         for (var i = 0; i < dashConfig.widgets.length; i++) {
           WidgetConfig widgetConfig = dashConfig.widgets[i];
           if (widgetConfig.config == null || widgetConfig.config.datasources == null || widgetConfig.config.datasources.length == 0) continue;
-          if(widgetConfig.bundleAlias=="charts") continue;
 
           List<Datasources> dataSources = await resolveDataSourceList(widgetConfig.config.datasources);
           List<TsSubCmds> subCmdsList = await _calculateTimeSeriesSubscriptionCommands2(widgetConfig.config, dataSources, dashConfig.timewindow);
