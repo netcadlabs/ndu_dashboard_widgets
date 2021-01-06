@@ -12,7 +12,7 @@ extension HexColor on Color {
     return Color(int.parse(buffer.toString(), radix: 16));
   }
 
-  static Color fromCss(String cssColorString, {Color defaultColor = Colors.white}) {
+   static Color fromCss(String cssColorString, {Color defaultColor = Colors.white}) {
     if (cssColorString.startsWith("#")) {
       return fromHex(cssColorString);
     } else if (cssColorString.startsWith("rgb")) {

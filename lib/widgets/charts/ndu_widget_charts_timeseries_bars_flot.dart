@@ -6,6 +6,8 @@ import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/util/datetime_utils.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:ndu_dashboard_widgets/widgets/charts/bar_chart.dart';
+import 'package:ndu_dashboard_widgets/widgets/charts/chart_helper.dart';
 
 class TimeSeriesBarsFlot extends BaseDashboardWidget {
   TimeSeriesBarsFlot(WidgetConfig _widgetConfig, {Key key}) : super(_widgetConfig, key: key);
@@ -76,15 +78,7 @@ class _TimeSeriesBarsFlotWidgetState extends BaseDashboardState<TimeSeriesBarsFl
           Expanded(
             child: Container(
               padding: EdgeInsets.all(10),
-              child: charts.BarChart(
-                seriesList,
-                animate: animate,
-                //barGroupingType: barGroupingType,
-                //behaviors: legendList,
-                animationDuration: Duration(seconds: 1),
-                domainAxis: new charts.OrdinalAxisSpec(
-                    renderSpec: charts.SmallTickRendererSpec(labelStyle: charts.TextStyleSpec(fontSize: 12),labelRotation: 270, labelOffsetFromAxisPx: 50, labelOffsetFromTickPx: 50)),
-              ),
+              child: BarChart(seriesList: seriesList,legendList: legendList,animate: animate)
             ),
           ),
           // Text(
@@ -111,63 +105,37 @@ class _TimeSeriesBarsFlotWidgetState extends BaseDashboardState<TimeSeriesBarsFl
         TimeSeriesGraphData tsData = TimeSeriesGraphData(DateTime.fromMillisecondsSinceEpoch(ts), val);
         tsDataList.add(tsData);
         // addDataToSeries(key, tsData);
-        addDataListToSeries(key, tsDataList);
+        addDataToSeriesList(key, tsDataList);
       });
       index++;
     });
   }
-  List<TimeSeriesGraphData> timeSeriesListUpdate( List<TimeSeriesGraphData> tsData){
-    double minute = (widget.widgetConfig.config.timewindow.realtime.timewindowMs*0.001)/60;
-    List<TimeSeriesGraphData> resultList=List();
-    DateTime historyDateTime=DateTime(
-        DateTime.now().year,DateTime.now().month,DateTime.now().day
-        ,DateTime.now().hour,DateTime.now().minute-int.parse(minute.round().toString())
-        ,DateTime.now().second);
+  void addDataToSeriesList(String key, List<TimeSeriesGraphData> tsData) {
+    int index = 0;
+    int keyIndexInSeries = -1;
 
-    tsData.forEach((element) {
-      if(historyDateTime.isBefore(element.time)){
-        resultList.add(element);
+    seriesList.forEach((element) {
+      if (element.id == key) {
+        keyIndexInSeries = index;
       }
-    });
-    return resultList;
-  }
-
-  void addDataListToSeries(String key, List<TimeSeriesGraphData> tsDataList) {
-    int index = 0;
-    int foundIndex = 0;
-    seriesList.forEach((element) {
-      if (element.id == key) foundIndex = index;
       index++;
     });
-    seriesList[foundIndex].data.addAll(tsDataList);
 
-    if (!seriesListData.containsKey(key)) {
-      seriesListData[key] = List();
-    }
     List<TimeSeriesGraphData> tempList;
-    if(seriesList.length>0){
-      tempList=seriesList[foundIndex].data;
+
+    if (seriesList.length > 0) {
+      tempList = seriesList[keyIndexInSeries].data;
+    } else {
+      tempList = List();
     }
-    else
-      tempList=List();
-    tempList.addAll(tsDataList);
-    print(tsDataList.length.toString());
-    tsDataList = timeSeriesListUpdate(tempList);
-    seriesListData[key].addAll(tsDataList);
+    tempList.addAll(tsData);
+    tempList = ChartHelper.timeSeriesListUpdate(tempList, widget.widgetConfig.config);
+
+    if (keyIndexInSeries > -1) {
+      if (tempList.length > 0) seriesList[keyIndexInSeries].data.add(tempList[tempList.length - 1]);
+    } else {
+      if (tsData.length > 0) seriesList[keyIndexInSeries].data.add(tsData[0]);
+    }
   }
 
-  void addDataToSeries(String key, TimeSeriesGraphData tsData) {
-    int index = 0;
-    int foundIndex = 0;
-    seriesList.forEach((element) {
-      if (element.id == key) foundIndex = index;
-      index++;
-    });
-    seriesList[foundIndex].data.add(tsData);
-
-    if (!seriesListData.containsKey(key)) {
-      seriesListData[key] = List();
-    }
-    seriesListData[key].add(tsData);
-  }
 }

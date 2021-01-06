@@ -5,6 +5,8 @@ import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:ndu_dashboard_widgets/widgets/charts/chart_helper.dart';
+import 'package:ndu_dashboard_widgets/widgets/charts/timeseries_chart.dart';
 
 class BasicTimeseriesChart extends BaseDashboardWidget {
   BasicTimeseriesChart(WidgetConfig _widgetConfig, {Key key}) : super(_widgetConfig, key: key);
@@ -44,7 +46,6 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
       if (widget.widgetConfig.config.datasources[0].dataKeys != null && widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
         dataSourceLabel = widget.widgetConfig.config.datasources[0].dataKeys[0].label;
         dataSourceKey = widget.widgetConfig.config.datasources[0].dataKeys[0].name;
-
         int index = 0;
         int dataKeyIndex = 0;
         widget.widgetConfig.config.datasources.forEach((dataSource) {
@@ -71,8 +72,8 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
       displayName: dataKey.label,
       colorFn: (_, __) => charts.Color.fromHex(code: dataKey.color),
       seriesCategory: dataKey.color,
-      domainFn: (TimeSeriesGraphData sales, _) => sales.time,
-      measureFn: (TimeSeriesGraphData sales, _) => sales.value,
+      domainFn: (TimeSeriesGraphData time, _) => time.time,
+      measureFn: (TimeSeriesGraphData value, _) => value.value,
       data: data,
     ));
   }
@@ -87,12 +88,7 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
             decoration: BoxDecoration(color: HexColor.fromCss(widget.widgetConfig.config.backgroundColor)),
             child: Container(
               padding: EdgeInsets.all(10),
-              child: charts.TimeSeriesChart(
-                seriesList,
-                animate: animate,
-                dateTimeFactory: const charts.LocalDateTimeFactory(),
-                behaviors: legendList,
-              ),
+              child: TimeSeriesChart(seriesList: seriesList, animate: animate, legendList: legendList),
             ),
           );
   }
@@ -118,14 +114,10 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
   void addDataToSeriesList(String key, List<TimeSeriesGraphData> tsData) {
     int index = 0;
     int keyIndexInSeries = -1;
-    String displayName;
-    String colors;
 
     seriesList.forEach((element) {
       if (element.id == key) {
         keyIndexInSeries = index;
-        displayName = element.displayName;
-        colors = element.seriesCategory.toString();
       }
       index++;
     });
@@ -137,83 +129,14 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
     } else {
       tempList = List();
     }
-
     tempList.addAll(tsData);
-
-    List<charts.Series<TimeSeriesGraphData, DateTime>> tempSeriesList = List();
-
+    tempList = ChartHelper.timeSeriesListUpdate(tempList, widget.widgetConfig.config);
 
     if (keyIndexInSeries > -1) {
       if (tempList.length > 0) seriesList[keyIndexInSeries].data.add(tempList[tempList.length - 1]);
-      // seriesList[keyIndexInSeries].data.addAll(tempList);
     } else {
-      DataKeys dataKeys = DataKeys(name: key, label: displayName, color: colors);
-
       if (tsData.length > 0) seriesList[keyIndexInSeries].data.add(tsData[0]);
-
-      //addNewSeries(dataKeys, tsData);
     }
-
-    // print(tsData.length.toString());
-    //tsData = timeSeriesListUpdate(tempList);
-
-    // List<charts.Series<TimeSeriesGraphData, DateTime>> tempSeriesList = List();
-    // index = 0;
-    // seriesList.forEach((element) {
-    //   if (index != keyIndexInSeries) {
-    //     tempSeriesList.add(element);
-    //   }
-    //   index++;
-    // });
-    // DataKeys dataKeys = DataKeys(name: key, label: displayName, color: colors);
-    // seriesList = tempSeriesList;
-    // addNewSeries(dataKeys, tsData);
   }
 
-// List<TimeSeriesGraphData> timeSeriesListUpdate(List<TimeSeriesGraphData> tsData) {
-//   double minute = 0;
-//   if (widget.widgetConfig.config.timewindow.realtime != null &&
-//       widget.widgetConfig.config.timewindow.realtime.timewindowMs != null) {
-//     minute = (widget.widgetConfig.config.timewindow.realtime.timewindowMs *
-//         0.001) /
-//     60;
-//   }
-//   List<TimeSeriesGraphData> resultList = List();
-//   DateTime historyDateTime = DateTime(
-//       DateTime
-//           .now()
-//           .year,
-//       DateTime
-//           .now()
-//           .month,
-//       DateTime
-//           .now()
-//           .day,
-//       DateTime
-//           .now()
-//           .hour,
-//       DateTime
-//           .now()
-//           .minute - int.parse(minute.round().toString()),
-//       DateTime
-//           .now()
-//           .second);
-//
-//   tsData.forEach((element) {
-//     if (historyDateTime.isBefore(element.time)) {
-//       resultList.add(element);
-//     }
-//   });
-//   return resultList;
-// }
-
-// void addDataToSeries(String key, TimeSeriesGraphData tsData) {
-//   int index = 0;
-//   int foundIndex = 0;
-//   seriesList.forEach((element) {
-//     if (element.id == key) foundIndex = index;
-//     index++;
-//   });
-//   seriesList[foundIndex].data.add(tsData);
-// }
 }

@@ -219,4 +219,12 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
     }
     return false;
   }
+  Future<String> evaluateDeviceValue(dynamic value, String parseValueFunction) async {
+    String functionContent = "function f(value){$parseValueFunction} f($value)";
+    String evalResult = await flutterWebViewPlugin.evalJavascript(functionContent);
+    if (evalResult == null || evalResult == "" || evalResult == "null") {
+      return null;
+    }
+      return evalResult;
+  }
 }
