@@ -32,7 +32,7 @@ class AliasController {
             if (resolvedEntities != null && resolvedEntities.length > 0) {
               List<Datasources> datasources = List();
 
-              for (var i = 0; i < datasources.length; i++) {
+              for (var i = 0; i < resolvedEntities.length; i++) {
                 EntityInfo resolvedEntity = resolvedEntities[i];
                 newDatasource = datasource;
                 if (resolvedEntity.origEntity != null) {
