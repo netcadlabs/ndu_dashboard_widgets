@@ -1,7 +1,5 @@
-import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
-import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:http/http.dart' as http;
-import 'package:ndu_dashboard_widgets/widgets/socket_command_builder.dart';
+import 'package:ndu_dashboard_widgets/widgets/socket/socket_models.dart';
 
 
 enum RequestMethod {

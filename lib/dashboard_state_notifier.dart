@@ -1,34 +1,40 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 
 class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
-  // int _value = 33;
-  // int get value => _value;
-  // set setValue(int newVal) {
-  //   _value = newVal;
-  //   notifyListeners();
-  // }
-
   DashboardStateNotifier();
 
-  Map<String, dynamic> _latestData = {};
+  //SubscriptionId - Latest Data
+  Map<String, Map<String, SocketData>> _latestData = {};
+
+  //WidgetId - SubscriptionId
   Map<String, String> _widgetSubscriptionIds = {};
 
-  Map<String, dynamic> get latestData => _latestData;
+  //getters
+  // Map<String, dynamic> get latestData => _latestData;
+  // Map<String, String> get widgetSubscriptionIds => _widgetSubscriptionIds;
 
-  Map<String, String> get widgetSubscriptionIds => _widgetSubscriptionIds;
-
-  void appendLatestDataToGraph(String dataKey, int nextInt) {
-    _latestData[dataKey] = SocketData(nextInt, DateTime.now().millisecondsSinceEpoch, null);
-    notifyListeners();
+  List<SocketData> getWidgetData(String widgetId) {
+    List<SocketData> list = List();
+    if (_latestData.containsKey(widgetId))
+      _latestData[widgetId].forEach((key, value) {
+        list.add(value);
+      });
+    _latestData[widgetId] = {};
+    return list;
   }
 
   void addDataToProvider(String subscriptionId, Map<String, List<dynamic>> data) {
-    if (widgetSubscriptionIds.containsKey(subscriptionId)) {
+    if (_widgetSubscriptionIds.containsKey(subscriptionId)) {
       try {
-        _latestData[widgetSubscriptionIds[subscriptionId]] =
-            SocketData(0, DateTime.now().millisecondsSinceEpoch, data);
+        String widgetId = _widgetSubscriptionIds[subscriptionId];
+        if (!_latestData.containsKey(widgetId)) {
+          _latestData[widgetId] = Map();
+        }
+        _latestData[widgetId][subscriptionId] = SocketData(0, DateTime.now().millisecondsSinceEpoch, data, subscriptionId);
         notifyListeners();
       } catch (e) {
         print(e);

@@ -11,7 +11,7 @@ import 'package:ndu_dashboard_widgets/widgets/controls/control_switch_button.dar
 import 'package:ndu_dashboard_widgets/widgets/controls/ndu_control_slider.dart';
 import 'package:ndu_dashboard_widgets/widgets/digital_gauges/gauge_justgage.dart';
 import 'package:ndu_dashboard_widgets/widgets/not_implemented_widget.dart';
-import 'package:ndu_dashboard_widgets/widgets/socket_command_builder.dart';
+import 'package:ndu_dashboard_widgets/widgets/socket/socket_command_builder.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'base_dash_widget.dart';

@@ -6,6 +6,7 @@ import 'package:ndu_api_client/models/api_models.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_api_client/models/page_base_model.dart';
+import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
 
 class AliasController {
   Map<String, AliasInfo> resolvedAliases = {};
@@ -16,46 +17,38 @@ class AliasController {
   Future<List<Datasources>> resolveDatasource(Datasources datasource, bool isSingle) async {
     if (datasource.type == "entity") {
       if (datasource.entityAliasId != null) {
-        // try{
-        //
-        // }catch(err){
-        //   throw Exception(err.toString());
-        // }
-
         try {
           AliasInfo aliasInfo = await getAliasInfo(datasource.entityAliasId);
 
           datasource.aliasName = aliasInfo.alias.toString();
           if (aliasInfo.resolveMultiple && !isSingle) {
-            Datasources newDatasource;
             var resolvedEntities = aliasInfo.resolvedEntities;
             if (resolvedEntities != null && resolvedEntities.length > 0) {
-              List<Datasources> datasources = List();
-
+              List<Datasources> dataSources = List();
               for (var i = 0; i < resolvedEntities.length; i++) {
                 EntityInfo resolvedEntity = resolvedEntities[i];
-                newDatasource = datasource;
+                Datasources newDataSource = datasource.clone();
                 if (resolvedEntity.origEntity != null) {
-                  newDatasource.entity = resolvedEntity.origEntity;
+                  newDataSource.entity = resolvedEntity.origEntity;
                 } else {
-                  newDatasource.entity = {};
+                  newDataSource.entity = {};
                 }
-                newDatasource.entityId = resolvedEntity.id;
-                newDatasource.entityType = resolvedEntity.entityType;
-                newDatasource.entityName = resolvedEntity.name;
-                newDatasource.entityLabel = resolvedEntity.label;
-                newDatasource.entityDescription = resolvedEntity.entityDescription;
-                newDatasource.name = resolvedEntity.name;
-                newDatasource.generated = i > 0 ? true : false;
-                datasources.add(newDatasource);
+                newDataSource.entityId = resolvedEntity.id;
+                newDataSource.entityType = resolvedEntity.entityType;
+                newDataSource.entityName = resolvedEntity.name;
+                newDataSource.entityLabel = resolvedEntity.label;
+                newDataSource.entityDescription = resolvedEntity.entityDescription;
+                newDataSource.name = resolvedEntity.name;
+                newDataSource.generated = i > 0 ? true : false;
+                dataSources.add(newDataSource);
               }
 
-              return datasources;
+              return dataSources;
             } else {
               if (aliasInfo.stateEntity) {
-                newDatasource = datasource;
-                newDatasource.unresolvedStateEntity = true;
-                return [newDatasource];
+                Datasources newDataSource = datasource;
+                newDataSource.unresolvedStateEntity = true;
+                return [newDataSource];
               } else {
                 // Future.error('resolveDatasource error - 3');
                 throw Exception('resolveDatasource error - 3');
@@ -189,8 +182,7 @@ class EntityService {
     // });
   }
 
-  static Future<ResolvedAliasFilterResult> resolveAliasFilter(
-      Filter filter, dynamic stateParams, int maxItems, bool failOnEmpty) async {
+  static Future<ResolvedAliasFilterResult> resolveAliasFilter(Filter filter, dynamic stateParams, int maxItems, bool failOnEmpty) async {
     ResolvedAliasFilterResult result = ResolvedAliasFilterResult();
     result.entities = List();
     result.stateEntity = false;
@@ -218,8 +210,7 @@ class EntityService {
           break;
 
         case 'entityName':
-          PageBaseModel entities =
-              await getEntitiesByNameFilter(filter.entityType, filter.entityNameFilter, maxItems, ignoreLoading: true);
+          PageBaseModel entities = await getEntitiesByNameFilter(filter.entityType, filter.entityNameFilter, maxItems, ignoreLoading: true);
           if (entities != null && entities.data.length > 0) {
             result.entities = entitiesToEntitiesInfo(entities.data);
             return result;
@@ -332,8 +323,7 @@ class EntityService {
     return entityId;
   }
 
-  static Future<PageBaseModel> getEntitiesByNameFilter(String entityType, String entityNameFilter, int limit,
-      {ignoreLoading: true, subType}) async {
+  static Future<PageBaseModel> getEntitiesByNameFilter(String entityType, String entityNameFilter, int limit, {ignoreLoading: true, subType}) async {
     try {
       PageLink pageLink = PageLink(limit: limit, textSearch: entityNameFilter);
       pageLink.limit = 100;
@@ -344,8 +334,7 @@ class EntityService {
     }
   }
 
-  static Future<PageBaseModel> getEntitiesByPageLinkPromise(
-      String entityType, PageLink pageLink, var config, String subType) async {
+  static Future<PageBaseModel> getEntitiesByPageLinkPromise(String entityType, PageLink pageLink, var config, String subType) async {
     switch (entityType) {
       case "DEVICE":
         DeviceApi _deviceApi = DeviceApi();
@@ -470,59 +459,4 @@ class EntityService {
     }
     return promise;
   }
-}
-
-class ResolvedAliasFilterResult {
-  List<EntityInfo> entities;
-  bool stateEntity;
-  String entityParamName;
-
-  ResolvedAliasFilterResult({this.entities, this.stateEntity, this.entityParamName});
-}
-
-class EntityInfo {
-  BaseEntity origEntity;
-  String name;
-  String label;
-  String entityType;
-  String id;
-  String entityDescription;
-
-  EntityInfo({this.origEntity, this.name, this.label, this.entityType, this.id, this.entityDescription});
-}
-
-class AliasInfo {
-  dynamic alias;
-
-  bool stateEntity;
-  String entityParamName;
-  bool resolveMultiple;
-  List<EntityInfo> resolvedEntities;
-  dynamic currentEntity;
-
-  AliasInfo(
-      {this.alias,
-      this.stateEntity,
-      this.entityParamName,
-      this.resolvedEntities,
-      this.currentEntity,
-      this.resolveMultiple});
-}
-
-class EntityId {
-  String id;
-  String entityType;
-
-  EntityId({this.id, this.entityType});
-}
-
-class SearchQuery {
-  String rootId;
-  String rootType;
-  var direction;
-  var fetchLastLevelOnly;
-  var filters;
-  double maxLevel;
-
-  SearchQuery({this.rootId, this.rootType, this.direction, this.fetchLastLevelOnly, this.filters, this.maxLevel});
 }

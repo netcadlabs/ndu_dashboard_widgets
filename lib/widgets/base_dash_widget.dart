@@ -13,7 +13,9 @@ import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/dashboard_state_notifier.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/util/toast.dart';
-import 'package:ndu_dashboard_widgets/widgets/socket_command_builder.dart';
+import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
+import 'package:ndu_dashboard_widgets/widgets/socket/socket_command_builder.dart';
+import 'package:ndu_dashboard_widgets/widgets/socket/socket_models.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -81,10 +83,11 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
 
   @override
   Widget build(BuildContext context) {
-    if (context.watch<DashboardStateNotifier>().latestData[widget.widgetConfig.id] != null) {
-      SocketData data = context.watch<DashboardStateNotifier>().latestData[widget.widgetConfig.id];
-      context.watch<DashboardStateNotifier>().latestData[widget.widgetConfig.id] = null;
-      onData(data);
+    List<SocketData> listData = context.watch<DashboardStateNotifier>().getWidgetData(widget.widgetConfig.id);
+    if (listData.length > 0) {
+      listData.forEach((element) {
+        onData(element);
+      });
     }
 
     // if (Provider.of<DashboardStateNotifier>(context).latestData[widget.widgetConfig.id] != null) {
@@ -112,20 +115,14 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
         } else if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_RPC) {
           getRPCValue(retrieveValueMethod, entityId, requestTimeout);
         } else if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_SUBSCRIBE_ATTRIBUTE) {
-          subscriptionCommand.attrSubCmds =
-              widget.socketCommandBuilder.calculateCommandForEntityInfo(entityInfo, valueKey);
+          subscriptionCommand.attrSubCmds = widget.socketCommandBuilder.calculateCommandForEntityInfo(entityInfo, valueKey);
           subscriptionCommand.attrSubCmds.forEach((attrSubCmds) {
-            context
-                .read<DashboardStateNotifier>()
-                .addSubscriptionId(widget.widgetConfig.id, attrSubCmds.cmdId.toString());
+            context.read<DashboardStateNotifier>().addSubscriptionId(widget.widgetConfig.id, attrSubCmds.cmdId.toString());
           });
         } else if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_SUBSCRIBE_TIMESERIES) {
-          subscriptionCommand.tsSubCmds =
-              widget.socketCommandBuilder.calculateTsSubCmdsCommandForEntityInfo(entityInfo, valueKey);
+          subscriptionCommand.tsSubCmds = widget.socketCommandBuilder.calculateTsSubCmdsCommandForEntityInfo(entityInfo, valueKey);
           subscriptionCommand.tsSubCmds.forEach((tsSubCmds) {
-            context
-                .read<DashboardStateNotifier>()
-                .addSubscriptionId(widget.widgetConfig.id, tsSubCmds.cmdId.toString());
+            context.read<DashboardStateNotifier>().addSubscriptionId(widget.widgetConfig.id, tsSubCmds.cmdId.toString());
           });
         } else {
           print("not supported retrieveValueMethod : $retrieveValueMethod");
@@ -203,8 +200,7 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
     });
   }
 
-  Future<List<dynamic>> getAttributeData(
-      EntityType entityType, String entityId, AttributeScope attributeScope, String keys) {
+  Future<List<dynamic>> getAttributeData(EntityType entityType, String entityId, AttributeScope attributeScope, String keys) {
     return telemetryApi.getEntityAttributes(entityType, entityId, attributeScope, keys);
   }
 
@@ -219,12 +215,13 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
     }
     return false;
   }
+
   Future<String> evaluateDeviceValue(dynamic value, String parseValueFunction) async {
     String functionContent = "function f(value){$parseValueFunction} f($value)";
     String evalResult = await flutterWebViewPlugin.evalJavascript(functionContent);
     if (evalResult == null || evalResult == "" || evalResult == "null") {
       return null;
     }
-      return evalResult;
+    return evalResult;
   }
 }

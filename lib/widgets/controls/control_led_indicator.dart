@@ -16,9 +16,10 @@ import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/util/string_utils.dart';
 import 'package:ndu_dashboard_widgets/util/toast.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
+import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
+import 'package:ndu_dashboard_widgets/widgets/socket/socket_models.dart';
 import 'package:provider/provider.dart';
 
-import '../socket_command_builder.dart';
 
 class ControlLedIndicator extends BaseDashboardWidget {
   ControlLedIndicator(WidgetConfig _widgetConfig, DashboardDetailConfiguration _dashboardDetailConfiguration, {Key key})

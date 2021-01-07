@@ -12,6 +12,7 @@ import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/util/toast.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
+import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
 
 class ControlUpdateAttributes extends BaseDashboardWidget {
   ControlUpdateAttributes(WidgetConfig _widgetConfig, DashboardDetailConfiguration _dashboardDetailConfiguration,

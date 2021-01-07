@@ -26,27 +26,26 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
   bool isAscending = true;
   int sortType = sortNameInt;
   Map tableTitleMap;
-  List<SocketData> list=List();
+  List<SocketData> list = List();
   WidgetConfigConfig conf;
   String dataSourceLabel;
   String dataSourceKey;
+
   @override
   void initState() {
     super.initState();
     conf = widget.widgetConfig.config;
     if (widget.widgetConfig.config.datasources != null && widget.widgetConfig.config.datasources.length > 0) {
-      if (widget.widgetConfig.config.datasources[0].dataKeys != null &&
-          widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
+      if (widget.widgetConfig.config.datasources[0].dataKeys != null && widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
         dataSourceLabel = widget.widgetConfig.config.datasources[0].dataKeys[0].label;
         dataSourceKey = widget.widgetConfig.config.datasources[0].dataKeys[0].name;
       }
     }
-    tableTitleMap=Map();
+    tableTitleMap = Map();
     tableTitleMap.putIfAbsent("firstTitle", () => widget.widgetConfig.config.settings.entityLabelColumnTitle);
     widget.widgetConfig.config.datasources[0].dataKeys.forEach((element) {
       tableTitleMap.putIfAbsent(element.name, () => element.label);
     });
-    print("asd");
   }
 
   @override
@@ -71,12 +70,14 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
       height: MediaQuery.of(context).size.height * 0.7,
     );
   }
+
   List<Widget> _getTitleWidget() {
     return [
       FlatButton(
         padding: EdgeInsets.all(0),
         child: Container(
-          child: Text('${tableTitleMap["firstTitle"]}' + (sortType == sortNameInt ? (isAscending ? '↓' : '↑') : ''), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+          child: Text('${tableTitleMap["firstTitle"]}' + (sortType == sortNameInt ? (isAscending ? '↓' : '↑') : ''),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
           width: 100,
           height: 56,
           padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
@@ -91,13 +92,13 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
       ),
       //_getTitleItemWidget('last_update', 100),
       ..._getTitleItemWidget(),
-
     ];
   }
+
   List<Widget> _getTitleItemWidget() {
     List<Widget> list = List();
     tableTitleMap.forEach((key, value) {
-      if(key!="firstTitle"){
+      if (key != "firstTitle") {
         list.add(Container(
           child: Text(value, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
           width: 100,
@@ -108,7 +109,7 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
       }
     });
 
-     return list;
+    return list;
   }
 
   Widget _generateFirstColumnRow(BuildContext context, int index) {
@@ -135,9 +136,7 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
           child: RichText(
             overflow: TextOverflow.ellipsis,
             strutStyle: StrutStyle(fontSize: 12.0),
-            text: TextSpan(
-                style: TextStyle(color: Colors.black),
-                text: "${list[index].value}"),
+            text: TextSpan(style: TextStyle(color: Colors.black), text: "${list[index].value}"),
           ),
           width: 200,
           height: 52,
@@ -156,15 +155,20 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
         return a.lastUpdateTs.compareTo(b.lastUpdateTs);
     });*/
   }
+
   @override
   void onData(SocketData graphData) {
-  print("dasdasd");
-  var data;
-  if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
-  if (graphData.datas.containsKey(dataSourceKey)) {
-    List telem = graphData.datas[dataSourceKey][0];
-    if (telem != null && telem.length > 1 && telem[1] != null)  data = telem[1].toString();
-  }
-  print("asdasdasd");
+    var data;
+    if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
+    if (graphData.datas.containsKey(dataSourceKey)) {
+      List telem = graphData.datas[dataSourceKey][0];
+      if (telem != null && telem.length > 1 && telem[1] != null) data = telem[1].toString();
+    }
+
+    if (this.widget.socketCommandBuilder.subscriptionDataSources.containsKey(graphData.subscriptionId)) {
+      print("${graphData.subscriptionId} - Name : ${this.widget.socketCommandBuilder.subscriptionDataSources[graphData.subscriptionId].name}");
+    } else {
+      print("${graphData.subscriptionId} datasource not found!");
+    }
   }
 }
