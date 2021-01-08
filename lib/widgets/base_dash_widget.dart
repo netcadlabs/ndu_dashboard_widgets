@@ -9,6 +9,7 @@ import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_api_client/models/entity_types.dart';
 import 'package:ndu_api_client/rpc_api.dart';
 import 'package:ndu_api_client/telemetry_api.dart';
+import 'package:ndu_api_client/util/constants.dart';
 import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/dashboard_state_notifier.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
@@ -80,45 +81,122 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
 
   final flutterWebViewPlugin = FlutterWebviewPlugin();
 
+  StreamController controller = StreamController<SocketData>();
+
   void onData(SocketData graphData);
+
+  @override
+  void dispose() {
+    super.dispose();
+    flutterWebViewPlugin.dispose();
+    controller.close();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    flutterWebViewPlugin.close();
+    flutterWebViewPlugin.launch(Constants.baseUrl + "/api/dummy", hidden: true);
+    controller.stream.listen((event) {
+      print(event);
+
+      setState(() {
+        onData(event);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     List<SocketData> listData = context.watch<DashboardStateNotifier>().getWidgetData(widget.widgetConfig.id);
     if (listData.length > 0) {
-      for(int i=0;i<listData.length;i++){
-        var stream1 = test(listData[i]);
-        sumStream(stream1).then((value){
-
-        });
-      }
       listData.forEach((element) {
-
+        calculate(element);
         //onData(element);
+        // calculate(element).then((result) {
+        //   onData(result);
+        // });
       });
     }
     return Container();
   }
 
-  Stream<SocketData> test(SocketData element) async* {
-    for (int i = 0; i < widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys.length; i++) {
-      if (widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i].postFuncBody != null) {
-          element.dataKeys=widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i];
-         yield element;
+  void calculate(SocketData socketData) {
+    // SocketData socketData =
+    socketData.datas.forEach((key, List<dynamic> value) {
+      String postFunction = getPostFunction(socketData.subscriptionId, key);
+      if (postFunction != null) {
+        value.forEach((element) {
+          // element[1];
+          //todo - eval
+          evaluateDeviceValue2(element[1], postFunction).then((evalResult) {
+            Map<String, List<dynamic>> map = Map();
+            map[key] = List();
+
+            if (evalResult == null || evalResult == "" || evalResult == "null") {
+              map[key].add(element);
+            } else {
+              map[key].add([element[0], evalResult]);
+            }
+
+            SocketData copySocket = SocketData(0, socketData.ts, map, socketData.subscriptionId);
+            controller.add(copySocket);
+          });
+        });
+      } else {
+        Map<String, List<dynamic>> map = Map();
+        map[key] = List();
+        map[key].add(value);
+        SocketData copySocket = SocketData(0, socketData.ts, map, socketData.subscriptionId);
+        controller.add(copySocket);
+      }
+    });
+  }
+
+  Stream<SocketData> calculate2(SocketData socketData) {
+    // SocketData socketData =
+    socketData.datas.forEach((key, List<dynamic> value) {
+      String postFunction = getPostFunction(socketData.subscriptionId, key);
+      if (postFunction != null) {
+        value.forEach((element) {
+          // element[1];
+          //todo - eval
+          evaluateDeviceValue(element[1], postFunction);
+        });
+      }
+    });
+  }
+
+  String getPostFunction(String subscriptionId, String dataKey) {
+    if (widget.socketCommandBuilder.subscriptionDataSources[subscriptionId].dataKeys != null) {
+      for (int i = 0; i < widget.socketCommandBuilder.subscriptionDataSources[subscriptionId].dataKeys.length; i++) {
+        var element = widget.socketCommandBuilder.subscriptionDataSources[subscriptionId].dataKeys[i];
+        if (element.name == dataKey && element.postFuncBody != null) return element.postFuncBody;
       }
     }
+
+    return null;
   }
 
-  Future<void> sumStream(Stream<SocketData> stream) async {
-    var sum = 0;
-    await for (var value in stream) {
-      print("asd");
-      String response = await evaluateDeviceValue(value.datas[value.dataKeys.name][0][1],value.dataKeys.postFuncBody);
-      value.datas[value.dataKeys.name][1]=response;
-      onData(value);
-    }
-  }
+  // Stream<SocketData> test(SocketData element) async* {
+  //   for (int i = 0; i < widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys.length; i++) {
+  //     if (widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i].postFuncBody != null) {
+  //         element.dataKeys=widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i];
+  //        yield element;
+  //     }
+  //   }
+  // }
 
+  // Future<void> sumStream(Stream<SocketData> stream) async {
+  //   var sum = 0;
+  //   await for (var value in stream) {
+  //     print("asd");
+  //     String response = await evaluateDeviceValue(value.datas[value.dataKeys.name][0][1],value.dataKeys.postFuncBody);
+  //     value.datas[value.dataKeys.name][1]=response;
+  //     onData(value);
+  //   }
+  // }
 
   void startTargetDeviceAliasIdsSubscription(String retrieveValueMethod, String valueKey, {int requestTimeout: 500}) {
     String aliasId = widget.widgetConfig.config.targetDeviceAliasIds[0];
@@ -244,5 +322,10 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
       return null;
     }
     return evalResult;
+  }
+
+  Future<String> evaluateDeviceValue2(dynamic value, String parseValueFunction) async {
+    String functionContent = "function f(value){$parseValueFunction} f($value)";
+    return flutterWebViewPlugin.evalJavascript(functionContent);
   }
 }

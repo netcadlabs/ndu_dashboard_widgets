@@ -53,7 +53,7 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
 
   @override
   void dispose() {
-    flutterWebViewPlugin.dispose();
+    // flutterWebViewPlugin.dispose();
     super.dispose();
   }
 
@@ -61,8 +61,8 @@ class _ControlSwitchButtonState extends BaseDashboardState<ControlSwitchButton> 
   void initState() {
     super.initState();
 
-    flutterWebViewPlugin.close();
-    flutterWebViewPlugin.launch(Constants.baseUrl + "/api/dummy", hidden: true);
+    // flutterWebViewPlugin.close();
+    // flutterWebViewPlugin.launch(Constants.baseUrl + "/api/dummy", hidden: true);
 
     var settings = widget.widgetConfig.config.settings;
 
