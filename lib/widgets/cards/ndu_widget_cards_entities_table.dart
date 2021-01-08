@@ -26,26 +26,28 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
   bool isAscending = true;
   int sortType = sortNameInt;
   Map tableTitleMap;
-  List<SocketData> list = List();
+  Map<String,Map<String,dynamic>> rowMap = Map();
   WidgetConfigConfig conf;
-  String dataSourceLabel;
-  String dataSourceKey;
+  List<String> dataSourceLabel=List();
+  List<String> dataSourceKey=List();
+  List<String> rowMapKey=List();
 
   @override
   void initState() {
     super.initState();
+    tableTitleMap = Map();
+    tableTitleMap.putIfAbsent("firstTitle", () => widget.widgetConfig.config.settings.entityLabelColumnTitle);
     conf = widget.widgetConfig.config;
     if (widget.widgetConfig.config.datasources != null && widget.widgetConfig.config.datasources.length > 0) {
       if (widget.widgetConfig.config.datasources[0].dataKeys != null && widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
-        dataSourceLabel = widget.widgetConfig.config.datasources[0].dataKeys[0].label;
-        dataSourceKey = widget.widgetConfig.config.datasources[0].dataKeys[0].name;
+        widget.widgetConfig.config.datasources[0].dataKeys.forEach((element) {
+          dataSourceLabel.add(element.label);
+          dataSourceKey.add(element.name);
+          tableTitleMap.putIfAbsent(element.name, () => element.label);
+        });
+
       }
     }
-    tableTitleMap = Map();
-    tableTitleMap.putIfAbsent("firstTitle", () => widget.widgetConfig.config.settings.entityLabelColumnTitle);
-    widget.widgetConfig.config.datasources[0].dataKeys.forEach((element) {
-      tableTitleMap.putIfAbsent(element.name, () => element.label);
-    });
   }
 
   @override
@@ -60,7 +62,7 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
         headerWidgets: _getTitleWidget(),
         leftSideItemBuilder: _generateFirstColumnRow,
         rightSideItemBuilder: _generateRightHandSideColumnRow,
-        itemCount: list.length,
+        itemCount: rowMap.length,
         rowSeparatorWidget: const Divider(
           color: Colors.black54,
           height: 1.0,
@@ -90,7 +92,6 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
           setState(() {});
         },
       ),
-      //_getTitleItemWidget('last_update', 100),
       ..._getTitleItemWidget(),
     ];
   }
@@ -114,7 +115,7 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
 
   Widget _generateFirstColumnRow(BuildContext context, int index) {
     return Container(
-      child: Text("${list[index]}"),
+      child: Text("${rowMapKey[index]}"),
       width: 100,
       height: 52,
       padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
@@ -125,26 +126,30 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
   Widget _generateRightHandSideColumnRow(BuildContext context, int index) {
     return Row(
       children: <Widget>[
-        Container(
-          child: Text('list[index]'),
-          width: 200,
-          height: 52,
-          padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-          alignment: Alignment.centerLeft,
-        ),
-        Container(
-          child: RichText(
-            overflow: TextOverflow.ellipsis,
-            strutStyle: StrutStyle(fontSize: 12.0),
-            text: TextSpan(style: TextStyle(color: Colors.black), text: "${list[index].value}"),
-          ),
-          width: 200,
-          height: 52,
-          padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
-          alignment: Alignment.centerLeft,
-        ),
+       ...rowList(index),
       ],
     );
+  }
+
+  List<Widget> rowList(int index) {
+    List<Widget> list = List();
+    dataSourceKey.forEach((element) {
+      list.add( Container(
+        child: RichText(
+          overflow: TextOverflow.ellipsis,
+          strutStyle: StrutStyle(fontSize: 12.0),
+          text: TextSpan(style: TextStyle(color: Colors.black), text: "${rowMap[rowMapKey[index]][element]}"),
+        ),
+        width: 100,
+        height: 52,
+        padding: EdgeInsets.fromLTRB(5, 0, 0, 0),
+        alignment: Alignment.centerLeft,
+      ));
+    });
+
+    //});
+
+    return list;
   }
 
   void sortLasUpdate(bool isAscending) {
@@ -157,15 +162,21 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
   }
 
   @override
-  void onData(SocketData graphData) {
-    var data;
+  void onData(SocketData graphData)async {
+    Map<String,dynamic> data=Map();
     if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
-    if (graphData.datas.containsKey(dataSourceKey)) {
-      List telem = graphData.datas[dataSourceKey][0];
-      if (telem != null && telem.length > 1 && telem[1] != null) data = telem[1].toString();
+    for(int i =0;i<dataSourceKey.length;i++){
+      if (graphData.datas.containsKey(dataSourceKey[i])) {
+        List telem = graphData.datas[dataSourceKey[i]][0];
+        if (telem != null && telem.length > 1 && telem[1] != null){
+          data[dataSourceKey[i]]=telem[1].toString() ;
+        }
+      }
     }
-
+    //evaluateDeviceValue();
     if (this.widget.socketCommandBuilder.subscriptionDataSources.containsKey(graphData.subscriptionId)) {
+      rowMapKey.add(this.widget.socketCommandBuilder.subscriptionDataSources[graphData.subscriptionId].entityLabel);
+      rowMap.putIfAbsent(this.widget.socketCommandBuilder.subscriptionDataSources[graphData.subscriptionId].entityLabel, () => data);
       print("${graphData.subscriptionId} - Name : ${this.widget.socketCommandBuilder.subscriptionDataSources[graphData.subscriptionId].name}");
     } else {
       print("${graphData.subscriptionId} datasource not found!");

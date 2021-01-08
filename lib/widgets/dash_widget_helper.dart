@@ -2,7 +2,7 @@ import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/widgets/analogue_gauges/gauge_canvas_gauges.dart';
-import 'package:ndu_dashboard_widgets/widgets/cards/entities_table.dart';
+import 'package:ndu_dashboard_widgets/widgets/cards/ndu_widget_cards_entities_table.dart';
 import 'package:ndu_dashboard_widgets/widgets/charts/charts.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_knob.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_led_indicator.dart';

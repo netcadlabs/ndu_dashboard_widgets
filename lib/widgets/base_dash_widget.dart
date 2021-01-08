@@ -1,5 +1,5 @@
 import 'dart:convert';
-
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
@@ -25,6 +25,7 @@ abstract class BaseDashboardWidget extends StatefulWidget {
   AliasController aliasController;
   SocketCommandBuilder socketCommandBuilder;
   WebSocketChannel webSocketChannel;
+  Map<SocketData, DataKeys> map = Map();
 
   WidgetConfig get widgetConfig => _widgetConfig;
 
@@ -85,25 +86,45 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
   Widget build(BuildContext context) {
     List<SocketData> listData = context.watch<DashboardStateNotifier>().getWidgetData(widget.widgetConfig.id);
     if (listData.length > 0) {
+      for(int i=0;i<listData.length;i++){
+        var stream1 = test(listData[i]);
+        sumStream(stream1).then((value){
+
+        });
+      }
       listData.forEach((element) {
-        onData(element);
+
+        //onData(element);
       });
     }
-
-    // if (Provider.of<DashboardStateNotifier>(context).latestData[widget.widgetConfig.id] != null) {
-    //   SocketData data = Provider.of<DashboardStateNotifier>(context).latestData[widget.widgetConfig.id];
-    //   onData(data);
-    // }
-
     return Container();
   }
+
+  Stream<SocketData> test(SocketData element) async* {
+    for (int i = 0; i < widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys.length; i++) {
+      if (widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i].postFuncBody != null) {
+          element.dataKeys=widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i];
+         yield element;
+      }
+    }
+  }
+
+  Future<void> sumStream(Stream<SocketData> stream) async {
+    var sum = 0;
+    await for (var value in stream) {
+      print("asd");
+      String response = await evaluateDeviceValue(value.datas[value.dataKeys.name][0][1],value.dataKeys.postFuncBody);
+      value.datas[value.dataKeys.name][1]=response;
+      onData(value);
+    }
+  }
+
 
   void startTargetDeviceAliasIdsSubscription(String retrieveValueMethod, String valueKey, {int requestTimeout: 500}) {
     String aliasId = widget.widgetConfig.config.targetDeviceAliasIds[0];
     widget.aliasController.getAliasInfo(aliasId).then((AliasInfo aliasInfo) {
       if (aliasInfo.resolvedEntities != null && aliasInfo.resolvedEntities.length > 0) {
         EntityInfo entityInfo = aliasInfo.resolvedEntities[0];
-
         setState(() {
           entityId = entityInfo.id;
           isButtonReady = true;
