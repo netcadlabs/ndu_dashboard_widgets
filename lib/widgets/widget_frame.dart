@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
+import 'package:ndu_dashboard_widgets/util/icon_map.dart';
 
 class WidgetFrame extends StatelessWidget {
   final WidgetConfig widgetConfig;
@@ -38,17 +39,13 @@ class WidgetFrame extends StatelessWidget {
 
   Widget getTitleWidget(WidgetConfigConfig widgetConfigConfig) {
     String title = widgetConfigConfig.title;
-    if (widgetConfig.bundleAlias == "charts") {
-      if (widgetConfig.typeAlias == "basic_timeseries" || widgetConfig.typeAlias == "timeseries_bars_flot") {
-        isRefresh=true;
-      }
-    }
     return widgetConfigConfig.showTitle
         ? Container(
-            margin: EdgeInsets.only(top: 5),
+            margin: EdgeInsets.all(5),
             // padding: EdgeInsets.symmetric(horizontal: 5),
             child: Row(
               children: [
+            Container(margin:EdgeInsets.all(4),child: Icon(IconMap.iconMap["${widgetConfig.config.titleIcon}"],color: HexColor.fromCss(widgetConfig.config.iconColor),)),
                 Flexible(
                   child: Row(
                     children: [
@@ -64,21 +61,6 @@ class WidgetFrame extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Visibility(
-                        visible: isRefresh,
-                        child: Expanded(
-                            flex: 1,
-                            child: IconButton(
-                              onPressed: () {
-                                print('${widgetConfig.typeAlias}');
-                                getTimeSeriesData();
-                              },
-                              icon: Icon(
-                                Icons.refresh,
-                                color: Colors.black,
-                              ),
-                            )),
-                      )
                     ],
                   ),
                 ),
