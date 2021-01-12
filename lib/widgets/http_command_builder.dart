@@ -1,4 +1,4 @@
-import 'package:http/http.dart' as http;
+
 import 'package:ndu_dashboard_widgets/widgets/socket/socket_models.dart';
 
 
@@ -21,7 +21,6 @@ class HttpCommandBuilder {
   int commandId = 1;
 
   Future<HttpCommandResult> build() {
-    Map<String, List<String>> widgetCommandIds = Map();
     //subscriptionCommandResult
 
     return Future.value(HttpCommandResult());

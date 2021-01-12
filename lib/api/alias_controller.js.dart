@@ -115,23 +115,6 @@ class AliasController {
       } catch (err) {
         throw Exception(err.toString() + ' resolveAlias hatasi - 1');
       }
-
-      EntityService.resolveAlias(entityAlias, null).then((aliasInfo) {
-        resolvedAliases[aliasId] = aliasInfo;
-        // TODO - JS KODU
-        // if (aliasInfo.stateEntity) {
-        // var stateEntityInfo = {
-        //   entityParamName: aliasInfo.entityParamName,
-        //   entityId: aliasCtrl.stateController.getEntityId(aliasInfo.entityParamName)
-        // };
-        // aliasCtrl.resolvedAliasesToStateEntities[aliasId] = stateEntityInfo;
-        // }
-
-        return Future.value(aliasInfo);
-      }).catchError((onError) {
-        // return Future.error('resolveAlias hatasi - 1');
-        throw Exception('resolveAlias hatasi - 1');
-      });
     } else {
       // return Future.error('$aliasId verilen aliases listesinde bulunamadi');
       throw Exception('$aliasId verilen aliases listesinde bulunamadi');
@@ -279,7 +262,7 @@ class EntityService {
     switch (entityType) {
       case "DEVICE":
         DeviceApi deviceApi = DeviceApi();
-        var response = deviceApi.getDeviceIds(entityType, entityIds);
+        deviceApi.getDeviceIds(entityType, entityIds);
         break;
       case "Asset":
         break;

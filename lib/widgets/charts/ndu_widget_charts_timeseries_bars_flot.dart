@@ -57,18 +57,12 @@ class _TimeSeriesBarsFlotWidgetState extends BaseDashboardState<TimeSeriesBarsFl
         });
       });
     }
-
-    int a = 5;
   }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
-    charts.BarGroupingType barGroupingType = charts.BarGroupingType.grouped;
-    if (widget.widgetConfig.config.settings != null && widget.widgetConfig.config.settings.stack) {
-      barGroupingType = charts.BarGroupingType.stacked;
-    }
 
     return Container(
       height: 400,
@@ -94,7 +88,6 @@ class _TimeSeriesBarsFlotWidgetState extends BaseDashboardState<TimeSeriesBarsFl
   void onData(SocketData graphData) {
     if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
 
-    int index = 0;
     graphData.datas.forEach((key, values) {
       List<TimeSeriesGraphData> tsDataList = List();
       values.forEach((value) {
@@ -107,7 +100,6 @@ class _TimeSeriesBarsFlotWidgetState extends BaseDashboardState<TimeSeriesBarsFl
         // addDataToSeries(key, tsData);
         addDataToSeriesList(key, tsDataList);
       });
-      index++;
     });
   }
   void addDataToSeriesList(String key, List<TimeSeriesGraphData> tsData) {

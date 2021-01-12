@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 
+// ignore: must_be_immutable
 class BarChart extends StatelessWidget{
   List<charts.Series> seriesList = List<charts.Series<TimeSeriesGraphData, String>>();
   Map<String, List<dynamic>> seriesListData = Map<String, List<dynamic>>();

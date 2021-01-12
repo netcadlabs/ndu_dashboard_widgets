@@ -46,8 +46,6 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
       if (widget.widgetConfig.config.datasources[0].dataKeys != null && widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
         dataSourceLabel = widget.widgetConfig.config.datasources[0].dataKeys[0].label;
         dataSourceKey = widget.widgetConfig.config.datasources[0].dataKeys[0].name;
-        int index = 0;
-        int dataKeyIndex = 0;
         widget.widgetConfig.config.datasources.forEach((dataSource) {
           dataSource.dataKeys.forEach((dataKey) {
             addNewSeries(dataKey, []);
@@ -58,9 +56,7 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
                 desiredMaxRows: 2,
                 cellPadding: new EdgeInsets.only(right: 4.0, bottom: 4.0),
                 entryTextStyle: charts.TextStyleSpec(color: charts.Color.fromHex(code: dataKey.color), fontFamily: 'Georgia', fontSize: 9)));
-            dataKeyIndex++;
           });
-          index++;
         });
       }
     }

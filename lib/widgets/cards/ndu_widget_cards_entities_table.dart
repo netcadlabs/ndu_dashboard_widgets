@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -6,11 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:horizontal_data_table/horizontal_data_table.dart';
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
-import 'package:ndu_api_client/models/entity_types.dart';
-import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
-import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
-import 'dart:typed_data';
 
 // ignore: must_be_immutable
 class EntitiesTableWidget extends BaseDashboardWidget {
@@ -22,7 +17,6 @@ class EntitiesTableWidget extends BaseDashboardWidget {
 
 class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> {
   static const int sortNameInt = 0;
-  static const int sortStatus = 1;
   bool isAscending = true;
   int sortType = sortNameInt;
   Map tableTitleMap;

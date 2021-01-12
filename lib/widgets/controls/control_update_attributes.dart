@@ -4,16 +4,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
-import 'package:ndu_api_client/telemetry_api.dart';
 import 'package:ndu_api_client/models/entity_types.dart';
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
-import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
-import 'package:ndu_dashboard_widgets/util/toast.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
 
+// ignore: must_be_immutable
 class ControlUpdateAttributes extends BaseDashboardWidget {
   ControlUpdateAttributes(WidgetConfig _widgetConfig, DashboardDetailConfiguration _dashboardDetailConfiguration,
       {Key key})
@@ -24,8 +22,6 @@ class ControlUpdateAttributes extends BaseDashboardWidget {
 }
 
 class _ControlUpdateAttributesWidgetState extends BaseDashboardState<ControlUpdateAttributes> {
-  TelemetryApi _telemetryApi = TelemetryApi();
-
   List<SocketData> allRawData = List();
 
   String dataSourceLabel;

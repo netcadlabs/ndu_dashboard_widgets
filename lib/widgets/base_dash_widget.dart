@@ -20,6 +20,7 @@ import 'package:ndu_dashboard_widgets/widgets/socket/socket_models.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+// ignore: must_be_immutable
 abstract class BaseDashboardWidget extends StatefulWidget {
   WidgetConfig _widgetConfig;
   DashboardDetailConfiguration dashboardDetailConfiguration;
@@ -98,105 +99,64 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
     super.initState();
     flutterWebViewPlugin.close();
     flutterWebViewPlugin.launch(Constants.baseUrl + "/api/dummy", hidden: true);
-    controller.stream.listen((event) {
-      print(event);
-
-      setState(() {
-        onData(event);
-      });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     List<SocketData> listData = context.watch<DashboardStateNotifier>().getWidgetData(widget.widgetConfig.id);
     if (listData.length > 0) {
-      listData.forEach((element) {
-        calculate(element);
-        //onData(element);
-        // calculate(element).then((result) {
-        //   onData(result);
-        // });
-      });
+      for (int i = 0; i < listData.length; i++) {
+        var stream1 = getDataKeyElement(listData[i]);
+        postFunc(stream1);
+      }
     }
     return Container();
   }
 
-  void calculate(SocketData socketData) {
-    // SocketData socketData =
-    socketData.datas.forEach((key, List<dynamic> value) {
-      String postFunction = getPostFunction(socketData.subscriptionId, key);
-      if (postFunction != null) {
-        value.forEach((element) {
-          // element[1];
-          //todo - eval
-          evaluateDeviceValue2(element[1], postFunction).then((evalResult) {
-            Map<String, List<dynamic>> map = Map();
-            map[key] = List();
-
-            if (evalResult == null || evalResult == "" || evalResult == "null") {
-              map[key].add(element);
-            } else {
-              map[key].add([element[0], evalResult]);
-            }
-
-            SocketData copySocket = SocketData(0, socketData.ts, map, socketData.subscriptionId);
-            controller.add(copySocket);
-          });
-        });
-      } else {
-        Map<String, List<dynamic>> map = Map();
-        map[key] = List();
-        map[key].add(value);
-        SocketData copySocket = SocketData(0, socketData.ts, map, socketData.subscriptionId);
-        controller.add(copySocket);
+  Stream<SocketData> getDataKeyElement(SocketData element) async* {
+    for (int i = 0; i < widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys.length; i++) {
+      if (widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i].postFuncBody != null) {
+        element.dataKeys = widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i];
+        yield element;
       }
-    });
-  }
-
-  Stream<SocketData> calculate2(SocketData socketData) {
-    // SocketData socketData =
-    socketData.datas.forEach((key, List<dynamic> value) {
-      String postFunction = getPostFunction(socketData.subscriptionId, key);
-      if (postFunction != null) {
-        value.forEach((element) {
-          // element[1];
-          //todo - eval
-          evaluateDeviceValue(element[1], postFunction);
+      else{
+        setState(() {
+          onData(convertData(element));
         });
-      }
-    });
-  }
 
-  String getPostFunction(String subscriptionId, String dataKey) {
-    if (widget.socketCommandBuilder.subscriptionDataSources[subscriptionId].dataKeys != null) {
-      for (int i = 0; i < widget.socketCommandBuilder.subscriptionDataSources[subscriptionId].dataKeys.length; i++) {
-        var element = widget.socketCommandBuilder.subscriptionDataSources[subscriptionId].dataKeys[i];
-        if (element.name == dataKey && element.postFuncBody != null) return element.postFuncBody;
       }
     }
-
-    return null;
   }
-
-  // Stream<SocketData> test(SocketData element) async* {
-  //   for (int i = 0; i < widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys.length; i++) {
-  //     if (widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i].postFuncBody != null) {
-  //         element.dataKeys=widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i];
-  //        yield element;
-  //     }
-  //   }
-  // }
-
-  // Future<void> sumStream(Stream<SocketData> stream) async {
-  //   var sum = 0;
-  //   await for (var value in stream) {
-  //     print("asd");
-  //     String response = await evaluateDeviceValue(value.datas[value.dataKeys.name][0][1],value.dataKeys.postFuncBody);
-  //     value.datas[value.dataKeys.name][1]=response;
-  //     onData(value);
-  //   }
-  // }
+  SocketData convertData(SocketData data){
+    List<DataKeys> keys= widget.socketCommandBuilder.subscriptionDataSources[data.subscriptionId].dataKeys;
+    for (int i = 0; i <keys.length; i++){
+      String tempValue = data.datas[keys[i].name][0][1];
+      if (keys[i].decimals != null && keys[i].units!="") {
+        tempValue = widget.convertNumberValue(double.parse(tempValue), keys[i].decimals);
+      }
+      else if(widget._widgetConfig.config.decimals!=-1 && widget._widgetConfig.config.decimals!=null){
+        tempValue = widget.convertNumberValue(double.parse(tempValue), widget._widgetConfig.config.decimals);
+      }
+      if (keys[i].units != null && keys[i].units!="") {
+        tempValue = '$tempValue ${keys[i].units}';
+      }
+      else if(widget._widgetConfig.config.units!=null){
+        tempValue = '$tempValue ${widget._widgetConfig.config.units}';
+      }
+      data.datas[keys[i].name][0][1]=tempValue;
+    }
+  return data;
+  }
+  Future<void> postFunc(Stream<SocketData> stream) async {
+    await for (var value in stream) {
+      String response = await evaluateDeviceValue(value.datas[value.dataKeys.name][0][1], value.dataKeys.postFuncBody);
+      value.datas[value.dataKeys.name][0][1] = response;
+      value  = convertData(value);
+      setState(() {
+        onData(value);
+      });
+    }
+  }
 
   void startTargetDeviceAliasIdsSubscription(String retrieveValueMethod, String valueKey, {int requestTimeout: 500}) {
     String aliasId = widget.widgetConfig.config.targetDeviceAliasIds[0];
@@ -265,7 +225,6 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
       }
     }).catchError((Object err) {
       showToast(context, "İstek başarısız oldu!(rpc)", isError: true);
-      String errorMessage = err.toString();
       print(err);
     }).whenComplete(() {
       setState(() {

@@ -48,10 +48,10 @@ class _GaugeCanvasGaugeWidgetState extends BaseDashboardState<GaugeCanvasGaugeWi
     List<GaugeRange> highlightsList = List();
     WidgetConfigConfig conf = widget.widgetConfig.config;
 
-    String formatted = data;
-    if (conf.decimals != null && conf.decimals >= 0) {
+    /*  String formatted = data;
+   if (conf.decimals != null && conf.decimals >= 0) {
       formatted = widget.convertNumberValue(double.parse(formatted), conf.decimals);
-    }
+    }*/
     if (conf.settings.highlights[0].from != 0) {
       GaugeRange range = GaugeRange(startValue: 0, endValue: conf.settings.highlights[0].from, color: HexColor.fromCss("#ede6e6"), startWidth: 12, endWidth: 12);
       highlightsList.add(range);
@@ -61,8 +61,6 @@ class _GaugeCanvasGaugeWidgetState extends BaseDashboardState<GaugeCanvasGaugeWi
           GaugeRange(startValue: element.from, endValue: element.to, color: HexColor.fromCss(element.color), startWidth: 20, endWidth: 20);
       highlightsList.add(range);
     });
-    Color rangeColor = HexColor.fromCss(conf.datasources[0].dataKeys[0].color);
-    RegExp exp = new RegExp(r"/\$\{([^}]*)\}/g");
     maxValue = conf.settings.maxValue;
 
     labelFontSize = conf.settings.labelFontSize == 0 ? labelFontSize : conf.settings.labelFontSize;

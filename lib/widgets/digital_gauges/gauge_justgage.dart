@@ -47,12 +47,11 @@ class _GaugeJustgageWidgetState extends BaseDashboardState<GaugeJustgageWidget> 
 
     WidgetConfigConfig conf = widget.widgetConfig.config;
 
-    String formatted = data;
+    /* String formatted = data;
     if (conf.decimals != null && conf.decimals >= 0) {
       formatted = widget.convertNumberValue(double.parse(formatted), conf.decimals);
-    }
+    }*/
     Color rangeColor = HexColor.fromCss(conf.datasources[0].dataKeys[0].color);
-    RegExp exp = new RegExp(r"/\$\{([^}]*)\}/g");
     maxValue = conf.settings.maxValue;
 
     labelFontSize = conf.settings.labelFontSize == 0 ? labelFontSize : conf.settings.labelFontSize;

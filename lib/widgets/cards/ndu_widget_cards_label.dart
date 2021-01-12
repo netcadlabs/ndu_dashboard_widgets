@@ -7,6 +7,7 @@ import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 
+// ignore: must_be_immutable
 class LabelCardWidget extends BaseDashboardWidget {
   LabelCardWidget(WidgetConfig _widgetConfig, {Key key}) : super(_widgetConfig, key: key);
 
@@ -53,11 +54,10 @@ class _LabelCardWidgetState extends BaseDashboardState<LabelCardWidget> {
     WidgetConfigConfig conf = widget.widgetConfig.config;
 
     String formatted = data;
-    if (conf.decimals != null && conf.decimals >= 0) {
+    /*if (conf.decimals != null && conf.decimals >= 0) {
       formatted = widget.convertNumberValue(double.parse(formatted), conf.decimals);
     }
-    RegExp exp = new RegExp(r"/\$\{([^}]*)\}/g");
-
+*/
     textColor = HexColor.fromCss(conf.color);
 
     labelFontSize = conf.settings.labelFontSize == 0 ? labelFontSize : conf.settings.labelFontSize;
@@ -87,7 +87,7 @@ class _LabelCardWidgetState extends BaseDashboardState<LabelCardWidget> {
               height: 10,
             ),
             Text(
-              "$formatted ${conf.units}",
+              "$formatted",
               style: TextStyle(color: textColor, fontSize: valueFontSize),
             ),
             labelPosition == "bottom"
