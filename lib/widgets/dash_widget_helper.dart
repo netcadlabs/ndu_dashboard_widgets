@@ -63,6 +63,9 @@ class DashboardWidgetHelper {
         if (widgetConfig.typeAlias == "slider_control") {
           baseDashboardWidget = NduControlSlider(widgetConfig, dashboardConfiguration);
         }
+        /*if (widgetConfig.typeAlias == "entity_status_icon") {
+          baseDashboardWidget = NduControlEntityStatusIcon(widgetConfig, dashboardConfiguration);
+        }*/
       } else if (widgetConfig.bundleAlias == "digital_gauges") {
         if (widgetConfig.typeAlias == "gauge_justgage" || widgetConfig.typeAlias == "mini_gauge_justgage") {
           baseDashboardWidget = GaugeJustgageWidget(widgetConfig, dashboardConfiguration);

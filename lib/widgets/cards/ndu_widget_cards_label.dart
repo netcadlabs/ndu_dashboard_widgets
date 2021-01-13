@@ -71,17 +71,17 @@ class _LabelCardWidgetState extends BaseDashboardState<LabelCardWidget> {
 
     return Container(
       color: HexColor.fromCss(conf.backgroundColor),
-      child: Container(
-        height: 100,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: Image.memory(bytes).image,
-            fit: BoxFit.fitHeight,
-          ),
-        ),
-        padding: EdgeInsets.all(10),
-        child: Column(
+      child:  Column(
           children: [
+            Container(
+                height: 100,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: Image.memory(bytes).image,
+                    fit: BoxFit.fitHeight,
+                  ),
+                ),
+                padding: EdgeInsets.all(10)),
             labelPosition == "top" ? getLabel() : Container(),
             SizedBox(
               height: 10,
@@ -100,8 +100,7 @@ class _LabelCardWidgetState extends BaseDashboardState<LabelCardWidget> {
                 : Container(),
           ],
         ),
-      ),
-    );
+      );
   }
 
   Widget getLabel() {
