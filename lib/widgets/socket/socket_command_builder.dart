@@ -1,6 +1,7 @@
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
+import 'package:ndu_dashboard_widgets/util/widget_helper_list.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/socket_models.dart';
 
@@ -32,25 +33,7 @@ class SocketCommandBuilder {
       if (dashConfig.widgets != null)
         for (var i = 0; i < dashConfig.widgets.length; i++) {
           WidgetConfig widgetConfig = dashConfig.widgets[i];
-          if (widgetConfig == null ||
-              (widgetConfig.typeAlias != "simple_card" ||
-                  widgetConfig.typeAlias != "label_widget" ||
-                  widgetConfig.typeAlias != "entity_icon" ||
-                  widgetConfig.typeAlias != "base64_viewer" ||
-                  widgetConfig.typeAlias != "entities_table" ||
-                  widgetConfig.typeAlias != "basic_timeseries" ||
-                  widgetConfig.typeAlias != "timeseries_bars_flot" ||
-                  widgetConfig.typeAlias != "update_attributes" ||
-                  widgetConfig.typeAlias != "rpcbutton" ||
-                  widgetConfig.typeAlias != "switch_control" ||
-                  widgetConfig.typeAlias != "round_switch" ||
-                  widgetConfig.typeAlias != "led_indicator" ||
-                  widgetConfig.typeAlias != "knob_control" ||
-                  widgetConfig.typeAlias != "slider_control" ||
-                  widgetConfig.typeAlias != "gauge_justgage" ||
-                  widgetConfig.typeAlias != "mini_gauge_justgage" ||
-                  widgetConfig.typeAlias != "temperature_radial_gauge_canvas_gauges" ||
-                  widgetConfig.typeAlias != "speed_gauge_canvas_gauges")) {
+          if (widgetConfig == null || !WidgetHelperList.list.contains(widgetConfig.typeAlias)) {
             continue;
           }
 
