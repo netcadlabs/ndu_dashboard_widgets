@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
@@ -8,12 +9,15 @@ import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 // ignore: must_be_immutable
 class SimpleCardWidget extends BaseDashboardWidget {
   SimpleCardWidget(WidgetConfig _widgetConfig, {Key key}) : super(_widgetConfig, key: key);
-
+  @override
+  bool hasAnimation(){
+    return true;
+  }
   @override
   _SimpleCardWidgetState createState() => _SimpleCardWidgetState();
 }
 
-class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
+class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> with TickerProviderStateMixin {
   List<SocketData> allRawData = List();
 
   bool animate = false;
@@ -26,18 +30,21 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
   double labelFontSize = 16;
   double valueFontSize = 25;
   Color textColor;
-
   @override
   void initState() {
     super.initState();
-
     if (widget.widgetConfig.config.datasources != null && widget.widgetConfig.config.datasources.length > 0) {
-      if (widget.widgetConfig.config.datasources[0].dataKeys != null &&
-          widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
+      if (widget.widgetConfig.config.datasources[0].dataKeys != null && widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
         dataSourceLabel = widget.widgetConfig.config.datasources[0].dataKeys[0].label;
         dataSourceKey = widget.widgetConfig.config.datasources[0].dataKeys[0].name;
       }
     }
+  }
+
+  @override
+  void dispose() {
+
+    super.dispose();
   }
 
   @override
@@ -60,34 +67,31 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
     displayLabel = conf.settings.displayLabel;
     if (labelPosition == "none") displayLabel = false;
 
-    //labelPosition değeri için "left" ve "right" desteklenmeli
-
     return Container(
-      color: HexColor.fromCss(conf.backgroundColor),
-      child: Container(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          children: [
-            labelPosition == "top" ? getLabel() : Container(),
-            SizedBox(
-              height: 10,
+            child: Container(
+              padding: EdgeInsets.all(10),
+              child: Column(
+                children: [
+                  labelPosition == "top" ? getLabel() : Container(),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    "$formatted",
+                    style: TextStyle(color: textColor, fontSize: valueFontSize),
+                  ),
+                  labelPosition == "bottom"
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            getLabel(),
+                          ],
+                        )
+                      : Container(),
+                ],
+              ),
             ),
-            Text(
-              "$formatted",
-              style: TextStyle(color: textColor, fontSize: valueFontSize),
-            ),
-            labelPosition == "bottom"
-                ? Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      getLabel(),
-                    ],
-                  )
-                : Container(),
-          ],
-        ),
-      ),
-    );
+          );
   }
 
   Widget getLabel() {
@@ -101,10 +105,15 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> {
 
   @override
   void onData(SocketData graphData) {
+    //super.onData(graphData);
     if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
     if (graphData.datas.containsKey(dataSourceKey)) {
       List telem = graphData.datas[dataSourceKey][0];
-      if (telem != null && telem.length > 1 && telem[1] != null) data = telem[1].toString();
+      if (telem != null && telem.length > 1 && telem[1] != null){
+        data = telem[1].toString();
+        super.notifyMe();
+      }
     }
+
   }
 }

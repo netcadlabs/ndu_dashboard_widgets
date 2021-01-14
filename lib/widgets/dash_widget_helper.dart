@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
@@ -29,7 +30,7 @@ class DashboardWidgetHelper {
     if (widgetConfig != null) {
       if (widgetConfig.bundleAlias == "cards") {
         if (widgetConfig.typeAlias == "simple_card") {
-          baseDashboardWidget = SimpleCardWidget(widgetConfig);
+          baseDashboardWidget = SimpleCardWidget(widgetConfig,);
         } else if (widgetConfig.typeAlias == "label_widget") {
           baseDashboardWidget = LabelCardWidget(widgetConfig);
         } else if (widgetConfig.typeAlias == "entity_icon") {

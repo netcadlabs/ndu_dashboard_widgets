@@ -60,6 +60,18 @@ abstract class BaseDashboardWidget extends StatefulWidget {
     }
     return value.toString();
   }
+
+  VoidCallback callBack;
+
+  void runCallBack() {
+    if (callBack != null) callBack();
+  }
+  bool hasAnimation (){
+    return false;
+  }
+  void registerCallBack({Function func}) {
+    callBack = func;
+  }
 }
 
 abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T> {
@@ -86,6 +98,9 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
 
   void onData(SocketData graphData);
 
+  void notifyMe(){
+    widget.runCallBack();
+  }
   @override
   void dispose() {
     super.dispose();
@@ -114,45 +129,44 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
   }
 
   Stream<SocketData> getDataKeyElement(SocketData element) async* {
-    if(widget.socketCommandBuilder!=null)
-    for (int i = 0; i < widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys.length; i++) {
-      if (widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i].postFuncBody != null) {
-        element.dataKeys = widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i];
-        yield element;
+    if (widget.socketCommandBuilder != null)
+      for (int i = 0; i < widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys.length; i++) {
+        if (widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i].postFuncBody != null) {
+          element.dataKeys = widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i];
+          yield element;
+        } else {
+          setState(() {
+            onData(convertData(element));
+          });
+        }
       }
-      else{
-        setState(() {
-          onData(convertData(element));
-        });
-
-      }
-    }
   }
-  SocketData convertData(SocketData data){
-    List<DataKeys> keys= widget.socketCommandBuilder.subscriptionDataSources[data.subscriptionId].dataKeys;
-    for (int i = 0; i <keys.length; i++){
+
+  SocketData convertData(SocketData data) {
+    List<DataKeys> keys = widget.socketCommandBuilder.subscriptionDataSources[data.subscriptionId].dataKeys;
+    for (int i = 0; i < keys.length; i++) {
       String tempValue = data.datas[keys[i].name][0][1];
-      if (keys[i].decimals != null && keys[i].units!="") {
+      if (keys[i].decimals != null && keys[i].units != "") {
         tempValue = widget.convertNumberValue(double.parse(tempValue), keys[i].decimals);
+      } else if (widget._widgetConfig.config.decimals != -1 && widget._widgetConfig.config.decimals != null) {
+        double temp = double.tryParse(tempValue);
+        if (temp != null) tempValue = widget.convertNumberValue(temp, widget._widgetConfig.config.decimals);
       }
-      else if(widget._widgetConfig.config.decimals!=-1 && widget._widgetConfig.config.decimals!=null){
-        tempValue = widget.convertNumberValue(double.parse(tempValue), widget._widgetConfig.config.decimals);
-      }
-      if (keys[i].units != null && keys[i].units!="") {
+      if (keys[i].units != null && keys[i].units != "") {
         tempValue = '$tempValue ${keys[i].units}';
-      }
-      else if(widget._widgetConfig.config.units!=null){
+      } else if (widget._widgetConfig.config.units != null) {
         tempValue = '$tempValue ${widget._widgetConfig.config.units}';
       }
-      data.datas[keys[i].name][0][1]=tempValue;
+      data.datas[keys[i].name][0][1] = tempValue;
     }
-  return data;
+    return data;
   }
+
   Future<void> postFunc(Stream<SocketData> stream) async {
     await for (var value in stream) {
       String response = await evaluateDeviceValue(value.datas[value.dataKeys.name][0][1], value.dataKeys.postFuncBody);
       value.datas[value.dataKeys.name][0][1] = response;
-      value  = convertData(value);
+      value = convertData(value);
       setState(() {
         onData(value);
       });

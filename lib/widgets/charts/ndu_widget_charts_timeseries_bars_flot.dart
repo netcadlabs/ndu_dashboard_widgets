@@ -85,6 +85,7 @@ class _TimeSeriesBarsFlotWidgetState extends BaseDashboardState<TimeSeriesBarsFl
   }
 
   @override
+  // ignore: must_call_super
   void onData(SocketData graphData) {
     if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
 

@@ -4,33 +4,83 @@ import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/util/icon_map.dart';
+import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 
-class WidgetFrame extends StatelessWidget {
+class WidgetFrame extends StatefulWidget {
   final WidgetConfig widgetConfig;
-  final Widget child;
+  final BaseDashboardWidget child;
   final AliasController aliasController;
+
   WidgetFrame({Key key, this.child, this.widgetConfig, this.aliasController}) : super(key: key);
-  bool isRefresh=false;
+
+  @override
+  _WidgetFrameState createState() => _WidgetFrameState();
+}
+
+class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin {
+  bool isRefresh = false;
+  AnimationController _controller;
+  Color endColor;
   Color backgroundColor;
+
   Color color;
 
   @override
-  Widget build(BuildContext context) {
-    backgroundColor = HexColor.fromCss(widgetConfig.config.backgroundColor);
-    color = HexColor.fromCss(widgetConfig.config.color);
+  void initState() {
+    super.initState();
+    endColor = HexColor.fromCss(widget.widgetConfig.config.backgroundColor);
+    _controller = AnimationController(
+      duration: Duration(seconds: 2),
+      vsync: this,
+    )..repeat();
+    widget.child.registerCallBack(func: () {
+      _controller.value=1;
+      _controller.isCompleted ? _controller.reverse() : _controller.forward();
+    });
+  }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    backgroundColor = HexColor.fromCss(widget.widgetConfig.config.backgroundColor);
+    color = HexColor.fromCss(widget.widgetConfig.config.color);
+    Animatable<Color> background = TweenSequence<Color>(
+      [
+        TweenSequenceItem(
+          weight: 1.0,
+          tween: ColorTween(
+            begin: backgroundColor,
+            end: backgroundColor.withOpacity(0.5),
+          ),
+        ),
+      ],
+    );
+    if (widget.child.hasAnimation()) {
+      return AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return bodyWidget(background);
+          });
+    } else {
+      return bodyWidget(background);
+    }
+  }
+
+  Widget bodyWidget(var background) {
     return Container(
+      color: background.evaluate(AlwaysStoppedAnimation(_controller.value)),
       margin: EdgeInsets.symmetric(vertical: 2),
-      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.all(Radius.circular(4)),
-      ),
+      //padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
       child: Column(
         children: [
-          getTitleWidget(widgetConfig.config),
+          getTitleWidget(widget.widgetConfig.config),
           Container(
-            child: child,
+            child: widget.child,
           )
         ],
       ),
@@ -45,7 +95,12 @@ class WidgetFrame extends StatelessWidget {
             // padding: EdgeInsets.symmetric(horizontal: 5),
             child: Row(
               children: [
-            Container(margin:EdgeInsets.all(4),child: Icon(IconMap.iconMap["${widgetConfig.config.titleIcon}"],color: HexColor.fromCss(widgetConfig.config.iconColor),)),
+                Container(
+                    margin: EdgeInsets.all(4),
+                    child: Icon(
+                      IconMap.iconMap["${widget.widgetConfig.config.titleIcon}"],
+                      color: HexColor.fromCss(widget.widgetConfig.config.iconColor),
+                    )),
                 Flexible(
                   child: Row(
                     children: [
@@ -69,7 +124,8 @@ class WidgetFrame extends StatelessWidget {
           )
         : Container();
   }
-  getTimeSeriesData(){
+
+  getTimeSeriesData() {
     //api.getTimeseries();
   }
 }
