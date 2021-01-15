@@ -6,7 +6,7 @@ import 'package:ndu_dashboard_widgets/widgets/analogue_gauges/gauge_canvas_gauge
 import 'package:ndu_dashboard_widgets/widgets/cards/ndu_widget_cards_entities_table.dart';
 import 'package:ndu_dashboard_widgets/widgets/charts/charts.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_knob.dart';
-import 'package:ndu_dashboard_widgets/widgets/controls/control_led_indicator.dart';
+import 'package:ndu_dashboard_widgets/widgets/controls/led_indicator/control_led_indicator.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_rpc_button.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_switch_button.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/ndu_control_slider.dart';

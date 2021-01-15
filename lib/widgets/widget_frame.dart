@@ -34,7 +34,7 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
       vsync: this,
     )..repeat();
     widget.child.registerCallBack(func: () {
-      _controller.value=1;
+      _controller.value = 1;
       _controller.isCompleted ? _controller.reverse() : _controller.forward();
     });
   }
@@ -54,7 +54,7 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
         TweenSequenceItem(
           weight: 1.0,
           tween: ColorTween(
-            begin: backgroundColor,
+            begin: backgroundColor==Colors.transparent?Colors.white:backgroundColor,
             end: backgroundColor.withOpacity(0.5),
           ),
         ),
@@ -73,16 +73,36 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
 
   Widget bodyWidget(var background) {
     return Container(
-      color: background.evaluate(AlwaysStoppedAnimation(_controller.value)),
-      margin: EdgeInsets.symmetric(vertical: 2),
-      //padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-      child: Column(
-        children: [
-          getTitleWidget(widget.widgetConfig.config),
-          Container(
-            child: widget.child,
-          )
-        ],
+
+      child: Container(
+        decoration: BoxDecoration(
+          color: background.evaluate(AlwaysStoppedAnimation(_controller.value)),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+            bottomLeft: Radius.circular(10),
+            bottomRight: Radius.circular(10),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.5),
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, 3), // changes position of shadow
+            ),
+          ],
+        ),
+        //background.evaluate(AlwaysStoppedAnimation(_controller.value)),
+        margin: EdgeInsets.symmetric(vertical: 2),
+        //padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+        child: Column(
+          children: [
+            getTitleWidget(widget.widgetConfig.config),
+            Container(
+              child: widget.child,
+            )
+          ],
+        ),
       ),
     );
   }

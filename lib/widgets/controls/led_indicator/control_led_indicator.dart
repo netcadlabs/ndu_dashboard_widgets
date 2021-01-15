@@ -10,10 +10,11 @@ import 'package:ndu_api_client/util/constants.dart';
 import 'package:ndu_dashboard_widgets/dashboard_state_notifier.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
+import 'package:ndu_dashboard_widgets/widgets/controls/led_indicator/circle_painter.dart';
+import 'package:ndu_dashboard_widgets/widgets/controls/led_indicator/curve_wave.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/socket_models.dart';
 import 'package:provider/provider.dart';
-
 
 class ControlLedIndicator extends BaseDashboardWidget {
   ControlLedIndicator(WidgetConfig _widgetConfig, DashboardDetailConfiguration _dashboardDetailConfiguration, {Key key})
@@ -23,7 +24,7 @@ class ControlLedIndicator extends BaseDashboardWidget {
   _ControlLedIndicatorState createState() => _ControlLedIndicatorState();
 }
 
-class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> {
+class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> with TickerProviderStateMixin {
   List<SocketData> allRawData = List();
 
   EntityType entityType = EntityType.DEVICE;
@@ -48,35 +49,34 @@ class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> 
 
   Color activeColor = Colors.green;
   Color passiveColor = HexColor.darken(Colors.green, 50);
+  AnimationController _controller;
 
   @override
   void dispose() {
-    flutterWebViewPlugin.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
-
-    flutterWebViewPlugin.close();
-    flutterWebViewPlugin.launch(Constants.baseUrl + "/api/dummy", hidden: true);
-
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    )..repeat();
     var settings = widget.widgetConfig.config.settings;
 
     title = "${settings.title}";
 
     if (settings.ledColor != null) {
-      activeColor = HexColor.fromCss(settings.ledColor, defaultColor: activeColor);
+      activeColor = HexColor.fromCss(settings.ledColor);
       passiveColor = HexColor.darken(activeColor, 50);
     }
-
-    currentSwitchValue = settings.initialValue ? activeColor : passiveColor;
+    currentSwitchValue = passiveColor;
     checkStatusMethod = settings.checkStatusMethod;
     retrieveValueMethod = settings.retrieveValueMethod;
     requestTimeout = settings.requestTimeout;
-    if (settings.parseValueFunction != null && settings.parseValueFunction != "")
-      parseValueFunction = settings.parseValueFunction;
+    if (settings.parseValueFunction != null && settings.parseValueFunction != "") parseValueFunction = settings.parseValueFunction;
 
     if (settings.performCheckStatus) {
       retrieveValueMethod = RETRIEVE_VALUE_METHOD_RPC;
@@ -84,8 +84,7 @@ class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> 
 
     valueKey = settings.valueAttribute;
 
-    if (widget.widgetConfig.config.targetDeviceAliasIds != null &&
-        widget.widgetConfig.config.targetDeviceAliasIds.length > 0) {
+    if (widget.widgetConfig.config.targetDeviceAliasIds != null && widget.widgetConfig.config.targetDeviceAliasIds.length > 0) {
       String aliasId = widget.widgetConfig.config.targetDeviceAliasIds[0];
       widget.aliasController.getAliasInfo(aliasId).then((AliasInfo aliasInfo) {
         if (aliasInfo.resolvedEntities != null && aliasInfo.resolvedEntities.length > 0) {
@@ -102,21 +101,15 @@ class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> 
             SubscriptionCommand subscriptionCommand;
             if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_SUBSCRIBE_ATTRIBUTE) {
               subscriptionCommand = SubscriptionCommand();
-              subscriptionCommand.attrSubCmds =
-                  widget.socketCommandBuilder.calculateCommandForEntityInfo(entityInfo, valueKey);
+              subscriptionCommand.attrSubCmds = widget.socketCommandBuilder.calculateCommandForEntityInfo(entityInfo, valueKey);
               subscriptionCommand.attrSubCmds.forEach((attrSubCmds) {
-                context
-                    .read<DashboardStateNotifier>()
-                    .addSubscriptionId(widget.widgetConfig.id, attrSubCmds.cmdId.toString());
+                context.read<DashboardStateNotifier>().addSubscriptionId(widget.widgetConfig.id, attrSubCmds.cmdId.toString());
               });
             } else if (retrieveValueMethod == RETRIEVE_VALUE_METHOD_SUBSCRIBE_TIMESERIES) {
               subscriptionCommand = SubscriptionCommand();
-              subscriptionCommand.tsSubCmds =
-                  widget.socketCommandBuilder.calculateTsSubCmdsCommandForEntityInfo(entityInfo, valueKey);
+              subscriptionCommand.tsSubCmds = widget.socketCommandBuilder.calculateTsSubCmdsCommandForEntityInfo(entityInfo, valueKey);
               subscriptionCommand.tsSubCmds.forEach((tsSubCmds) {
-                context
-                    .read<DashboardStateNotifier>()
-                    .addSubscriptionId(widget.widgetConfig.id, tsSubCmds.cmdId.toString());
+                context.read<DashboardStateNotifier>().addSubscriptionId(widget.widgetConfig.id, tsSubCmds.cmdId.toString());
               });
             } else {
               print("not supported retrieveValueMethod $retrieveValueMethod");
@@ -124,6 +117,7 @@ class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> 
 
             if (subscriptionCommand != null) {
               String subscriptionCommandJson = jsonEncode(subscriptionCommand);
+              print(subscriptionCommandJson);
               widget.webSocketChannel.sink.add(subscriptionCommandJson);
             }
           }
@@ -152,14 +146,44 @@ class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> 
                     ),
                   ),
                 ),
-          Container(
-            margin: EdgeInsets.only(bottom: 10),
-            child: Container(
-              height: 75,
-              width: 75,
-              decoration: BoxDecoration(color: currentSwitchValue, shape: BoxShape.circle),
-            ),
-          ),
+          currentSwitchValue != passiveColor
+              ? Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  child: Center(
+                    child: CustomPaint(
+                      painter: CirclePainter(
+                        _controller,
+                        color: currentSwitchValue,
+                      ),
+                      child: SizedBox(
+                        width: 120,
+                        height: 150,
+                        child: Center(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(80),
+                            child: DecoratedBox(
+                                decoration: BoxDecoration(
+                              gradient: RadialGradient(
+                                colors: <Color>[currentSwitchValue, Color.lerp(currentSwitchValue, Colors.black, .05)],
+                              ),
+                            )),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ))
+              : Container(
+                  margin: EdgeInsets.only(bottom: 10),
+                  height: 150,
+                  width: 150,
+                  child: Center(
+                    child: Container(
+                      width: 75,
+                      height: 75,
+                      decoration: BoxDecoration(color: currentSwitchValue, shape: BoxShape.circle),
+                    ),
+                  ),
+                ),
           (errorText != "")
               ? Text(
                   errorText,

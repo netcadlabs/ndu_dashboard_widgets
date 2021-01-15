@@ -8,6 +8,7 @@ extension HexColor on Color {
     if (hexString == null) return defaultColor;
     final buffer = StringBuffer();
     if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+    else if(hexString.length==4) return defaultColor;
     buffer.write(hexString.replaceFirst('#', ''));
     return Color(int.parse(buffer.toString(), radix: 16));
   }

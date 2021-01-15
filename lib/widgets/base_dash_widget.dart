@@ -94,8 +94,6 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
 
   final flutterWebViewPlugin = FlutterWebviewPlugin();
 
-  StreamController controller = StreamController<SocketData>();
-
   void onData(SocketData graphData);
 
   void notifyMe(){
@@ -103,9 +101,9 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
   }
   @override
   void dispose() {
-    super.dispose();
+    widget.webSocketChannel.sink.close();
     flutterWebViewPlugin.dispose();
-    controller.close();
+    super.dispose();
   }
 
   @override
@@ -129,7 +127,7 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
   }
 
   Stream<SocketData> getDataKeyElement(SocketData element) async* {
-    if (widget.socketCommandBuilder != null)
+    if (widget.socketCommandBuilder != null && widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId]!=null)
       for (int i = 0; i < widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys.length; i++) {
         if (widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i].postFuncBody != null) {
           element.dataKeys = widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i];
@@ -140,6 +138,9 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
           });
         }
       }
+    else{
+      onData(element);
+    }
   }
 
   SocketData convertData(SocketData data) {
