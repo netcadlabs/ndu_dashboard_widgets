@@ -5,7 +5,7 @@ import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/util/icon_map.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
-
+import 'package:ndu_dashboard_widgets/widgets/timeago/time_ago.dart';
 class WidgetFrame extends StatefulWidget {
   final WidgetConfig widgetConfig;
   final BaseDashboardWidget child;
@@ -22,7 +22,7 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
   AnimationController _controller;
   Color endColor;
   Color backgroundColor;
-
+  DateTime lastTime =DateTime.now();
   Color color;
 
   @override
@@ -34,6 +34,7 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
       vsync: this,
     )..repeat();
     widget.child.registerCallBack(func: () {
+      lastTime=widget.child.lastDataTime;
       _controller.value = 1;
       _controller.isCompleted ? _controller.reverse() : _controller.forward();
     });
@@ -72,6 +73,8 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
   }
 
   Widget bodyWidget(var background) {
+    final fifteenAgo = DateTime.now().subtract(Duration(seconds: 10));
+
     return Container(
 
       child: Container(
@@ -100,7 +103,8 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
             getTitleWidget(widget.widgetConfig.config),
             Container(
               child: widget.child,
-            )
+            ),
+            TimeAgo(lastTime),
           ],
         ),
       ),

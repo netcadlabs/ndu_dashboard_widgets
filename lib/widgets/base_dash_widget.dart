@@ -28,13 +28,8 @@ abstract class BaseDashboardWidget extends StatefulWidget {
   SocketCommandBuilder socketCommandBuilder;
   WebSocketChannel webSocketChannel;
   Map<SocketData, DataKeys> map = Map();
-
+  DateTime lastDataTime;
   WidgetConfig get widgetConfig => _widgetConfig;
-
-  // AliasController get aliasController => _aliasController;
-  // set aliasController(AliasController _aliasController) {
-  //   this._aliasController = _aliasController;
-  // }
 
   Color backgroundColor = Colors.white;
   Color color = Colors.black;
@@ -173,7 +168,9 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
       });
     }
   }
-
+  void  setTimeAgo(DateTime lastData){
+    widget.lastDataTime=lastData;
+  }
   void startTargetDeviceAliasIdsSubscription(String retrieveValueMethod, String valueKey, {int requestTimeout: 500}) {
     String aliasId = widget.widgetConfig.config.targetDeviceAliasIds[0];
     widget.aliasController.getAliasInfo(aliasId).then((AliasInfo aliasInfo) {

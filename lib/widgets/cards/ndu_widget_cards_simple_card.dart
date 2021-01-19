@@ -13,6 +13,7 @@ class SimpleCardWidget extends BaseDashboardWidget {
   bool hasAnimation(){
     return true;
   }
+
   @override
   _SimpleCardWidgetState createState() => _SimpleCardWidgetState();
 }
@@ -110,10 +111,15 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> with T
     if (graphData.datas.containsKey(dataSourceKey)) {
       List telem = graphData.datas[dataSourceKey][0];
       if (telem != null && telem.length > 1 && telem[1] != null){
+        var date = new DateTime.fromMillisecondsSinceEpoch(telem[0],isUtc: false);
         data = telem[1].toString();
+        setTimeAgo(date);
         super.notifyMe();
       }
     }
-
+  }
+  @override
+  void setTimeAgo(DateTime lastData) {
+    super.setTimeAgo(lastData);
   }
 }
