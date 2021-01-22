@@ -281,8 +281,8 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
     if (evalResult == null || evalResult == "" || evalResult == "null") {
       return false;
     }
-    if (evalResult.toLowerCase() == "true" || evalResult.toLowerCase() == "false") {
-      return evalResult == "true";
+    if (evalResult.toLowerCase() == "true" || evalResult=='1') {
+      return true;
     }
     return false;
   }

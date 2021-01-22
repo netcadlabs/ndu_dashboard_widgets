@@ -30,7 +30,7 @@ class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> 
   EntityType entityType = EntityType.DEVICE;
   AttributeScope attributeScope = AttributeScope.SHARED_SCOPE;
   String entityId = "";
-
+  bool radar = false;
   String title = "";
 
   Color currentSwitchValue = Colors.grey;
@@ -204,6 +204,7 @@ class _ControlLedIndicatorState extends BaseDashboardState<ControlLedIndicator> 
         evaluateServerData(telem[1].toString(), parseValueFunction).then((value) {
           // currentSwitchValue = value;
           setState(() {
+            radar = value;
             currentSwitchValue = value ? activeColor : passiveColor;
           });
         });
