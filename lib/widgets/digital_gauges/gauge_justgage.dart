@@ -29,18 +29,19 @@ class _GaugeJustgageWidgetState extends BaseDashboardState<GaugeJustgageWidget> 
   double labelFontSize = 16;
   double valueFontSize = 25;
   int maxValue;
-  double value=10;
+  double value = 10;
+
   @override
   void initState() {
     super.initState();
     if (widget.widgetConfig.config.datasources != null && widget.widgetConfig.config.datasources.length > 0) {
-      if (widget.widgetConfig.config.datasources[0].dataKeys != null &&
-          widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
+      if (widget.widgetConfig.config.datasources[0].dataKeys != null && widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
         dataSourceLabel = widget.widgetConfig.config.datasources[0].dataKeys[0].label;
         dataSourceKey = widget.widgetConfig.config.datasources[0].dataKeys[0].name;
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -68,43 +69,31 @@ class _GaugeJustgageWidgetState extends BaseDashboardState<GaugeJustgageWidget> 
           title: GaugeTitle(text: '', textStyle: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),
           axes: <RadialAxis>[
             RadialAxis(minimum: 0, maximum: double.parse(maxValue.toString()), ranges: <GaugeRange>[
+              GaugeRange(startValue: 0, endValue: value, color: rangeColor, startWidth: 20, endWidth: 20),
               GaugeRange(
-                  startValue:0,
-                  endValue: value,
-                  color: rangeColor,
-                  startWidth: 20,
-                  endWidth: 20),
-              GaugeRange(
-                  startValue:value,
-                  endValue: double.parse(maxValue.toString()),
-                  color: HexColor.fromCss("#ede6e6"),
-                  startWidth: 20,
-                  endWidth: 20)
+                  startValue: value, endValue: double.parse(maxValue.toString()), color: HexColor.fromCss("#ede6e6"), startWidth: 20, endWidth: 20)
             ], annotations: <GaugeAnnotation>[
               GaugeAnnotation(
-                  widget: Container(child:  Text('$value', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold))),
-                  angle: 90,
-                  positionFactor: 0)
+                  widget: Container(child: Text('$value', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold))), angle: 90, positionFactor: 0)
             ])
           ]),
     );
   }
 
   @override
-  void onData(SocketData graphData)async {
+  void onData(SocketData graphData) async {
     if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
     if (graphData.datas.containsKey(dataSourceKey)) {
       List telem = graphData.datas[dataSourceKey][0];
       if (telem != null && telem.length > 1 && telem[1] != null) data = telem[1].toString();
     }
-    if(widget.widgetConfig.config.datasources[0].dataKeys[0].postFuncBody!=null){
+    if (widget.widgetConfig.config.datasources[0].dataKeys[0].postFuncBody != null) {
       String result = await evaluateDeviceValue(data, widget.widgetConfig.config.datasources[0].dataKeys[0].postFuncBody);
       setState(() {
-        value = double.parse(result.split(".")[0]);
+        if (result != "nan" && result.isNotEmpty) value = double.parse(result.split(".")[0]);
       });
-    }
-    else{
-      value=double.parse(data);
+    } else {
+      value = double.parse(data);
     }
 
     print(graphData.toString());
