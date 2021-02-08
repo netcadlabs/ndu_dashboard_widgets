@@ -71,7 +71,7 @@ class _NduControlKnobSliderState extends BaseDashboardState<NduControlKnob> {
 
     realMinValue = double.parse(conf.settings.minValue.toString());
     realMaxValue = double.parse(conf.settings.maxValue.toString());
-    if (useMapping) {
+    if (useMapping!=null && useMapping) {
       minValue = 0;
       maxValue = 100;
     } else {
