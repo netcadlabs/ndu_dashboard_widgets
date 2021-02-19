@@ -17,6 +17,7 @@ class WidgetHelperList {
     "gauge_justgage",
     "mini_gauge_justgage",
     "temperature_radial_gauge_canvas_gauges",
-    "speed_gauge_canvas_gauges"
+    "speed_gauge_canvas_gauges",
+    "state_chart"
   };
 }
