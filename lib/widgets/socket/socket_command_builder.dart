@@ -178,8 +178,6 @@ class SocketCommandBuilder {
   TsSubCmds setTimeProperties(WidgetConfigConfig widgetConfig, TsSubCmds tsSubCmds) {
     if (widgetConfig.timewindow != null && widgetConfig.timewindow.history != null) {
       tsSubCmds.interval = widgetConfig.timewindow.history.interval;
-      // tsSubCmds.limit ?
-      // tsSubCmds.timewindow ?
       if (widgetConfig.timewindow.history.fixedTimewindow != null)
         tsSubCmds.startTs = widgetConfig.timewindow.history.fixedTimewindow.startTimeMs * 1000;
       tsSubCmds.endTs = widgetConfig.timewindow.history.fixedTimewindow.endTimeMs * 1000;
@@ -192,14 +190,11 @@ class SocketCommandBuilder {
         tsSubCmds.timeWindow = widgetConfig.timewindow.realtime.timewindowMs + tsSubCmds.interval;
         tsSubCmds.limit = (tsSubCmds.timeWindow / tsSubCmds.interval).ceil();
       }
-      // tsSubCmds.timeWindow = widgetConfig.timewindow.realtime.timewindowMs + tsSubCmds.interval;
-      // tsSubCmds.limit = (tsSubCmds.timeWindow / tsSubCmds.interval) as int;
     }
 
     if (widgetConfig.timewindow.aggregation != null) {
       tsSubCmds.agg = widgetConfig.timewindow.aggregation.type;
       tsSubCmds.limit = 289;
-      // widgetConfig.timewindow.aggregation.limit; // limit ?
     }
 
     return tsSubCmds;
@@ -228,14 +223,10 @@ class SocketCommandBuilder {
         tsSubCommands.timeWindow = timeWindow.realtime.timewindowMs + tsSubCommands.interval;
         tsSubCommands.limit = (tsSubCommands.timeWindow / tsSubCommands.interval).ceil();
       }
-      // tsSubCmds.timeWindow = widgetConfig.timewindow.realtime.timewindowMs + tsSubCmds.interval;
-      // tsSubCmds.limit = (tsSubCmds.timeWindow / tsSubCmds.interval) as int;
     }
 
     if (timeWindow.aggregation != null) {
       tsSubCommands.agg = timeWindow.aggregation.type;
-      // tsSubCommands.limit = 289;
-      // widgetConfig.timewindow.aggregation.limit; // limit ?
     }
 
     return tsSubCommands;
