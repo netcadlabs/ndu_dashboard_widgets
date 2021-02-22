@@ -129,10 +129,20 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
     tempList = ChartHelper.timeSeriesListUpdate(tempList, widget.widgetConfig.config);
 
     if (keyIndexInSeries > -1) {
-      if (tempList.length > 0) seriesList[keyIndexInSeries].data.add(tempList[tempList.length - 1]);
+      if (tempList.length > 0) {
+        seriesList[keyIndexInSeries].data.add(tempList[tempList.length - 1]);
+        int limit;
+        if (!widget.widgetConfig.config.useDashboardTimewindow) {
+          limit = ChartHelper.limitCalculater(widget.widgetConfig.config.timewindow);
+        } else {
+          limit = ChartHelper.limitCalculater(widget.socketCommandBuilder.dashboardDetail.dashboardConfiguration.timewindow);
+        }
+        if (seriesList[keyIndexInSeries].data.length > limit) {
+          seriesList[keyIndexInSeries].data.removeRange(0, seriesList[keyIndexInSeries].data.length - limit);
+        }
+      }
     } else {
       if (tsData.length > 0) seriesList[keyIndexInSeries].data.add(tsData[0]);
     }
   }
-
 }
