@@ -208,14 +208,16 @@ class SocketCommandBuilder {
   TsSubCmds setTimeWindowProperties(TimeWindow timeWindow, TsSubCmds tsSubCommands) {
     if (timeWindow != null && timeWindow.history != null) {
       tsSubCommands.interval = timeWindow.history.interval;
-      // tsSubCmds.limit ?
-      // tsSubCmds.timewindow ?
+
       if (timeWindow.history.fixedTimewindow != null) {
         tsSubCommands.startTs = timeWindow.history.fixedTimewindow.startTimeMs;
         tsSubCommands.endTs = timeWindow.history.fixedTimewindow.endTimeMs;
       } else {
-        tsSubCommands.startTs = timeWindow.history.fixedTimewindow.startTimeMs * 1000;
-        tsSubCommands.endTs = timeWindow.history.fixedTimewindow.endTimeMs * 1000;
+        tsSubCommands.startTs = (DateTime.now().millisecondsSinceEpoch - timeWindow.history.timewindowMs);
+        tsSubCommands.endTs = (DateTime.now().millisecondsSinceEpoch);
+        if (timeWindow.history.interval > 0) {
+          tsSubCommands.interval = timeWindow.history.interval;
+        }
       }
     }
     if (timeWindow != null && timeWindow.realtime != null) {
