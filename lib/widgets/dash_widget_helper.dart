@@ -5,6 +5,7 @@ import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
 import 'package:ndu_dashboard_widgets/widgets/analogue_gauges/gauge_canvas_gauges.dart';
 import 'package:ndu_dashboard_widgets/widgets/cards/ndu_widget_cards_entities_table.dart';
 import 'package:ndu_dashboard_widgets/widgets/charts/charts.dart';
+import 'package:ndu_dashboard_widgets/widgets/charts/state_chart.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_knob.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/led_indicator/control_led_indicator.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_rpc_button.dart';
@@ -14,12 +15,12 @@ import 'package:ndu_dashboard_widgets/widgets/digital_gauges/gauge_justgage.dart
 import 'package:ndu_dashboard_widgets/widgets/not_implemented_widget.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/socket_command_builder.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+
 import 'base_dash_widget.dart';
 import 'cards/cards.dart';
 import 'cards/ndu_widget_cards_base64_viewer.dart';
 import 'charts/ndu_widget_charts_basic_timeseries.dart';
 import 'cards/ndu_widget_entity_widget.dart';
-import 'charts/state_chart.dart';
 import 'controls/control_update_attributes.dart';
 
 class DashboardWidgetHelper {
