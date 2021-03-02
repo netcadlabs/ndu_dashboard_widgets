@@ -3,14 +3,12 @@ import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 
 class ChartHelper {
   static int limitCalculater(TimeWindow timeWindow) {
-    if (timeWindow != null && timeWindow.history != null) {
+    if (timeWindow != null && timeWindow.history != null && timeWindow.history.timewindowMs != null && timeWindow.history.interval != null) {
       return (timeWindow.history.timewindowMs / timeWindow.history.interval).ceil();
-    }
-   else if (timeWindow != null && timeWindow.realtime != null) {
+    } else if (timeWindow != null && timeWindow.realtime != null && timeWindow.realtime.timewindowMs!=null && timeWindow.realtime.interval!=null) {
       return (timeWindow.realtime.timewindowMs / timeWindow.realtime.interval).ceil();
-    }
-   else{
-     return 20;
+    } else {
+      return 20;
     }
   }
 
