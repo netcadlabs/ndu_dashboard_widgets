@@ -217,6 +217,12 @@ class EntityService {
           break;
 
         case 'deviceType':
+          PageBaseModel entities = await getEntitiesByNameFilter(filter.type, filter.entityNameFilter, maxItems, ignoreLoading: true);
+          if (entities!=null && entities.data.length>0) {
+            result.entities = entitiesToEntitiesInfo(entities.data);
+          } else {
+            throw Exception("Device listesi boş geldi.");
+          }
           break;
 
         case 'entityViewType':
