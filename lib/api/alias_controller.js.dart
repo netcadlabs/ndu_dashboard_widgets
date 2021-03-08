@@ -175,13 +175,13 @@ class EntityService {
     if (filter.stateEntityParamName != null) {
       result.entityParamName = filter.stateEntityParamName;
     }
+
     try {
       switch (filter.type) {
         case 'singleEntity':
           EntityId aliasEntityId = resolveAliasEntityId(filter.singleEntity.entityType, filter.singleEntity.id);
           var entity = await getEntity(aliasEntityId.entityType, aliasEntityId.id, null);
           result.entities = entitiesToEntitiesInfo([entity]);
-          return result;
           break;
         case 'entityList':
           var entities = getEntities(filter.entityType, filter, null);
@@ -191,17 +191,15 @@ class EntityService {
             throw Exception("entityList hatası.");
           }
           break;
-
         case 'entityName':
-          PageBaseModel entities = await getEntitiesByNameFilter(filter.entityType, filter.entityNameFilter, maxItems, ignoreLoading: true);
+          PageBaseModel entities =
+              await getEntitiesByNameFilter(filter.entityType, filter.entityNameFilter, maxItems, {'ignoreLoading': true}, filter.deviceType);
           if (entities != null && entities.data.length > 0) {
             result.entities = entitiesToEntitiesInfo(entities.data);
-            return result;
           } else {
             throw Exception("Device listesi boş geldi.");
           }
           break;
-
         case 'stateEntity':
           result.stateEntity = true;
           if (stateEntityId != null) {
@@ -210,24 +208,16 @@ class EntityService {
           } else {
             throw Exception("Device listesi boş geldi.");
           }
-
           break;
-
-        case 'assetType':
-          break;
-
         case 'deviceType':
-          PageBaseModel entities = await getEntitiesByNameFilter(filter.type, filter.entityNameFilter, maxItems, ignoreLoading: true);
-          if (entities!=null && entities.data.length>0) {
+          PageBaseModel entities =
+              await getEntitiesByNameFilter('DEVICE', filter.deviceNameFilter, maxItems, {'ignoreLoading': true}, filter.deviceType);
+          if (entities != null && entities.data.length > 0) {
             result.entities = entitiesToEntitiesInfo(entities.data);
           } else {
             throw Exception("Device listesi boş geldi.");
           }
           break;
-
-        case 'entityViewType':
-          break;
-
         case 'relationsQuery':
           result.stateEntity = filter.rootStateEntity;
           var rootEntityType;
@@ -250,12 +240,14 @@ class EntityService {
             searchQuery.maxLevel = filter.maxLevel != null && filter.maxLevel > 0 ? filter.maxLevel : -1;
           }
           break;
-
         case 'assetSearchQuery':
         case 'deviceSearchQuery':
         case 'entityViewSearchQuery':
+        case 'entityViewType':
+        case 'assetType':
           break;
       }
+      return result;
     } catch (err) {
       print(err);
       throw Exception(err.toString());
@@ -312,22 +304,26 @@ class EntityService {
     return entityId;
   }
 
-  static Future<PageBaseModel> getEntitiesByNameFilter(String entityType, String entityNameFilter, int limit, {ignoreLoading: true, subType}) async {
+  static Future<PageBaseModel> getEntitiesByNameFilter(String entityType, String entityNameFilter, int limit, Map config, String subType) async {
     try {
       PageLink pageLink = PageLink(limit: limit, textSearch: entityNameFilter);
-      pageLink.limit = 100;
-      PageBaseModel result = await getEntitiesByPageLinkPromise(entityType, pageLink, ignoreLoading, null);
+      if (limit == -1 || limit == 0) {
+        pageLink.limit = 100;
+      } else {}
+
+      PageBaseModel result = await getEntitiesByPageLinkPromise(entityType, pageLink, config, subType);
+
       return result;
     } catch (err) {
       throw Exception(err);
     }
   }
 
-  static Future<PageBaseModel> getEntitiesByPageLinkPromise(String entityType, PageLink pageLink, var config, String subType) async {
+  static Future<PageBaseModel> getEntitiesByPageLinkPromise(String entityType, PageLink pageLink, Map config, String subType) async {
     switch (entityType) {
       case "DEVICE":
         DeviceApi _deviceApi = DeviceApi();
-        PageBaseModel result = await _deviceApi.getDevices(pageLink);
+        PageBaseModel result = await _deviceApi.getDevices(pageLink, type: subType);
         if (result != null && result.data.length > 0) {
           return result;
         } else {
