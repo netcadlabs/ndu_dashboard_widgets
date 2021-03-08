@@ -24,8 +24,7 @@ dependencies:
   syncfusion_flutter_gauges: ^18.4.33
   horizontal_data_table: ^1.0.8
   ndu_api_client:
-    git:
-      url: https://github.com/netcadlabs/ndu_api_flutter_client.git
+    path: ../ndu_api_flutter_client
 
 dev_dependencies:
   flutter_test:
