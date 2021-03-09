@@ -124,6 +124,11 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
   Stream<SocketData> getDataKeyElement(SocketData element) async* {
     if (widget.socketCommandBuilder != null && widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId]!=null)
       for (int i = 0; i < widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys.length; i++) {
+
+        if(widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].entityType != null){
+          element.entityType = widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].entityType;
+        }
+
         if (widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i].postFuncBody != null) {
           element.dataKeys = widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys[i];
           yield element;
