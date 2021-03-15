@@ -10,8 +10,9 @@ class WidgetFrame extends StatefulWidget {
   final WidgetConfig widgetConfig;
   final BaseDashboardWidget child;
   final AliasController aliasController;
+  final RowClickCallBack rowClickCallBack;
 
-  WidgetFrame({Key key, this.child, this.widgetConfig, this.aliasController}) : super(key: key);
+  WidgetFrame({Key key, this.child, this.widgetConfig, this.aliasController,this.rowClickCallBack}) : super(key: key);
 
   @override
   _WidgetFrameState createState() => _WidgetFrameState();
@@ -37,6 +38,9 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
       lastTime=widget.child.lastDataTime;
       _controller.value = 1;
       _controller.isCompleted ? _controller.reverse() : _controller.forward();
+    });
+    widget.child.registerEntitiesTableCallBack(func: (RowClick rowClick){
+      widget.rowClickCallBack(rowClick);
     });
   }
 

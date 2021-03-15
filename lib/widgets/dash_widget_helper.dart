@@ -11,7 +11,7 @@ import 'package:ndu_dashboard_widgets/widgets/controls/control_rpc_button.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_switch_button.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/ndu_control_slider.dart';
 import 'package:ndu_dashboard_widgets/widgets/digital_gauges/gauge_justgage.dart';
-import 'package:ndu_dashboard_widgets/widgets/not_implemented_widget.dart';
+import 'package:ndu_dashboard_widgets/widgets/no_data_widget.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/socket_command_builder.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -21,6 +21,7 @@ import 'cards/ndu_widget_cards_base64_viewer.dart';
 import 'charts/ndu_widget_charts_basic_timeseries.dart';
 import 'cards/ndu_widget_entity_widget.dart';
 import 'controls/control_update_attributes.dart';
+import 'no_widget.dart';
 
 class DashboardWidgetHelper {
   static BaseDashboardWidget getImplementedWidget(WidgetConfig widgetConfig, DashboardDetailConfiguration dashboardConfiguration,
@@ -83,7 +84,6 @@ class DashboardWidgetHelper {
       baseDashboardWidget.socketCommandBuilder = socketCommandBuilder;
       return baseDashboardWidget;
     }
-
-    return NotImplementedWidget(widgetConfig);
+    return NoWidget(widgetConfig);
   }
 }

@@ -22,7 +22,9 @@ dependencies:
   timeago: ^2.0.29
   sleek_circular_slider: ^1.2.0+web
   syncfusion_flutter_gauges: ^18.4.33
-  horizontal_data_table: ^1.0.8
+  flutter_svg: 0.19.1
+  horizontal_data_table: ^2.5.1
+  synchronized: ^2.2.0+2
   ndu_api_client:
     git:
       url: https://github.com/netcadlabs/ndu_api_flutter_client.git
@@ -44,8 +46,7 @@ flutter:
       fonts:
         - asset: assets/fonts/Roboto-BoldItalic.ttf
   # To add assets to your package, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+
   #   - images/a_dot_ham.jpeg
   #
   # For details regarding assets in packages, see

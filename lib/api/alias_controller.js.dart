@@ -1,16 +1,23 @@
 import 'dart:async';
-
+import 'dart:convert';
+import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
 import 'package:ndu_api_client/assets_api.dart';
 import 'package:ndu_api_client/device_api.dart';
 import 'package:ndu_api_client/models/api_models.dart';
+import 'package:ndu_api_client/models/assets.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
+import 'package:ndu_api_client/models/find_by_query_body.dart';
 import 'package:ndu_api_client/models/page_base_model.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
+import 'package:synchronized/synchronized.dart';
 
 class AliasController {
   Map<String, AliasInfo> resolvedAliases = {};
   Map<String, EntityAliases> entityAliases;
+  Map<String, AliasInfo> entityAliasesFutureMap = Map();
+  Map<String, Lock> aliasInfoLockMap = Map();
 
   AliasController({this.entityAliases});
 
@@ -98,20 +105,22 @@ class AliasController {
     }
   }
 
-  Future<AliasInfo> getAliasInfo(String aliasId) async {
+  Future<AliasInfo> getAliasInfo2(String aliasId) async {
     // AliasInfo aliasInfo = this.resolvedAliases[aliasId];
-    if (resolvedAliases.containsKey(aliasId)) {
-      return resolvedAliases[aliasId];
+
+    if (entityAliasesFutureMap.containsKey(aliasId)) {
+      return entityAliasesFutureMap[aliasId];
     }
 
     if (this.entityAliases.containsKey(aliasId)) {
       var entityAlias = this.entityAliases[aliasId];
 
       try {
-        AliasInfo aliasInfo = await EntityService.resolveAlias(entityAlias, null);
+        Future future = EntityService.resolveAlias(entityAlias, null);
+        AliasInfo aliasInfo = await future;
         resolvedAliases[aliasId] = aliasInfo;
 
-        return aliasInfo;
+        return Future.value(aliasInfo);
       } catch (err) {
         throw Exception(err.toString() + ' resolveAlias hatasi - 1');
       }
@@ -119,6 +128,29 @@ class AliasController {
       // return Future.error('$aliasId verilen aliases listesinde bulunamadi');
       throw Exception('$aliasId verilen aliases listesinde bulunamadi');
     }
+  }
+
+  Future<AliasInfo> getAliasInfo(String aliasId) async {
+    if (!aliasInfoLockMap.containsKey(aliasId)) {
+      aliasInfoLockMap[aliasId] = Lock();
+    }
+    return aliasInfoLockMap[aliasId].synchronized(()async {
+      if (entityAliasesFutureMap.containsKey(aliasId)) {
+        return entityAliasesFutureMap[aliasId];
+      } else {
+        if (this.entityAliases.containsKey(aliasId)) {
+          var entityAlias = this.entityAliases[aliasId];
+          try {
+            entityAliasesFutureMap[aliasId] =await EntityService.resolveAlias(entityAlias, null);
+            return Future.value(entityAliasesFutureMap[aliasId]);
+          } catch (err) {
+            return Future.error(Exception(err.toString() + ' resolveAlias hatasi - 1'));
+          }
+        } else {
+          return Future.error(Exception('$aliasId verilen aliases listesinde bulunamadi'));
+        }
+      }
+    });
   }
 }
 
@@ -170,7 +202,8 @@ class EntityService {
     result.entities = List();
     result.stateEntity = false;
     result.entityParamName = "";
-
+    var rootEntityType;
+    var rootEntityId;
     EntityId stateEntityId = getStateEntityInfo(filter, stateParams);
     if (filter.stateEntityParamName != null) {
       result.entityParamName = filter.stateEntityParamName;
@@ -220,8 +253,6 @@ class EntityService {
           break;
         case 'relationsQuery':
           result.stateEntity = filter.rootStateEntity;
-          var rootEntityType;
-          var rootEntityId;
           if (result.stateEntity != null && stateEntityId != null) {
             rootEntityType = stateEntityId.entityType;
             rootEntityId = stateEntityId.id;
@@ -239,10 +270,46 @@ class EntityService {
                 filters: filter.filters);
             searchQuery.maxLevel = filter.maxLevel != null && filter.maxLevel > 0 ? filter.maxLevel : -1;
           }
+
           break;
         case 'assetSearchQuery':
         case 'deviceSearchQuery':
         case 'entityViewSearchQuery':
+          result.stateEntity = filter.rootStateEntity;
+          if (result.stateEntity != null && stateEntityId != null) {
+            rootEntityType = stateEntityId.entityType;
+            rootEntityId = stateEntityId.id;
+          } else if (!result.stateEntity) {
+            rootEntityType = filter.rootEntity.entityType;
+            rootEntityId = filter.rootEntity.id;
+          }
+          if (rootEntityType != null && rootEntityId != null) {
+            var searchQueryRootEntityId = resolveAliasEntityId(rootEntityType, rootEntityId);
+            FindByQueryBody body = FindByQueryBody(
+                parameters: Parameters(
+                    rootId: searchQueryRootEntityId.id,
+                    rootType: searchQueryRootEntityId.entityType,
+                    direction: filter.direction,
+                    fetchLastLevelOnly: filter.fetchLastLevelOnly,
+                    maxLevel: filter.maxLevel != null && filter.maxLevel > 0 ? filter.maxLevel : -1),
+                assetTypes: filter.assetTypes,
+                relationType: filter.relationType);
+            if (filter.type == describeEnum(AliasFilterType.assetSearchQuery)) {
+              body.assetTypes = filter.assetTypes;
+              AssetsApi assetsApi = AssetsApi();
+              var bodyString = json.encode(body);
+              var allRelations = await assetsApi.findByQuery(bodyString);
+              List<dynamic> list = jsonDecode(allRelations.body);
+              if (maxItems != null && maxItems > 0 && allRelations != null && allRelations != "[]") {
+                num lng = allRelations.length;
+                var limit = math.min(lng, maxItems);
+                // allRelations.length = limit;
+              }
+              result.entities = await entityRelationInfosToEntitiesInfo(list, filter.direction);
+              print('${result.entities}');
+            }
+          }
+          break;
         case 'entityViewType':
         case 'assetType':
           break;
@@ -252,11 +319,28 @@ class EntityService {
       print(err);
       throw Exception(err.toString());
     }
-
-    throw Exception('${filter.type}  desteklenmiyor!');
   }
 
-  static dynamic getEntities(entityType, entityIds, config) {
+  static Future<List<EntityInfo>> entityRelationInfosToEntitiesInfo(List<dynamic> entityRelations, String direction) async {
+    List<EntityInfo> entitiesInfoTaks = List();
+    if (entityRelations != null) {
+      for (int i = 0; i < entityRelations.length; i++) {
+        EntityInfo entityInfo = await entityRelationInfoToEntityInfo(entityRelations[i], direction);
+        entitiesInfoTaks.add(entityInfo);
+      }
+    }
+    print('${entitiesInfoTaks.toString()}');
+    return entitiesInfoTaks;
+  }
+
+  static Future<EntityInfo> entityRelationInfoToEntityInfo(var entityRelationInfo, String direction) async {
+    // var entityId = (direction == describeEnum(EntitySearchDirection.FROM)) ? entityRelationInfo.to : entityRelationInfo.from;
+
+    var entity = await getEntity(entityRelationInfo["id"]["entityType"], entityRelationInfo["id"]["id"], true);
+    return entityToEntityInfo(entity);
+  }
+
+  static dynamic getEntities(String entityType, entityIds, config) {
     switch (entityType) {
       case "DEVICE":
         DeviceApi deviceApi = DeviceApi();
@@ -411,9 +495,13 @@ class EntityService {
         }
         break;
       case "ASSET":
-        //TODO
-        // AssetApi assetApi = AssetApi();
-        // promise = assetApi.getAsset(entityId, true, config);
+        try {
+          AssetsApi assetApi = AssetsApi();
+          Assets assets = await assetApi.getAsset(entityId);
+          return assets;
+        } catch (err) {
+          throw Exception(err.toString());
+        }
         break;
       //TODO
       // case types.entityType.entityView:
@@ -445,3 +533,19 @@ class EntityService {
     return promise;
   }
 }
+
+enum AliasFilterType {
+  singleEntity,
+  entityList,
+  entityName,
+  stateEntity,
+  assetType,
+  deviceType,
+  entityViewType,
+  apiUsageState,
+  relationsQuery,
+  assetSearchQuery,
+  deviceSearchQuery,
+  entityViewSearchQuery
+}
+enum EntitySearchDirection { FROM, TO }

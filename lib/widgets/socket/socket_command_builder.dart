@@ -1,6 +1,7 @@
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
+import 'package:ndu_dashboard_widgets/dashboard_state_notifier.dart';
 import 'package:ndu_dashboard_widgets/util/widget_helper_list.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/socket_models.dart';
@@ -34,6 +35,9 @@ class SocketCommandBuilder {
         for (var i = 0; i < dashConfig.widgets.length; i++) {
           WidgetConfig widgetConfig = dashConfig.widgets[i];
           if (widgetConfig == null || !WidgetHelperList.list.contains(widgetConfig.typeAlias)) {
+            continue;
+          }
+          if (!dashConfig.defaultState.map.containsKey(widgetConfig.id)) {
             continue;
           }
 
@@ -100,13 +104,15 @@ class SocketCommandBuilder {
       //TODO - TsSubCmds
       TsSubCmds tsSubCommands = TsSubCmds(entityId: dataSource.entityId, entityType: dataSource.entityType, datasource: dataSource);
       String label = "";
-      dataSource.dataKeys.forEach((element) {
+      dataSource.dataKeys?.forEach((element) {
         label += '${element.name},';
         if (element.type == "attribute") {
           tsSubCommands.isAttribute = true;
         }
       });
-      label = label.substring(0, label.length - 1);
+      if (label != null && label != "") {
+        label = label.substring(0, label.length - 1);
+      }
       tsSubCommands.keys = label;
       if (widgetConfig.type != "latest") {
         if (!widgetConfig.config.useDashboardTimewindow)
@@ -122,6 +128,7 @@ class SocketCommandBuilder {
 
   Future<List<AttrSubCmds>> calculateCommandForAliasId(String aliasId, String key) async {
     AliasInfo aliasInfo = await aliasController.getAliasInfo(aliasId);
+
     List<AttrSubCmds> list = List();
     if (aliasInfo == null || aliasInfo.resolvedEntities.length == 0) return list;
 

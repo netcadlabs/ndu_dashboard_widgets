@@ -7,7 +7,6 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
 
   //SubscriptionId - Latest Data
   Map<String, Map<String, SocketData>> _latestData = {};
-
   //WidgetId - SubscriptionId
   Map<String, String> _widgetSubscriptionIds = {};
 
@@ -39,7 +38,9 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
       }
     }
   }
-
+  void addEntityToProvider(){
+    notifyListeners();
+  }
   /// Makes `Counter` readable inside the devtools by listing all of its properties
   // @override
   // void debugFillProperties(DiagnosticPropertiesBuilder properties) {

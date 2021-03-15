@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:ndu_api_client/assets_api.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/data_models.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_api_client/models/entity_types.dart';
+import 'package:ndu_api_client/models/find_by_query_body.dart';
 import 'package:ndu_api_client/rpc_api.dart';
 import 'package:ndu_api_client/telemetry_api.dart';
 import 'package:ndu_api_client/util/constants.dart';
@@ -20,6 +23,8 @@ import 'package:ndu_dashboard_widgets/widgets/socket/socket_models.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+typedef RowClickCallBack = Function(RowClick);
+
 // ignore: must_be_immutable
 abstract class BaseDashboardWidget extends StatefulWidget {
   WidgetConfig _widgetConfig;
@@ -29,6 +34,7 @@ abstract class BaseDashboardWidget extends StatefulWidget {
   WebSocketChannel webSocketChannel;
   Map<SocketData, DataKeys> map = Map();
   DateTime lastDataTime;
+
   WidgetConfig get widgetConfig => _widgetConfig;
 
   Color backgroundColor = Colors.white;
@@ -57,15 +63,26 @@ abstract class BaseDashboardWidget extends StatefulWidget {
   }
 
   VoidCallback callBack;
+  RowClickCallBack entitiesTableCallBack;
 
   void runCallBack() {
     if (callBack != null) callBack();
   }
-  bool hasAnimation (){
+
+  void runEntitiesTableCallBack(RowClick rowClick) {
+    if (entitiesTableCallBack != null) entitiesTableCallBack(rowClick);
+  }
+
+  bool hasAnimation() {
     return false;
   }
+
   void registerCallBack({Function func}) {
     callBack = func;
+  }
+
+  void registerEntitiesTableCallBack({Function func}) {
+    entitiesTableCallBack = func;
   }
 }
 
@@ -91,9 +108,14 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
 
   void onData(SocketData graphData);
 
-  void notifyMe(){
+  void notifyMe() {
     widget.runCallBack();
   }
+
+  void stateCallBack(RowClick rowClick) {
+    widget.runEntitiesTableCallBack(rowClick);
+  }
+
   @override
   void dispose() {
     widget.webSocketChannel.sink.close();
@@ -103,7 +125,6 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     flutterWebViewPlugin.close();
     flutterWebViewPlugin.launch(Constants.baseUrl + "/api/dummy", hidden: true);
@@ -122,10 +143,9 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
   }
 
   Stream<SocketData> getDataKeyElement(SocketData element) async* {
-    if (widget.socketCommandBuilder != null && widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId]!=null)
+    if (widget.socketCommandBuilder != null && widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId] != null)
       for (int i = 0; i < widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].dataKeys.length; i++) {
-
-        if(widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].entityType != null){
+        if (widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].entityType != null) {
           element.entityType = widget.socketCommandBuilder.subscriptionDataSources[element.subscriptionId].entityType;
         }
 
@@ -138,7 +158,7 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
           });
         }
       }
-    else{
+    else {
       onData(element);
     }
   }
@@ -146,9 +166,9 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
   SocketData convertData(SocketData data) {
     List<DataKeys> keys = widget.socketCommandBuilder.subscriptionDataSources[data.subscriptionId].dataKeys;
     for (int i = 0; i < keys.length; i++) {
-      if(data.datas.length>0){
-        String tempValue = data.datas[keys[i].name][0][1];
-        if (keys[i].decimals != null && keys[i].units != "") {
+      if (data.datas.length > 0) {
+        String tempValue = data.datas[keys[i].name] != null ? data.datas[keys[i].name][0][1] : "0";
+        if (keys[i].decimals != null && keys[i].units != "" && tempValue is double) {
           tempValue = widget.convertNumberValue(double.parse(tempValue), keys[i].decimals);
         } else if (widget._widgetConfig.config.decimals != -1 && widget._widgetConfig.config.decimals != null) {
           double temp = double.tryParse(tempValue);
@@ -159,15 +179,17 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
         } else if (widget._widgetConfig.config.units != null) {
           tempValue = '$tempValue ${widget._widgetConfig.config.units}';
         }
-        data.datas[keys[i].name][0][1] = tempValue;
+        if (data.datas[keys[i].name] != null) {
+          data.datas[keys[i].name][0][1] = tempValue;
+        }
       }
-      }
+    }
     return data;
   }
 
   Future<void> postFunc(Stream<SocketData> stream) async {
     await for (var value in stream) {
-      if(value.datas!=null && value.datas.length>0){
+      if (value.datas != null && value.datas.length > 0) {
         String response = await evaluateDeviceValue(value.datas[value.dataKeys.name][0][1], value.dataKeys.postFuncBody);
         value.datas[value.dataKeys.name][0][1] = response;
         value = convertData(value);
@@ -177,9 +199,11 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
       }
     }
   }
-  void  setTimeAgo(DateTime lastData){
-    widget.lastDataTime=lastData;
+
+  void setTimeAgo(DateTime lastData) {
+    widget.lastDataTime = lastData;
   }
+
   void startTargetDeviceAliasIdsSubscription(String retrieveValueMethod, String valueKey, {int requestTimeout: 500}) {
     String aliasId = widget.widgetConfig.config.targetDeviceAliasIds[0];
     widget.aliasController.getAliasInfo(aliasId).then((AliasInfo aliasInfo) {
@@ -290,7 +314,7 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
     if (evalResult == null || evalResult == "" || evalResult == "null") {
       return false;
     }
-    if (evalResult.toLowerCase() == "true" || evalResult=='1') {
+    if (evalResult.toLowerCase() == "true" || evalResult == '1') {
       return true;
     }
     return false;
@@ -309,4 +333,37 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
     String functionContent = "function f(value){$parseValueFunction} f($value)";
     return flutterWebViewPlugin.evalJavascript(functionContent);
   }
+
+  Future<void> getAssetData(EntityAliases aliases)async {
+    AssetsApi api = AssetsApi();
+    FindByQueryBody body = FindByQueryBody(
+        parameters: Parameters(
+            rootId: aliases.filter.rootEntity.id,
+            rootType: aliases.filter.rootEntity.entityType,
+            direction: aliases.filter.direction,
+            fetchLastLevelOnly: aliases.filter.fetchLastLevelOnly,
+            maxLevel: aliases.filter.maxLevel),
+        assetTypes: aliases.filter.assetTypes,
+        relationType: aliases.filter.relationType);
+    var bodyString = json.encode(body);
+    api.findByQuery(bodyString).then((value) {
+      print("${value.body}");
+      return value.body;
+    });
+  }
+}
+
+enum AliasFilterType {
+  singleEntity,
+  entityList,
+  entityName,
+  stateEntity,
+  assetType,
+  deviceType,
+  entityViewType,
+  apiUsageState,
+  relationsQuery,
+  assetSearchQuery,
+  deviceSearchQuery,
+  entityViewSearchQuery
 }
