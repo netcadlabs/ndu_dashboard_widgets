@@ -236,7 +236,7 @@ class EntityService {
         case 'stateEntity':
           result.stateEntity = true;
           if (stateEntityId != null) {
-            var entity = await getEntity(stateEntityId.entityType, stateEntityId.id, null);
+            var entity = await getEntity(stateEntityId.entityType, stateEntityId.id, {'ignoreLoading':true});
             result.entities = entitiesToEntitiesInfo([entity]);
           } else {
             throw Exception("Device listesi boş geldi.");
