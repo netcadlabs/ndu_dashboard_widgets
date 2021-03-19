@@ -1,14 +1,15 @@
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
-import 'package:ndu_dashboard_widgets/dashboard_state_notifier.dart';
 import 'package:ndu_dashboard_widgets/util/widget_helper_list.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/socket_models.dart';
+import 'package:ndu_dashboard_widgets/widgets/socket/state_controller.dart';
 
 class SocketCommandBuilder {
   //private fields
   AliasController _aliasController;
+  StateController _stateController;
   DashboardDetail _dashboardDetail;
 
   //getters
@@ -16,14 +17,19 @@ class SocketCommandBuilder {
 
   AliasController get aliasController => _aliasController;
 
-  SocketCommandBuilder(this._aliasController, this._dashboardDetail);
+  StateController get stateController => _stateController;
+
+  SocketCommandBuilder(this._aliasController, this._dashboardDetail,this._stateController);
 
   Map<String, Datasources> _subscriptionDataSources = Map();
 
   Map<String, Datasources> get subscriptionDataSources => _subscriptionDataSources;
 
   int commandId = 1;
-
+  void setStateController(StateController controller){
+    this._stateController=controller;
+    this._aliasController.stateController=controller;
+  }
   Future<SubscriptionCommandResult> build() async {
     SubscriptionCommand subscriptionCommand = SubscriptionCommand();
     Map<String, String> widgetCmdIds = Map();
@@ -47,6 +53,7 @@ class SocketCommandBuilder {
           List<TsSubCmds> subCmdsList = await _calculateTimeSeriesSubscriptionCommands2(widgetConfig, dataSources, dashConfig.timewindow);
           if (subCmdsList != null && subCmdsList.length > 0) {
             subCmdsList.forEach((subCmd) {
+              if(subCmd.keys=="" || subCmd.keys==null) return;
               widgetCmdIds[commandId.toString()] = widgetConfig.id;
               subCmd.cmdId = commandId;
               _subscriptionDataSources["$commandId"] = subCmd.datasource;
@@ -105,11 +112,14 @@ class SocketCommandBuilder {
       TsSubCmds tsSubCommands = TsSubCmds(entityId: dataSource.entityId, entityType: dataSource.entityType, datasource: dataSource);
       String label = "";
       dataSource.dataKeys?.forEach((element) {
-        label += '${element.name},';
-        if (element.type == "attribute") {
-          tsSubCommands.isAttribute = true;
+        if(element.type!="entityField"){
+          label += '${element.name},';
+          if (element.type == "attribute") {
+            tsSubCommands.isAttribute = true;
+          }
         }
       });
+
       if (label != null && label != "") {
         label = label.substring(0, label.length - 1);
       }
@@ -122,34 +132,6 @@ class SocketCommandBuilder {
       }
       list.add(tsSubCommands);
     });
-
-    return list;
-  }
-
-  Future<List<AttrSubCmds>> calculateCommandForAliasId(String aliasId, String key) async {
-    AliasInfo aliasInfo = await aliasController.getAliasInfo(aliasId);
-
-    List<AttrSubCmds> list = List();
-    if (aliasInfo == null || aliasInfo.resolvedEntities.length == 0) return list;
-
-    if (aliasInfo.resolveMultiple) {
-      aliasInfo.resolvedEntities.forEach((element) {
-        AttrSubCmds attrSubCmds = AttrSubCmds();
-        attrSubCmds.cmdId = commandId++;
-        attrSubCmds.entityId = element.id;
-        attrSubCmds.entityType = element.entityType;
-        attrSubCmds.keys = key;
-        list.add(attrSubCmds);
-      });
-    } else {
-      var element = aliasInfo.resolvedEntities[0];
-      AttrSubCmds attrSubCmds = AttrSubCmds();
-      attrSubCmds.cmdId = commandId++;
-      attrSubCmds.entityId = element.id;
-      attrSubCmds.entityType = element.entityType;
-      attrSubCmds.keys = key;
-      list.add(attrSubCmds);
-    }
 
     return list;
   }
