@@ -8,8 +8,9 @@ import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 // ignore: must_be_immutable
 class SimpleCardWidget extends BaseDashboardWidget {
   SimpleCardWidget(WidgetConfig _widgetConfig, {Key key}) : super(_widgetConfig, key: key);
+
   @override
-  bool hasAnimation(){
+  bool hasAnimation() {
     return true;
   }
 
@@ -30,6 +31,8 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> with T
   double labelFontSize = 16;
   double valueFontSize = 25;
   Color textColor;
+  String dataKeysType;
+
   @override
   void initState() {
     super.initState();
@@ -37,13 +40,21 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> with T
       if (widget.widgetConfig.config.datasources[0].dataKeys != null && widget.widgetConfig.config.datasources[0].dataKeys.length > 0) {
         dataSourceLabel = widget.widgetConfig.config.datasources[0].dataKeys[0].label;
         dataSourceKey = widget.widgetConfig.config.datasources[0].dataKeys[0].name;
+        dataKeysType = widget.widgetConfig.config.datasources[0].dataKeys[0].type;
+        if (dataKeysType == "entityField") {
+          widget.aliasController.getAliasInfo(widget.widgetConfig.config.datasources[0].entityAliasId).then((aliasInfo) {
+            setState(() {
+              data = aliasInfo.resolvedEntities[0].name;
+              super.notifyMe();
+            });
+          });
+        }
       }
     }
   }
 
   @override
   void dispose() {
-
     super.dispose();
   }
 
@@ -68,30 +79,30 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> with T
     if (labelPosition == "none") displayLabel = false;
 
     return Container(
-            child: Container(
-              padding: EdgeInsets.all(10),
-              child: Column(
-                children: [
-                  labelPosition == "top" ? getLabel() : Container(),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(
-                    "$formatted",
-                    style: TextStyle(color: textColor, fontSize: valueFontSize),
-                  ),
-                  labelPosition == "bottom"
-                      ? Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            getLabel(),
-                          ],
-                        )
-                      : Container(),
-                ],
-              ),
+      child: Container(
+        padding: EdgeInsets.all(10),
+        child: Column(
+          children: [
+            labelPosition == "top" ? getLabel() : Container(),
+            SizedBox(
+              height: 10,
             ),
-          );
+            Text(
+              "$formatted",
+              style: TextStyle(color: textColor, fontSize: valueFontSize),
+            ),
+            labelPosition == "bottom"
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      getLabel(),
+                    ],
+                  )
+                : Container(),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget getLabel() {
@@ -109,14 +120,15 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> with T
     if (graphData == null || graphData.datas == null || graphData.datas.length == 0) return;
     if (graphData.datas.containsKey(dataSourceKey)) {
       List telem = graphData.datas[dataSourceKey][0];
-      if (telem != null && telem.length > 1 && telem[1] != null){
-        var date = new DateTime.fromMillisecondsSinceEpoch(telem[0],isUtc: false);
+      if (telem != null && telem.length > 1 && telem[1] != null) {
+        var date = new DateTime.fromMillisecondsSinceEpoch(telem[0], isUtc: false);
         data = telem[1].toString();
         setTimeAgo(date);
         super.notifyMe();
       }
     }
   }
+
   @override
   void setTimeAgo(DateTime lastData) {
     super.setTimeAgo(lastData);

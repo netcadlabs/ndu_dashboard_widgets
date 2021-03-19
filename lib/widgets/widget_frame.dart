@@ -6,13 +6,14 @@ import 'package:ndu_dashboard_widgets/util/color_utils.dart';
 import 'package:ndu_dashboard_widgets/util/icon_map.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 import 'package:ndu_dashboard_widgets/widgets/timeago/time_ago.dart';
+
 class WidgetFrame extends StatefulWidget {
   final WidgetConfig widgetConfig;
   final BaseDashboardWidget child;
   final AliasController aliasController;
   final RowClickCallBack rowClickCallBack;
 
-  WidgetFrame({Key key, this.child, this.widgetConfig, this.aliasController,this.rowClickCallBack}) : super(key: key);
+  WidgetFrame({Key key, this.child, this.widgetConfig, this.aliasController, this.rowClickCallBack}) : super(key: key);
 
   @override
   _WidgetFrameState createState() => _WidgetFrameState();
@@ -23,7 +24,7 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
   AnimationController _controller;
   Color endColor;
   Color backgroundColor;
-  DateTime lastTime =DateTime.now();
+  DateTime lastTime = DateTime.now();
   Color color;
 
   @override
@@ -35,12 +36,12 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
       vsync: this,
     )..repeat();
     widget.child.registerCallBack(func: () {
-      lastTime=widget.child.lastDataTime;
+      lastTime = widget.child.lastDataTime;
       _controller.value = 1;
       _controller.isCompleted ? _controller.reverse() : _controller.forward();
     });
-    widget.child.registerEntitiesTableCallBack(func: (RowClick rowClick){
-      widget.rowClickCallBack(rowClick);
+    widget.child.registerEntitiesTableCallBack(func: (RowClick rowClick, var config) {
+      widget.rowClickCallBack(rowClick, config);
     });
   }
 
@@ -59,7 +60,7 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
         TweenSequenceItem(
           weight: 1.0,
           tween: ColorTween(
-            begin: backgroundColor==Colors.transparent?Colors.white:backgroundColor,
+            begin: backgroundColor == Colors.transparent ? Colors.white : backgroundColor,
             end: backgroundColor.withOpacity(0.5),
           ),
         ),
@@ -80,7 +81,6 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
     final fifteenAgo = DateTime.now().subtract(Duration(seconds: 10));
 
     return Container(
-
       child: Container(
         decoration: BoxDecoration(
           color: background.evaluate(AlwaysStoppedAnimation(_controller.value)),
@@ -108,7 +108,7 @@ class _WidgetFrameState extends State<WidgetFrame> with TickerProviderStateMixin
             Container(
               child: widget.child,
             ),
-            TimeAgo(lastTime),
+            lastTime != null ? TimeAgo(lastTime) : Container(height: 10,),
           ],
         ),
       ),

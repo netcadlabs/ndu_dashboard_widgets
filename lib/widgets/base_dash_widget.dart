@@ -23,7 +23,7 @@ import 'package:ndu_dashboard_widgets/widgets/socket/socket_models.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-typedef RowClickCallBack = Function(RowClick);
+typedef RowClickCallBack = Function(RowClick,EntityInfo);
 
 // ignore: must_be_immutable
 abstract class BaseDashboardWidget extends StatefulWidget {
@@ -69,8 +69,8 @@ abstract class BaseDashboardWidget extends StatefulWidget {
     if (callBack != null) callBack();
   }
 
-  void runEntitiesTableCallBack(RowClick rowClick) {
-    if (entitiesTableCallBack != null) entitiesTableCallBack(rowClick);
+  void runEntitiesTableCallBack(RowClick rowClick,EntityInfo config) {
+    if (entitiesTableCallBack != null) entitiesTableCallBack(rowClick,config);
   }
 
   bool hasAnimation() {
@@ -112,8 +112,8 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
     widget.runCallBack();
   }
 
-  void stateCallBack(RowClick rowClick) {
-    widget.runEntitiesTableCallBack(rowClick);
+  void stateCallBack(RowClick rowClick,var config) {
+    widget.runEntitiesTableCallBack(rowClick,config);
   }
 
   @override

@@ -63,7 +63,7 @@ class _GaugeJustgageWidgetState extends BaseDashboardState<GaugeJustgageWidget> 
     if (labelPosition == "none") displayLabel = false;
 
     return Container(
-      height: 300,
+      height: 200,
       child: SfRadialGauge(
           enableLoadingAnimation: true,
           title: GaugeTitle(text: '', textStyle: const TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold)),

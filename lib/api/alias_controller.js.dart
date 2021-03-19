@@ -11,6 +11,7 @@ import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_api_client/models/find_by_query_body.dart';
 import 'package:ndu_api_client/models/page_base_model.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
+import 'package:ndu_dashboard_widgets/widgets/socket/state_controller.dart';
 import 'package:synchronized/synchronized.dart';
 
 class AliasController {
@@ -18,8 +19,8 @@ class AliasController {
   Map<String, EntityAliases> entityAliases;
   Map<String, AliasInfo> entityAliasesFutureMap = Map();
   Map<String, Lock> aliasInfoLockMap = Map();
-
-  AliasController({this.entityAliases});
+  StateController stateController;
+  AliasController( {this.stateController,this.entityAliases});
 
   Future<List<Datasources>> resolveDatasource(Datasources datasource, bool isSingle) async {
     if (datasource.type == "entity") {
@@ -104,32 +105,6 @@ class AliasController {
       return [datasource];
     }
   }
-
-  Future<AliasInfo> getAliasInfo2(String aliasId) async {
-    // AliasInfo aliasInfo = this.resolvedAliases[aliasId];
-
-    if (entityAliasesFutureMap.containsKey(aliasId)) {
-      return entityAliasesFutureMap[aliasId];
-    }
-
-    if (this.entityAliases.containsKey(aliasId)) {
-      var entityAlias = this.entityAliases[aliasId];
-
-      try {
-        Future future = EntityService.resolveAlias(entityAlias, null);
-        AliasInfo aliasInfo = await future;
-        resolvedAliases[aliasId] = aliasInfo;
-
-        return Future.value(aliasInfo);
-      } catch (err) {
-        throw Exception(err.toString() + ' resolveAlias hatasi - 1');
-      }
-    } else {
-      // return Future.error('$aliasId verilen aliases listesinde bulunamadi');
-      throw Exception('$aliasId verilen aliases listesinde bulunamadi');
-    }
-  }
-
   Future<AliasInfo> getAliasInfo(String aliasId) async {
     if (!aliasInfoLockMap.containsKey(aliasId)) {
       aliasInfoLockMap[aliasId] = Lock();
@@ -141,7 +116,7 @@ class AliasController {
         if (this.entityAliases.containsKey(aliasId)) {
           var entityAlias = this.entityAliases[aliasId];
           try {
-            entityAliasesFutureMap[aliasId] =await EntityService.resolveAlias(entityAlias, null);
+            entityAliasesFutureMap[aliasId] =await EntityService.resolveAlias(entityAlias, stateController?.getStateParams());
             return Future.value(entityAliasesFutureMap[aliasId]);
           } catch (err) {
             return Future.error(Exception(err.toString() + ' resolveAlias hatasi - 1'));
@@ -382,7 +357,7 @@ class EntityService {
     }
 
     if (entityId != null) {
-      entityId = resolveAliasEntityId(filter.entityType, entityId.id);
+      entityId = resolveAliasEntityId(entityId.entityType, entityId.id);
     }
 
     return entityId;

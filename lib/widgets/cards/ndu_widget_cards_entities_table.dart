@@ -8,6 +8,7 @@ import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/util/icon_map.dart';
 import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 import 'package:ndu_dashboard_widgets/widgets/no_data_widget.dart';
+import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
 
 // ignore: must_be_immutable
 class EntitiesTableWidget extends BaseDashboardWidget {
@@ -19,6 +20,7 @@ class EntitiesTableWidget extends BaseDashboardWidget {
 
 class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> {
   static const int sortNameInt = 0;
+  AliasInfo _aliasInfo;
   bool isAscending = true;
   int sortType = sortNameInt;
   Map tableTitleMap;
@@ -69,6 +71,7 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
     }
     widget.aliasController.getAliasInfo(widget.widgetConfig.config.datasources[0].entityAliasId).then((aliasInfo) {
       aliasInfoProgress = false;
+      _aliasInfo = aliasInfo;
       aliasInfo.resolvedEntities.forEach((element) {
         rowMapKey.add(element.name);
         rowMap.putIfAbsent(element.name, () => {});
@@ -83,6 +86,7 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
         }
         //rowMap[element.name][element] = element.name.toString().replaceAll(" ", "") == "null" ? "" : element.name;
       });
+      setState(() {});
     });
   }
 
@@ -183,12 +187,12 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
     return InkWell(
       onDoubleTap: () {
         if (widget.widgetConfig.config.rowDoubleClick) {
-          stateCallBack(widget.widgetConfig.config.actions.rowDoubleClick[0]);
+          stateCallBack(widget.widgetConfig.config.actions.rowDoubleClick[0], widget.widgetConfig);
         }
       },
       onTap: () {
         if (widget.widgetConfig.config.rowClick) {
-          stateCallBack(widget.widgetConfig.config.actions.rowClick[0]);
+          stateCallBack(widget.widgetConfig.config.actions.rowClick[0], widget.widgetConfig);
         }
       },
       child: Container(
@@ -205,12 +209,12 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
     return InkWell(
       onDoubleTap: () {
         if (widget.widgetConfig.config.rowDoubleClick) {
-          stateCallBack(widget.widgetConfig.config.actions.rowDoubleClick[0]);
+          stateCallBack(widget.widgetConfig.config.actions.rowDoubleClick[0], widget.widgetConfig);
         }
       },
       onTap: () {
         if (widget.widgetConfig.config.rowClick) {
-          stateCallBack(widget.widgetConfig.config.actions.rowClick[0]);
+          stateCallBack(widget.widgetConfig.config.actions.rowClick[0], widget.widgetConfig);
         }
       },
       child: Row(
@@ -253,14 +257,14 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
           child: widget.widgetConfig.config.actions.actionCellButton.length > 1
               ? PopupMenuButton(
                   onSelected: (RowClick rowClick) {
-                    stateCallBack(rowClick);
+                    stateCallBack(rowClick, widget.widgetConfig);
                   },
                   icon: Icon(Icons.more_vert),
                   itemBuilder: (context) => <PopupMenuEntry<RowClick>>[...popupList()],
                 )
               : InkWell(
                   onTap: () {
-                    stateCallBack(widget.widgetConfig.config.actions.actionCellButton[0]);
+                    stateCallBack(widget.widgetConfig.config.actions.actionCellButton[0], _aliasInfo.resolvedEntities[index]);
                   },
                   child: Icon(
                     IconMap.iconMap[widget.widgetConfig.config.actions.actionCellButton[0].icon],
@@ -309,12 +313,6 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
     }
     String entityName = this.widget.socketCommandBuilder.subscriptionDataSources[graphData.subscriptionId].entityName;
     rowMap.putIfAbsent(entityName, () => {});
-    /*   if (settings.displayEntityLabel) {
-      rowMap[entityName]["displayEntityLabel"] = entityName;
-    }
-    if (settings.displayEntityType) {
-      rowMap[entityName]["entityType"] = graphData.entityType;
-    }*/
     if (this.widget.socketCommandBuilder.subscriptionDataSources.containsKey(graphData.subscriptionId)) {
       if (!rowMapKey.contains(entityName)) {
         rowMapKey.add(entityName);
