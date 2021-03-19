@@ -44,7 +44,24 @@ class _SimpleCardWidgetState extends BaseDashboardState<SimpleCardWidget> with T
         if (dataKeysType == "entityField") {
           widget.aliasController.getAliasInfo(widget.widgetConfig.config.datasources[0].entityAliasId).then((aliasInfo) {
             setState(() {
-              data = aliasInfo.resolvedEntities[0].name;
+              switch (dataSourceKey) {
+                case "latitude":
+                  data = aliasInfo.resolvedEntities[0].origEntity.latitude;
+                  break;
+                case "longitude":
+                  data = aliasInfo.resolvedEntities[0].origEntity.longitude;
+                  break;
+                case "name":
+                  data = aliasInfo.resolvedEntities[0].origEntity.name;
+                  break;
+                case "type":
+                  data = aliasInfo.resolvedEntities[0].origEntity.type;
+                  break;
+                case "label":
+                  data = aliasInfo.resolvedEntities[0].origEntity.label;
+                  break;
+              }
+              data == null ? data = "0" : data = data;
               super.notifyMe();
             });
           });
