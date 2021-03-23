@@ -35,8 +35,7 @@ class SocketCommandBuilder {
     Map<String, String> widgetCmdIds = Map();
 
     try {
-      // aliasController = AliasController(entityAliases: dashboardDetail.dashboardConfiguration.entityAliases);
-      DashboardDetailConfiguration dashConfig = _dashboardDetail.dashboardConfiguration;
+       DashboardDetailConfiguration dashConfig = _dashboardDetail.dashboardConfiguration;
       if (dashConfig.widgets != null)
         for (var i = 0; i < dashConfig.widgets.length; i++) {
           WidgetConfig widgetConfig = dashConfig.widgets[i];

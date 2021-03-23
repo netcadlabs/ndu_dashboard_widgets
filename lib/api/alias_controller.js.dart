@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
+import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
 import 'package:ndu_api_client/assets_api.dart';
 import 'package:ndu_api_client/device_api.dart';
+import 'package:ndu_api_client/entity_view_api.dart';
 import 'package:ndu_api_client/models/api_models.dart';
 import 'package:ndu_api_client/models/assets.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_api_client/models/find_by_query_body.dart';
 import 'package:ndu_api_client/models/page_base_model.dart';
+import 'package:ndu_dashboard_widgets/widgets/base_dash_widget.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/alias_models.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/state_controller.dart';
 import 'package:synchronized/synchronized.dart';
@@ -20,7 +23,8 @@ class AliasController {
   Map<String, AliasInfo> entityAliasesFutureMap = Map();
   Map<String, Lock> aliasInfoLockMap = Map();
   StateController stateController;
-  AliasController( {this.stateController,this.entityAliases});
+
+  AliasController({this.stateController, this.entityAliases});
 
   Future<List<Datasources>> resolveDatasource(Datasources datasource, bool isSingle) async {
     if (datasource.type == "entity") {
@@ -105,18 +109,19 @@ class AliasController {
       return [datasource];
     }
   }
+
   Future<AliasInfo> getAliasInfo(String aliasId) async {
     if (!aliasInfoLockMap.containsKey(aliasId)) {
       aliasInfoLockMap[aliasId] = Lock();
     }
-    return aliasInfoLockMap[aliasId].synchronized(()async {
+    return aliasInfoLockMap[aliasId].synchronized(() async {
       if (entityAliasesFutureMap.containsKey(aliasId)) {
         return entityAliasesFutureMap[aliasId];
       } else {
         if (this.entityAliases.containsKey(aliasId)) {
           var entityAlias = this.entityAliases[aliasId];
           try {
-            entityAliasesFutureMap[aliasId] =await EntityService.resolveAlias(entityAlias, stateController?.getStateParams());
+            entityAliasesFutureMap[aliasId] = await EntityService.resolveAlias(entityAlias, stateController?.getStateParams());
             return Future.value(entityAliasesFutureMap[aliasId]);
           } catch (err) {
             return Future.error(Exception(err.toString() + ' resolveAlias hatasi - 1'));
@@ -152,24 +157,6 @@ class EntityService {
     } catch (err) {
       throw Exception('${err.toString()} resolveAlias hata');
     }
-
-    // resolveAliasFilter(filter, stateParams, -1, false).then((result) {
-    //   AliasInfo aliasInfo = AliasInfo(
-    //       alias: entityAlias.alias,
-    //       stateEntity: result.stateEntity,
-    //       entityParamName: result.entityParamName,
-    //       resolveMultiple: filter.resolveMultiple,
-    //       resolvedEntities: result.entities,
-    //       currentEntity: null);
-    //
-    //   if (aliasInfo.resolvedEntities.length > 0) {
-    //     aliasInfo.currentEntity = aliasInfo.resolvedEntities[0];
-    //   }
-    //
-    //   Future.value(aliasInfo);
-    // }).catchError((onError) {
-    //   return Future.error('resolveAlias hata');
-    // });
   }
 
   static Future<ResolvedAliasFilterResult> resolveAliasFilter(Filter filter, dynamic stateParams, int maxItems, bool failOnEmpty) async {
@@ -211,7 +198,7 @@ class EntityService {
         case 'stateEntity':
           result.stateEntity = true;
           if (stateEntityId != null) {
-            var entity = await getEntity(stateEntityId.entityType, stateEntityId.id, {'ignoreLoading':true});
+            var entity = await getEntity(stateEntityId.entityType, stateEntityId.id, {'ignoreLoading': true});
             result.entities = entitiesToEntitiesInfo([entity]);
           } else {
             throw Exception("Device listesi boş geldi.");
@@ -267,26 +254,39 @@ class EntityService {
                     direction: filter.direction,
                     fetchLastLevelOnly: filter.fetchLastLevelOnly,
                     maxLevel: filter.maxLevel != null && filter.maxLevel > 0 ? filter.maxLevel : -1),
-                assetTypes: filter.assetTypes,
                 relationType: filter.relationType);
+            List<BaseEntity> list;
             if (filter.type == describeEnum(AliasFilterType.assetSearchQuery)) {
               body.assetTypes = filter.assetTypes;
               AssetsApi assetsApi = AssetsApi();
               var bodyString = json.encode(body);
-              var allRelations = await assetsApi.findByQuery(bodyString);
-              List<dynamic> list = jsonDecode(allRelations.body);
-              if (maxItems != null && maxItems > 0 && allRelations != null && allRelations != "[]") {
-                num lng = allRelations.length;
-                var limit = math.min(lng, maxItems);
-                // allRelations.length = limit;
-              }
-              result.entities = await entityRelationInfosToEntitiesInfo(list, filter.direction);
-              print('${result.entities}');
+              list = await assetsApi.findByQuery(bodyString);
+            } else if (filter.type == describeEnum(AliasFilterType.deviceSearchQuery)) {
+              body.deviceTypes = filter.deviceTypes;
+              DeviceApi deviceApi = DeviceApi();
+              var bodyString = json.encode(body);
+              list = await deviceApi.findByQuery(bodyString);
+            } else if (filter.type == describeEnum(AliasFilterType.entityViewSearchQuery)) {
+              body.entityViewTypes = filter.entityViewTypes;
+              EntityViewApi entityService = EntityViewApi();
+              var bodyString = json.encode(body);
+              list = await entityService.findByQuery(bodyString);
             }
+            if (list.length > 0) {
+              result.entities = entitiesToEntitiesInfo(list);
+            }
+            print('${result.entities}');
           }
           break;
         case 'entityViewType':
+          PageBaseModel model =
+              await getEntitiesByNameFilter(rootEntityType, filter.entityViewNameFilter, maxItems, {"ignoreLoading": true}, filter.entityViewType);
+          result.entities = entitiesToEntitiesInfo(model.data);
+          break;
         case 'assetType':
+          PageBaseModel model =
+              await getEntitiesByNameFilter(rootEntityType, filter.assetNameFilter, maxItems, {"ignoreLoading": true}, filter.assetType);
+          result.entities = entitiesToEntitiesInfo(model.data);
           break;
       }
       return result;
@@ -309,40 +309,37 @@ class EntityService {
   }
 
   static Future<EntityInfo> entityRelationInfoToEntityInfo(var entityRelationInfo, String direction) async {
-    // var entityId = (direction == describeEnum(EntitySearchDirection.FROM)) ? entityRelationInfo.to : entityRelationInfo.from;
+// var entityId = (direction == describeEnum(EntitySearchDirection.FROM)) ? entityRelationInfo.to : entityRelationInfo.from;
 
     var entity = await getEntity(entityRelationInfo["id"]["entityType"], entityRelationInfo["id"]["id"], true);
     return entityToEntityInfo(entity);
   }
 
   static dynamic getEntities(String entityType, entityIds, config) {
+    var result;
     switch (entityType) {
       case "DEVICE":
         DeviceApi deviceApi = DeviceApi();
-        deviceApi.getDeviceIds(entityType, entityIds);
+        result = deviceApi.getDeviceIds(entityType, entityIds);
         break;
-      case "Asset":
+      case "ASSET":
+        AssetsApi assetsApi = AssetsApi();
+        result = assetsApi.getAsset(entityIds);
         break;
-      case "types.entityType.entityView":
-        break;
-      case "types.entityType.tenant":
-        break;
-      case "types.entityType.customer":
-        break;
-      case "types.entityType.dashboard":
-        break;
-      case "types.entityType.user":
-        break;
-      case "types.entityType.alarm":
-        break;
+      case "ENTITY_VIEW":
+      case "TENANT":
+      case "CUSTOMER":
+      case "DASHBOARD":
+      case "USER":
+      case "ALARM":
     }
 
-    return null;
+    return result;
   }
 
   static EntityId getStateEntityInfo(Filter filter, dynamic stateParams) {
     EntityId entityId;
-    //TODO - JS KODU
+//TODO - JS KODU
     if (stateParams != null) {
       if (filter.stateEntityParamName != null && filter.stateEntityParamName.length > 0) {
         if (stateParams[filter.stateEntityParamName]) {
@@ -398,17 +395,15 @@ class EntityService {
           throw Exception("getEntitiesByPageLinkPromise liste boş geldi");
         }
         break;
-      case "types.entityType.entityView":
+      case "TENANT":
         break;
-      case "types.entityType.tenant":
+      case "CUSTOMER":
         break;
-      case "types.entityType.customer":
+      case "RULE_CHAIN":
         break;
-      case "types.entityType.rulechain":
+      case "DASHBOARD":
         break;
-      case "types.entityType.dashboard":
-        break;
-      case "types.entityType.user":
+      case "USER":
         break;
       default:
         throw Exception("$entityType caselerde bulunamadı.");
@@ -417,15 +412,17 @@ class EntityService {
     throw Exception("$entityType caselerde bulunamadı.");
   }
 
+  void getSingleTenantByPageLinkPromise() {}
+
   static EntityId resolveAliasEntityId(String entityType, String id) {
-    //TODO - JS KODU
-    // if (entityType == types.aliasEntityType.current_customer) {
-    //   var user = userService.getCurrentUser();
-    //   entityId.entityType = types.entityType.customer;
-    //   if (user.authority === 'CUSTOMER_USER') {
-    //     entityId.id = user.customerId;
-    //   }
-    // }
+//TODO - JS KODU
+// if (entityType == types.aliasEntityType.current_customer) {
+//   var user = userService.getCurrentUser();
+//   entityId.entityType = types.entityType.customer;
+//   if (user.authority === 'CUSTOMER_USER') {
+//     entityId.id = user.customerId;
+//   }
+// }
     return EntityId(id: id, entityType: entityType);
   }
 
@@ -466,7 +463,7 @@ class EntityService {
           return device;
         } catch (err) {
           throw Exception(err.toString());
-          // return Future.error('device bulunamadi');
+// return Future.error('device bulunamadi');
         }
         break;
       case "ASSET":
@@ -478,49 +475,33 @@ class EntityService {
           throw Exception(err.toString());
         }
         break;
-      //TODO
-      // case types.entityType.entityView:
-      //   promise = entityViewService.getEntityView(entityId, true, config);
-      //   break;
-      // case types.entityType.tenant:
-      //   promise = tenantService.getTenant(entityId, config);
-      //   break;
-      // case types.entityType.customer:
-      //   promise = customerService.getCustomer(entityId, config);
-      //   break;
-      // case types.entityType.dashboard:
-      //   promise = dashboardService.getDashboardInfo(entityId, config);
-      //   break;
-      // case types.entityType.user:
-      //   promise = userService.getUser(entityId, true, config);
-      //   break;
-      // case types.entityType.rulechain:
-      //   promise = ruleChainService.getRuleChain(entityId, config);
-      //   break;
-      // case types.entityType.alarm:
-      //   $log.error('Get Alarm Entity is not implemented!');
-      //   break;
+//TODO
+// case types.entityType.entityView:
+//   promise = entityViewService.getEntityView(entityId, true, config);
+//   break;
+// case types.entityType.tenant:
+//   promise = tenantService.getTenant(entityId, config);
+//   break;
+// case types.entityType.customer:
+//   promise = customerService.getCustomer(entityId, config);
+//   break;
+// case types.entityType.dashboard:
+//   promise = dashboardService.getDashboardInfo(entityId, config);
+//   break;
+// case types.entityType.user:
+//   promise = userService.getUser(entityId, true, config);
+//   break;
+// case types.entityType.rulechain:
+//   promise = ruleChainService.getRuleChain(entityId, config);
+//   break;
+// case types.entityType.alarm:
+//   $log.error('Get Alarm Entity is not implemented!');
+//   break;
       default:
-        // Future.error('entitiy type desteklenmiyor : $entityType');
+// Future.error('entitiy type desteklenmiyor : $entityType');
         throw Exception('entitiy type desteklenmiyor : $entityType');
         break;
     }
     return promise;
   }
 }
-
-enum AliasFilterType {
-  singleEntity,
-  entityList,
-  entityName,
-  stateEntity,
-  assetType,
-  deviceType,
-  entityViewType,
-  apiUsageState,
-  relationsQuery,
-  assetSearchQuery,
-  deviceSearchQuery,
-  entityViewSearchQuery
-}
-enum EntitySearchDirection { FROM, TO }

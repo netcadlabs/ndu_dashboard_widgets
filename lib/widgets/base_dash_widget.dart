@@ -23,7 +23,7 @@ import 'package:ndu_dashboard_widgets/widgets/socket/socket_models.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-typedef RowClickCallBack = Function(RowClick,EntityInfo);
+typedef RowClickCallBack = Function(RowClick, EntityInfo);
 
 // ignore: must_be_immutable
 abstract class BaseDashboardWidget extends StatefulWidget {
@@ -69,8 +69,8 @@ abstract class BaseDashboardWidget extends StatefulWidget {
     if (callBack != null) callBack();
   }
 
-  void runEntitiesTableCallBack(RowClick rowClick,EntityInfo config) {
-    if (entitiesTableCallBack != null) entitiesTableCallBack(rowClick,config);
+  void runEntitiesTableCallBack(RowClick rowClick, EntityInfo config) {
+    if (entitiesTableCallBack != null) entitiesTableCallBack(rowClick, config);
   }
 
   bool hasAnimation() {
@@ -112,8 +112,8 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
     widget.runCallBack();
   }
 
-  void stateCallBack(RowClick rowClick,var config) {
-    widget.runEntitiesTableCallBack(rowClick,config);
+  void stateCallBack(RowClick rowClick, var config) {
+    widget.runEntitiesTableCallBack(rowClick, config);
   }
 
   @override
@@ -189,7 +189,7 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
 
   Future<void> postFunc(Stream<SocketData> stream) async {
     await for (var value in stream) {
-      if (value.datas != null && value.datas.length > 0) {
+      if (value.datas != null && value.datas.length > 0 && value.datas[value.dataKeys.name]!=null) {
         String response = await evaluateDeviceValue(value.datas[value.dataKeys.name][0][1], value.dataKeys.postFuncBody);
         value.datas[value.dataKeys.name][0][1] = response;
         value = convertData(value);
@@ -234,6 +234,7 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
         }
 
         String subscriptionCommandJson = jsonEncode(subscriptionCommand);
+        print("startTargetDeviceAliasIdsSubscription $subscriptionCommandJson");
         widget.webSocketChannel.sink.add(subscriptionCommandJson);
       }
     }).catchError((err) {
@@ -332,24 +333,6 @@ abstract class BaseDashboardState<T extends BaseDashboardWidget> extends State<T
   Future<String> evaluateDeviceValue2(dynamic value, String parseValueFunction) async {
     String functionContent = "function f(value){$parseValueFunction} f($value)";
     return flutterWebViewPlugin.evalJavascript(functionContent);
-  }
-
-  Future<void> getAssetData(EntityAliases aliases)async {
-    AssetsApi api = AssetsApi();
-    FindByQueryBody body = FindByQueryBody(
-        parameters: Parameters(
-            rootId: aliases.filter.rootEntity.id,
-            rootType: aliases.filter.rootEntity.entityType,
-            direction: aliases.filter.direction,
-            fetchLastLevelOnly: aliases.filter.fetchLastLevelOnly,
-            maxLevel: aliases.filter.maxLevel),
-        assetTypes: aliases.filter.assetTypes,
-        relationType: aliases.filter.relationType);
-    var bodyString = json.encode(body);
-    api.findByQuery(bodyString).then((value) {
-      print("${value.body}");
-      return value.body;
-    });
   }
 }
 
