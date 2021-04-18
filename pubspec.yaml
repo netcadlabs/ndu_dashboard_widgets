@@ -26,8 +26,7 @@ dependencies:
   horizontal_data_table: ^2.5.1
   synchronized: ^2.2.0+2
   ndu_api_client:
-    git:
-      url: https://github.com/netcadlabs/ndu_api_flutter_client.git
+    path: ../ndu_api_flutter_client
 
 dev_dependencies:
   flutter_test:
