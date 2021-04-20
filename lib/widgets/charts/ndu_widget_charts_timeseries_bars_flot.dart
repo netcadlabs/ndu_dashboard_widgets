@@ -39,7 +39,7 @@ class _TimeSeriesBarsFlotWidgetState extends BaseDashboardState<TimeSeriesBarsFl
       widget.widgetConfig.config.datasources.forEach((dataSource) {
         dataSource.dataKeys.forEach((dataKey) {
           seriesList.add(new charts.Series<TimeSeriesGraphData, String>(
-            id: dataKey.name,
+            id: '${dataKey.name}${dataSource.entityAliasId}',
             displayName: dataKey.label,
             colorFn: (_, __) => charts.Color.fromHex(code: dataKey.color),
             domainFn: (TimeSeriesGraphData sales, _) => DatetimeUtils.getTime(sales.time),
@@ -95,16 +95,16 @@ class _TimeSeriesBarsFlotWidgetState extends BaseDashboardState<TimeSeriesBarsFl
         TimeSeriesGraphData tsData = TimeSeriesGraphData(DateTime.fromMillisecondsSinceEpoch(ts), val);
         tsDataList.add(tsData);
         // addDataToSeries(key, tsData);
-        addDataToSeriesList(key, tsDataList);
+        addDataToSeriesList(key, tsDataList,graphData.aliasId);
       });
     });
   }
-  void addDataToSeriesList(String key, List<TimeSeriesGraphData> tsData) {
+  void addDataToSeriesList(String key, List<TimeSeriesGraphData> tsData,aliasId) {
     int index = 0;
     int keyIndexInSeries = -1;
 
     seriesList.forEach((element) {
-      if (element.id == key) {
+      if (element.id == '$key$aliasId') {
         keyIndexInSeries = index;
       }
       index++;

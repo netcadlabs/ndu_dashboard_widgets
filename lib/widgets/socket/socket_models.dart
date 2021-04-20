@@ -3,8 +3,9 @@ import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 class SubscriptionCommandResult {
   SubscriptionCommand subscriptionCommand;
   Map<String, String> widgetCmdIds;
+  Map<String, String> aliasCmdIds;
 
-  SubscriptionCommandResult(this.subscriptionCommand, this.widgetCmdIds);
+  SubscriptionCommandResult(this.subscriptionCommand, this.widgetCmdIds,this.aliasCmdIds);
 }
 
 class SubscriptionCommand {
@@ -85,6 +86,7 @@ class AttrSubCmds {
 class TsSubCmds {
   String entityType;
   String entityId;
+  String aliasId;
   String keys;
   int cmdId;
   int endTs;

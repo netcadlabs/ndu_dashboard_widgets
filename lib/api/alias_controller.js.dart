@@ -179,8 +179,8 @@ class EntityService {
           result.entities = entitiesToEntitiesInfo([entity]);
           break;
         case 'entityList':
-          var entities = getEntities(filter.entityType, filter, null);
-          if (entities != null && entities.length || !failOnEmpty) {
+          var entities = await getEntities(filter.entityType, filter.entityList, null);
+          if (entities != null && entities.length > 0 || !failOnEmpty) {
             result.entities = entitiesToEntitiesInfo(entities);
           } else {
             throw Exception("entityList hatası.");
@@ -315,17 +315,17 @@ class EntityService {
     return entityToEntityInfo(entity);
   }
 
-  static dynamic getEntities(String entityType, entityIds, config) {
+  static dynamic getEntities(String entityType, List<dynamic> entityIds, config) async {
     var result;
     switch (entityType) {
       case "DEVICE":
         DeviceApi deviceApi = DeviceApi();
-        return null;
-        //result = deviceApi.getDeviceIds(entityType, entityIds);
+        //return null;
+        result = await deviceApi.getDeviceByIds(entityType, entityIds);
         break;
       case "ASSET":
         AssetsApi assetsApi = AssetsApi();
-        result = assetsApi.getAsset(entityIds);
+        result = await assetsApi.getAsset(entityIds);
         break;
       case "ENTITY_VIEW":
       case "TENANT":

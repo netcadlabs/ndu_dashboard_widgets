@@ -48,7 +48,7 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
         dataSourceKey = widget.widgetConfig.config.datasources[0].dataKeys[0].name;
         widget.widgetConfig.config.datasources.forEach((dataSource) {
           dataSource.dataKeys.forEach((dataKey) {
-            addNewSeries(dataKey, []);
+            addNewSeries(dataKey, [],dataSource.entityAliasId);
             legendList.add(charts.SeriesLegend(
                 position: position,
                 outsideJustification: charts.OutsideJustification.start,
@@ -62,9 +62,9 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
     }
   }
 
-  addNewSeries(DataKeys dataKey, List<TimeSeriesGraphData> data) {
+  addNewSeries(DataKeys dataKey, List<TimeSeriesGraphData> data,String aliasId) {
     seriesList.add(new charts.Series<TimeSeriesGraphData, DateTime>(
-      id: dataKey.name,
+      id: '${dataKey.name}$aliasId',
       displayName: dataKey.label,
       colorFn: (_, __) => charts.Color.fromHex(code: dataKey.color),
       seriesCategory: dataKey.color,
@@ -103,18 +103,17 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
         TimeSeriesGraphData tsData = TimeSeriesGraphData(DateTime.fromMillisecondsSinceEpoch(ts), val);
         tsDataList.add(tsData);
       });
-      addDataToSeriesList(key, tsDataList);
-      print("asdsad");
+      addDataToSeriesList(key, tsDataList,graphData.aliasId);
     });
 
   }
 
-  void addDataToSeriesList(String key, List<TimeSeriesGraphData> tsData) {
+  void addDataToSeriesList(String key, List<TimeSeriesGraphData> tsData,aliasId) {
     int index = 0;
     int keyIndexInSeries = -1;
 
     seriesList.forEach((element) {
-      if (element.id == key) {
+      if (element.id == '$key$aliasId') {
         keyIndexInSeries = index;
       }
       index++;

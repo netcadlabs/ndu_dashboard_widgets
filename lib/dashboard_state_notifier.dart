@@ -7,8 +7,12 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
 
   //SubscriptionId - Latest Data
   Map<String, Map<String, SocketData>> _latestData = {};
+
   //WidgetId - SubscriptionId
   Map<String, String> _widgetSubscriptionIds = {};
+
+  //SubscriptionId - AliasId
+  Map<String, String> _aliasSubscriptionIds = {};
 
   //getters
   // Map<String, dynamic> get latestData => _latestData;
@@ -31,16 +35,22 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
         if (!_latestData.containsKey(widgetId)) {
           _latestData[widgetId] = Map();
         }
-        _latestData[widgetId][subscriptionId] = SocketData(0, DateTime.now().millisecondsSinceEpoch, data, subscriptionId);
+        String aliasId ;
+        if (_aliasSubscriptionIds.containsKey(subscriptionId)) {
+          aliasId = _aliasSubscriptionIds[subscriptionId];
+        }
+        _latestData[widgetId][subscriptionId] = SocketData(0, DateTime.now().millisecondsSinceEpoch, data, subscriptionId, aliasId);
         notifyListeners();
       } catch (e) {
         print(e);
       }
     }
   }
-  void addEntityToProvider(){
+
+  void addEntityToProvider() {
     notifyListeners();
   }
+
   /// Makes `Counter` readable inside the devtools by listing all of its properties
   // @override
   // void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -52,6 +62,10 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
     _widgetSubscriptionIds.addAll(widgetCmdIds);
   }
 
+  void setAliasSubscriptionIds(Map<String, String> widgetCmdIds) {
+    _aliasSubscriptionIds.addAll(widgetCmdIds);
+  }
+
   void addSubscriptionIds(Map<String, List<String>> widgetCmdIds) {
     widgetCmdIds.forEach((key, value) {
       value.forEach((element) {
@@ -60,7 +74,19 @@ class DashboardStateNotifier with ChangeNotifier, DiagnosticableTreeMixin {
     });
   }
 
+  void addAliasSubscriptionIds(Map<String, List<String>> aliasCmdIds) {
+    aliasCmdIds.forEach((key, value) {
+      value.forEach((element) {
+        _aliasSubscriptionIds.putIfAbsent(element, () => key);
+      });
+    });
+  }
+
   void addSubscriptionId(String widgetId, String cmdId) {
     _widgetSubscriptionIds[cmdId] = widgetId;
+  }
+
+  void addAliasSubscriptionId(String aliasId, String cmdId) {
+    _aliasSubscriptionIds[cmdId] = aliasId;
   }
 }

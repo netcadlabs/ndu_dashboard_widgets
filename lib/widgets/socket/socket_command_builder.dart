@@ -33,6 +33,7 @@ class SocketCommandBuilder {
   Future<SubscriptionCommandResult> build() async {
     SubscriptionCommand subscriptionCommand = SubscriptionCommand();
     Map<String, String> widgetCmdIds = Map();
+    Map<String, String> aliasCmdIds = Map();
 
     try {
        DashboardDetailConfiguration dashConfig = _dashboardDetail.dashboardConfiguration;
@@ -54,6 +55,7 @@ class SocketCommandBuilder {
             subCmdsList.forEach((subCmd) {
               if(subCmd.keys=="" || subCmd.keys==null) return;
               widgetCmdIds[commandId.toString()] = widgetConfig.id;
+              aliasCmdIds[commandId.toString()] = subCmd.aliasId;
               subCmd.cmdId = commandId;
               _subscriptionDataSources["$commandId"] = subCmd.datasource;
               commandId++;
@@ -83,7 +85,7 @@ class SocketCommandBuilder {
       throw Exception('Build error : ${err.toString()}');
     }
 
-    return SubscriptionCommandResult(subscriptionCommand, widgetCmdIds);
+    return SubscriptionCommandResult(subscriptionCommand, widgetCmdIds,aliasCmdIds);
   }
 
   Future<List<Datasources>> resolveDataSourceList(List<Datasources> dataSourceList) async {
@@ -110,6 +112,7 @@ class SocketCommandBuilder {
       //TODO - TsSubCmds
       TsSubCmds tsSubCommands = TsSubCmds(entityId: dataSource.entityId, entityType: dataSource.entityType, datasource: dataSource);
       String label = "";
+      tsSubCommands.aliasId=dataSource.entityAliasId;
       dataSource.dataKeys?.forEach((element) {
         if(element.type!="entityField"){
           label += '${element.name},';
