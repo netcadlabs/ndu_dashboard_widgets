@@ -104,7 +104,9 @@ class _BasicTimeseriesChartWidgetState extends BaseDashboardState<BasicTimeserie
         tsDataList.add(tsData);
       });
       addDataToSeriesList(key, tsDataList);
+      print("asdsad");
     });
+
   }
 
   void addDataToSeriesList(String key, List<TimeSeriesGraphData> tsData) {

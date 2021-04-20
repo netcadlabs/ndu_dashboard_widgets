@@ -320,7 +320,8 @@ class EntityService {
     switch (entityType) {
       case "DEVICE":
         DeviceApi deviceApi = DeviceApi();
-        result = deviceApi.getDeviceIds(entityType, entityIds);
+        return null;
+        //result = deviceApi.getDeviceIds(entityType, entityIds);
         break;
       case "ASSET":
         AssetsApi assetsApi = AssetsApi();
