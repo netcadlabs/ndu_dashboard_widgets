@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:ndu_api_client/models/dashboards/dashboard_detail_model.dart';
 import 'package:ndu_api_client/models/dashboards/widget_config.dart';
 import 'package:ndu_dashboard_widgets/api/alias_controller.js.dart';
@@ -11,7 +10,6 @@ import 'package:ndu_dashboard_widgets/widgets/controls/control_rpc_button.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/control_switch_button.dart';
 import 'package:ndu_dashboard_widgets/widgets/controls/ndu_control_slider.dart';
 import 'package:ndu_dashboard_widgets/widgets/digital_gauges/gauge_justgage.dart';
-import 'package:ndu_dashboard_widgets/widgets/no_data_widget.dart';
 import 'package:ndu_dashboard_widgets/widgets/socket/socket_command_builder.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
@@ -31,7 +29,9 @@ class DashboardWidgetHelper {
     if (widgetConfig != null) {
       if (widgetConfig.bundleAlias == "cards") {
         if (widgetConfig.typeAlias == "simple_card") {
-          baseDashboardWidget = SimpleCardWidget(widgetConfig,);
+          baseDashboardWidget = SimpleCardWidget(
+            widgetConfig,
+          );
         } else if (widgetConfig.typeAlias == "label_widget") {
           baseDashboardWidget = LabelCardWidget(widgetConfig);
         } else if (widgetConfig.typeAlias == "entity_icon") {
@@ -46,6 +46,8 @@ class DashboardWidgetHelper {
           baseDashboardWidget = BasicTimeseriesChart(widgetConfig);
         } else if (widgetConfig.typeAlias == "timeseries_bars_flot") {
           baseDashboardWidget = TimeSeriesBarsFlot(widgetConfig);
+        } else if (widgetConfig.typeAlias == "pie") {
+          baseDashboardWidget = PieChart(widgetConfig);
         }
       } else if (widgetConfig.bundleAlias == "control_widgets") {
         if (widgetConfig.typeAlias == "update_attributes") {

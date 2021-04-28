@@ -63,7 +63,8 @@ class SocketCommandBuilder {
                 AttrSubCmds attrSubCmds =
                     AttrSubCmds(entityType: subCmd.entityType, entityId: subCmd.entityId, keys: subCmd.keys, cmdId: subCmd.cmdId);
                 subscriptionCommand.attrSubCmds.add(attrSubCmds);
-              } else if (subCmd.endTs != null) {
+              }
+              else if (subCmd.endTs != null) {
                 HistoryCmds historyCmds = HistoryCmds(
                     agg: subCmd.agg,
                     cmdId: subCmd.cmdId,

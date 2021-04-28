@@ -6,6 +6,7 @@ class WidgetHelperList {
     "base64_viewer",
     "entities_table",
     "basic_timeseries",
+    "pie",
     "timeseries_bars_flot",
     "update_attributes",
     "rpcbutton",
