@@ -20,10 +20,11 @@ dependencies:
   flutter_webview_plugin: ^0.3.11
   web_socket_channel: 1.1.0
   timeago: ^2.0.29
+  webview_flutter: ^1.0.7
   sleek_circular_slider: ^1.2.0+web
   syncfusion_flutter_gauges: ^18.4.33
   flutter_svg: 0.19.1
-  horizontal_data_table: ^2.5.1
+  horizontal_data_table: ^1.0.8
   synchronized: ^2.2.0+2
   ndu_api_client:
     path: ../ndu_api_flutter_client

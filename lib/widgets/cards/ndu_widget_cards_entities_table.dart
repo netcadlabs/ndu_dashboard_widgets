@@ -108,7 +108,6 @@ class _EntitiesTableWidgetState extends BaseDashboardState<EntitiesTableWidget> 
             isFixedHeader: true,
             headerWidgets: _getTitleWidget(),
             leftSideItemBuilder: _generateFirstColumnRow,
-            refreshIndicator: WaterDropHeader(),
             rightSideItemBuilder: _generateRightHandSideColumnRow,
             itemCount: rowMap.length,
             rowSeparatorWidget: const Divider(
